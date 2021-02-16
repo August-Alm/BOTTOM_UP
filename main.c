@@ -14,13 +14,13 @@ int main(int argc, char *argv[])
     if (fp) {
         heap_setup();
         
-        struct node nd1 = parse_node(fp);
-        fprintf_node(stdout, nd1); printf("\n");
+        struct node nd = parse_node(fp);
+        fprintf_node(stdout, nd); printf("\n");
 
-        normalize(nd1);
-        
+        normalize_wh(nd);
+
         printf("\nAfter normalization:\n");
-        fprintf_node(stdout, nd1);
+        fprintf_node(stdout, nd);
 
 
         memory_free();

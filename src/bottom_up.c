@@ -25,7 +25,7 @@ struct node new_lam(struct var *oldvar, struct node bod)
     if (!l) { memory_free(); }
     l->var = newvar;
     l->bod = bod;
-    add_uplink_to(bod, l->bod_uplink);
+    add_uplink_to(bod, &(l->bod_uplink));
     struct node oldnd = (struct node) { .term = oldvar };
     upcopy_uplinks(oldnd, oldvar->uplinks);
     return (struct node) { .term = l };
@@ -44,21 +44,29 @@ struct node new_app(struct node fun, struct node arg)
 
 void clean_up(struct uplink_dll *uplink)
 {
-    if (uplink->kind == BOD_UPLINK) {
-        struct lam *l = LAM_OF(uplink);
+    int kind = uplink->kind;
+
+    if (kind == BOD_UPLINK) {
+        struct lam *l = LAM_OF_BOD(uplink);
         foreach_uplink(clean_up, l->uplinks);
         foreach_uplink(clean_up, l->var->uplinks);
         l->uplinks = NULL;
         l->var->uplinks = NULL;
         return;
     }
-    struct app *cpy = APP_OF(uplink)->cache;
+    struct app *cpy;
+    if (kind == FUN_UPLINK) {
+        cpy = APP_OF_FUN(uplink)->cache;
+    }
+    else {
+        cpy = APP_OF_ARG(uplink)->cache;
+    }
     if (cpy) {
         struct node fun = cpy->fun;
         struct node arg = cpy->arg;
         struct uplink_dll *uplinks = cpy->uplinks;
-        add_uplink_to(fun, cpy->fun_uplink);
-        add_uplink_to(arg, cpy->arg_uplink);
+        add_uplink_to(fun, &(cpy->fun_uplink));
+        add_uplink_to(arg, &(cpy->arg_uplink));
         cpy = NULL;
         foreach_uplink(clean_up, uplinks);
         uplinks = NULL;
@@ -82,10 +90,8 @@ void clean_caches(struct lam *redlam, struct app *topapp)
     struct node fun = topapp->fun;
     struct node arg = topapp->arg;
     
-    struct uplink_dll fun_uplk = topapp->fun_uplink;
-    struct uplink_dll arg_uplk = topapp->arg_uplink;
-    add_uplink_to(fun, fun_uplk);
-    add_uplink_to(arg, arg_uplk);
+    add_uplink_to(fun, &(topapp->fun_uplink));
+    add_uplink_to(arg, &(topapp->arg_uplink));
     
     topapp->cache = NULL;
 
@@ -99,13 +105,13 @@ void install_child(struct node child, struct uplink_dll *parent)
 {
     switch (parent->kind) {
     case BOD_UPLINK:
-        LAM_OF(parent)->bod = child;
+        LAM_OF_BOD(parent)->bod = child;
         break;
     case FUN_UPLINK:
-        APP_OF(parent)->fun = child;
+        APP_OF_FUN(parent)->fun = child;
         break;
     case ARG_UPLINK:
-        APP_OF(parent)->arg = child;
+        APP_OF_ARG(parent)->arg = child;
         break;
     }
 }
@@ -189,12 +195,12 @@ void upcopy(struct node newchild, struct uplink_dll *uplink)
 
     switch (uplink->kind) {
     case BOD_UPLINK:
-        l = LAM_OF(uplink);
+        l = LAM_OF_BOD(uplink);
         new = new_lam(l->var, newchild);
         upcopy_uplinks(new, l->uplinks);
         break;
     case FUN_UPLINK:
-        a = APP_OF(uplink);
+        a = APP_OF_FUN(uplink);
         if (a->cache) {
             a->cache->fun = newchild;
         }
@@ -205,7 +211,7 @@ void upcopy(struct node newchild, struct uplink_dll *uplink)
         }
         break;
     case ARG_UPLINK:
-        a = APP_OF(uplink);
+        a = APP_OF_ARG(uplink);
         if (a->cache) {
             a->cache->arg = newchild;
         }

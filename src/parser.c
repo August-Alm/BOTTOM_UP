@@ -110,7 +110,7 @@ struct node mk_lam(struct var *x, struct node bod)
     if (!l) { printf("failed lam_halloc\n"); }
     l->var = x;
     l->bod = bod;
-    add_uplink_to(bod, l->bod_uplink);
+    add_uplink_to(bod, &(l->bod_uplink));
     return (struct node) { .term = l };
 }
 
@@ -120,8 +120,8 @@ struct node mk_app(struct node fun, struct node arg)
     if (!a) { printf("failed app_halloc.\n"); }
     a->fun = fun;
     a->arg = arg;
-    add_uplink_to(fun, a->fun_uplink);
-    add_uplink_to(arg, a->arg_uplink);
+    add_uplink_to(fun, &(a->fun_uplink));
+    add_uplink_to(arg, &(a->arg_uplink));
     return (struct node) { .term = a };
 }
 

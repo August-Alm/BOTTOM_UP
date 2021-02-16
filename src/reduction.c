@@ -2,6 +2,21 @@
 
 #include <stddef.h>
 #include "reduction.h"
+#include<stdio.h>
+
+/* ***** ***** */
+
+#define POP(data, stack) do { \
+    data = (*stack)->current; \
+    *stack = (*stack)->next;  \
+} while(0)
+
+#define PUSH(data, stack) do { \
+    *stack = &(struct sll) {   \
+        .next = *stack,        \
+        .current = data        \
+    };                         \
+} while(0)
 
 /* ***** ***** */
 
@@ -30,6 +45,7 @@ void scan_down(struct node nd, struct app *app,
 struct node reduce(struct app *app)
 {
     if (KIND(app->fun) != LAM_NODE) {
+        printf("This is irreducible.\n");
         return (struct node) { .term = NULL };
     }
     struct lam *funlam = LAM(app->fun);
@@ -58,6 +74,7 @@ struct node reduce(struct app *app)
 
 void normalize_wh(struct node nd)
 {
+    if (!nd.term) { return; }
     int kind = KIND(nd);
     if (kind == APP_NODE) {
         normalize_wh(APP(nd)->fun);
@@ -67,8 +84,40 @@ void normalize_wh(struct node nd)
     }
 }
 
+//void normalize_wh(struct node node)
+//{
+//    struct sll { struct sll *next; struct node current; };
+//    struct sll init = { NULL, node };
+//    struct sll *pinit = &init;
+//    struct sll **stack = &pinit;
+//
+//    struct node nd;
+//
+//    while (*stack) {
+//        POP(nd, stack);
+//        int kind = KIND(nd);
+//        if (kind != APP_NODE) {
+//            continue;
+//        }
+//        struct app *app = APP(nd);
+//        struct node fun = app->fun;
+//        while (KIND(fun) == APP_NODE && (APP(fun)->fun).term) {
+//            app = APP(fun);
+//            fun = app->fun;
+//        }
+//        if (kind == LAM_NODE) {
+//            PUSH(reduce(app), stack);
+//        }
+//    }
+//}
+
 void normalize(struct node nd)
 {
+    if (!nd.term) {
+        printf("Should not happen.\n");
+        return;
+    }
+    
     switch (KIND(nd)) {
 
     case VAR_NODE:

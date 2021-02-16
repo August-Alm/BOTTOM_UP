@@ -16,13 +16,13 @@ struct node {
     void* term;
 };
 
-#define VAR_NODE 0
-#define LAM_NODE 1
-#define APP_NODE 2
+#define VAR_NODE 1
+#define LAM_NODE 2
+#define APP_NODE 3
 
-#define KIND(node)                                     \
-    *(int*)(node.term) == -1 ? VAR_NODE :              \
-        *(int*)(node.term) == 0 ? LAM_NODE : APP_NODE  \
+#define KIND(node)                                      \
+    (*(int*)(node.term) == -1 ? VAR_NODE :              \
+        *(int*)(node.term) == 1 ? LAM_NODE : APP_NODE)  \
 
 #define VAR(node) ((struct var*)node.term)
 #define LAM(node) ((struct lam*)node.term)
@@ -41,9 +41,9 @@ struct uplink_dll {
     struct uplink_dll *prev;
 };
 
-#define BOD_UPLINK 0
-#define FUN_UPLINK 1
-#define ARG_UPLINK 2
+#define BOD_UPLINK 1
+#define FUN_UPLINK 2
+#define ARG_UPLINK 3
 
 /* ***** ***** */
 
