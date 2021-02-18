@@ -5,33 +5,32 @@
 
 /* ***** ***** */
 
-//#include "types.h"
-//#include "uplinks.h"
+#include "varnames.h"
 #include "dag.h"
 
 /* ***** ***** */
 
 struct var *new_var(char *name);
 
-struct node new_lam(struct var *oldvar, struct node bod);
+struct term new_lam(struct var *oldvar, struct term bod);
 
-struct node new_app(struct node fun, struct node arg);
+struct term new_app(struct term fun, struct term arg);
 
 /* ***** ***** */
 
-void replace_child(struct node newchild, struct uplink_dll *oldpars);
+void replace_child(struct term newchild, struct uplink_list oldpars);
 
-void clean_up(struct uplink_dll *uplink);
+void clean_up(struct uplink *uplk);
 
 void clean_caches(struct lam *redlam, struct app *topapp);
 
-void clear_dead_node(struct node node);
+void clear_dead_term(struct term t);
 
 /* ***** ***** */
 
-void upcopy(struct node newvar, struct uplink_dll *uplink);
+void upcopy(struct term newt, struct uplink *uplk);
 
-void upcopy_uplinks(struct node new, struct uplink_dll *uplinks);
+void upcopy_uplinks(struct term newt, struct uplink_list uplinks);
 
 /* ***** ***** */
 

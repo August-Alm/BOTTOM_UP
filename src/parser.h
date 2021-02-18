@@ -6,13 +6,12 @@
 /* ***** ***** */
 
 #include "bottom_up.h"
-#include "hmap.h"
 
 /* ***** ***** */
 
-void fprintf_node(FILE *out, struct node nd);
+void fprintf_term(FILE *out, struct term t);
 
-struct node parse_node(FILE *inp, struct hmap *h);
+struct term parse_term(FILE *inp);
 
 /* ***** ***** */
 

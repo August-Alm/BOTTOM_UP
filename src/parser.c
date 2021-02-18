@@ -9,24 +9,24 @@
 
 /* ***** ***** */
 
-void fprintf_node(FILE *out, struct node nd)
+void fprintf_term(FILE *out, struct term t)
 {
-    if (!nd.term) {
+    if (!t.ptr) {
         fprintf(out, "`NULL`-term.");
     }
-    switch (KIND(nd)) {
-    case VAR_NODE:
-        fprintf(out, "%s", VAR(nd)->name);
+    switch (KIND(t)) {
+    case VAR_TERM:
+        fprintf(out, "%s", VAR(t)->name);
         break;
-    case LAM_NODE:
-        fprintf(out, "\\%s.", LAM(nd)->var->name);
-        fprintf_node(out, LAM(nd)->bod);
+    case LAM_TERM:
+        fprintf(out, "\\%s.", LAM(t)->var->name);
+        fprintf_term(out, LAM(t)->bod);
         break;
-    case APP_NODE:
+    case APP_TERM:
         fprintf(out, "(");
-        fprintf_node(out, APP(nd)->fun);
+        fprintf_term(out, APP(t)->fun);
         fprintf(out, " ");
-        fprintf_node(out, APP(nd)->arg);
+        fprintf_term(out, APP(t)->arg);
         fprintf(out, ")");
         break;
     }
@@ -97,36 +97,36 @@ void parse_whitespace(FILE *inp)
 
 /* ***** ***** */
 
-const struct node null_node = { .term = NULL };
+const struct term null_term = { .ptr = NULL };
 
 #define MALCHECKP(s) if(!s) {                              \
     fprintf(stderr, "Malloc failed at line %d in `%s`.\n"  \
                   , __LINE__, __FUNCTION__);               \
-    return null_node;                                      \
+    return null_term;                                      \
 }                                                          \
 
-struct node mk_lam(struct var *x, struct node bod)
+struct term mk_lam(struct var *x, struct term bod)
 {
     struct lam *l = lam_halloc();
-    if (!l) { printf("failed lam_halloc\n"); }
+    if (!l) { printf("Failed lam_halloc.\n"); }
     l->var = x;
     l->bod = bod;
     add_uplink_to(bod, &(l->bod_uplink));
-    return (struct node) { .term = l };
+    return (struct term) { .ptr = l };
 }
 
-struct node mk_app(struct node fun, struct node arg)
+struct term mk_app(struct term fun, struct term arg)
 {
     struct app *a = app_halloc();
-    if (!a) { printf("failed app_halloc.\n"); }
+    if (!a) { printf("Failed app_halloc.\n"); }
     a->fun = fun;
     a->arg = arg;
     add_uplink_to(fun, &(a->fun_uplink));
     add_uplink_to(arg, &(a->arg_uplink));
-    return (struct node) { .term = a };
+    return (struct term) { .ptr = a };
 }
 
-struct node parse_node(FILE *inp, struct hmap *h)
+struct term parse_term(FILE *inp)
 {
     parse_whitespace(inp);
     char c = fgetc(inp);
@@ -135,32 +135,32 @@ struct node parse_node(FILE *inp, struct hmap *h)
         MALCHECKP(name);
         if (!parse_var(inp, name, 16)) {
             free(name);
-            return null_node;
+            return null_term;
         }
         if (!parse_char(inp, '.')) {
             free(name);
-            return null_node;
+            return null_term;
         }
         struct var *x = var_halloc();
         if (!x) {
             free(name);
             memory_free();
         }
-        if (!hmap_lookup(h, name, &x)) {
+        if (!varnames_lookup(name, &x)) {
             x->name = name;
-            hmap_add(h, name, x);    
+            varnames_add(name, x);    
         }
-        struct node body = parse_node(inp, h);
-        if (!body.term) { return null_node; }
+        struct term body = parse_term(inp);
+        if (!body.ptr) { return null_term; }
         return mk_lam(x, body);
     }
     if (c == '(') {
-        struct node function = parse_node(inp, h);
-        if (!function.term) { return null_node; }
-        struct node argument = parse_node(inp, h);
-        if (!argument.term) { return null_node; }
-        if (!parse_char(inp, ')')) { return null_node; }
-        struct node application = mk_app(function, argument);
+        struct term function = parse_term(inp);
+        if (!function.ptr) { return null_term; }
+        struct term argument = parse_term(inp);
+        if (!argument.ptr) { return null_term; }
+        if (!parse_char(inp, ')')) { return null_term; }
+        struct term application = mk_app(function, argument);
         return application;
     }
     ungetc(c, inp);
@@ -168,16 +168,16 @@ struct node parse_node(FILE *inp, struct hmap *h)
     MALCHECKP(name);
     if (!parse_var(inp, name, 16)) {
         free(name);
-        return null_node;
+        return null_term;
     }
     struct var *x = var_halloc();
     if (!x) {
         free(name);
         memory_free();
     }
-    if (!hmap_lookup(h, name, &x)) {
+    if (!varnames_lookup(name, &x)) {
         x->name = name;
-        hmap_add(h, name, x);    
+        varnames_add(name, x);    
     }
-    return (struct node) { .term = x };
+    return (struct term) { .ptr = x };
 }

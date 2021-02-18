@@ -33,9 +33,6 @@ int top_lam_cleared;
 struct app **app_cleared;
 int top_app_cleared;
 
-char** names;
-int idx_names;
-
 /* ***** ***** */
 
 void heap_setup()
@@ -54,10 +51,6 @@ void heap_setup()
     top_var_cleared = -1;
     top_lam_cleared = -1;
     top_app_cleared = -1;
-
-    names = malloc(sizeof(char*) * VAR_MAX);
-    MALCHECKERR(names);
-    idx_names = 0;
 }
 
 void memory_clear()
@@ -74,24 +67,6 @@ void memory_free()
     free(var_cleared);
     free(lam_cleared); 
     free(app_cleared);
-    for (int i = 0; i < idx_names; ++i) {
-        printf("freeing %s.\n", names[i]);
-        //free(names[i]);
-    }
-    free(names);
-}
-
-/* ***** ***** */
-
-void store_name(char *name)
-{
-    if (idx_names == VAR_MAX) {
-        fprintf(stderr, "`names` full.\n");
-        free(name);
-        memory_free();
-        exit(EXIT_FAILURE);
-    }
-    names[idx_names++] = name;
 }
 
 /* ***** ***** */
@@ -103,7 +78,7 @@ struct var *var_halloc()
             struct var *x = (struct var*)&heap[idx_heap];
             idx_heap += sizeof(struct var);
             x->minus_one = -1;
-            x->uplinks = NULL;
+            x->uplinks.head = NULL;
             return x;
         }
         fprintf(stderr, "`heap` full.\n");
@@ -132,12 +107,12 @@ struct lam *lam_halloc()
         if (idx_heap < HEAP_MAX - sizeof(struct lam)) {
             struct lam *l = (struct lam*)&heap[idx_heap];
             idx_heap += sizeof(struct lam);
-            l->bod_uplink = (struct uplink_dll) {
+            l->bod_uplink = (struct uplink) {
                 .kind = BOD_UPLINK,
                 .next = NULL,
                 .prev = NULL
             };
-            l->uplinks = NULL;
+            l->uplinks.head = NULL;
             return l;
         }
         fprintf(stderr, "`heap` full.\n");
@@ -167,18 +142,18 @@ struct app *app_halloc()
         if (idx_heap < HEAP_MAX - sizeof(struct app)) {
             struct app *a = (struct app*)&heap[idx_heap];
             idx_heap += sizeof(struct app);
-            a->fun_uplink = (struct uplink_dll) {
+            a->fun_uplink = (struct uplink) {
                 .kind = FUN_UPLINK,
                 .next = NULL,
                 .prev = NULL
             };
-            a->arg_uplink = (struct uplink_dll) {
+            a->arg_uplink = (struct uplink) {
                 .kind = ARG_UPLINK,
                 .next = NULL,
                 .prev = NULL
             };
             a->cache = NULL;
-            a->uplinks = NULL;
+            a->uplinks.head = NULL;
             return a;
         }
         fprintf(stderr, "`heap` full.\n");

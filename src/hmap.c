@@ -75,7 +75,7 @@ bool hmap_lookup(struct hmap *h, char *key, struct var **val)
 	uint64_t index = hash_func(h, key);
 	uint64_t start = index;
 
-	while (!strcmp(h->buckets[index]->key, key)) {//(!fast_strcmp(h->buckets[index]->key, key, STRLEN)){
+	while (!h->buckets[index]->key || !fast_strcmp(h->buckets[index]->key, key, STRLEN)){
 		index = (index + 1) % h->size;
 		if (index == start) {
 			return false;
@@ -89,7 +89,7 @@ void hmap_swap_val(struct hmap *h, char *key, struct var *new)
 {
 	uint64_t index = hash_func(h, key);
 	uint64_t start = index;
-	while (!strcmp(h->buckets[index]->key, key)) {//(!fast_strcmp(h->buckets[index]->key, key, STRLEN)) {
+	while (!h->buckets[index]->key || !fast_strcmp(h->buckets[index]->key, key, STRLEN)) {
 		index = (index + 1) % h->size;
 		if (index == start) {
 			NOTP(key);

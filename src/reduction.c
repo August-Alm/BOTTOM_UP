@@ -21,44 +21,44 @@
 /* ***** ***** */
 
 static inline
-void scan_down(struct node nd, struct app *app,
-               struct node *l, struct app **a)
+void scan_down(struct term t, struct app *app,
+               struct term *l, struct app **a)
 {
-    switch (KIND(nd)) {
-    case VAR_NODE:
+    switch (KIND(t)) {
+    case VAR_TERM:
         *l = app->arg;
         *a = NULL;
         break;
-    case LAM_NODE:
-        scan_down(LAM(nd)->bod, app, l, a);
-        *l = new_lam(LAM(nd)->var, *l);
+    case LAM_TERM:
+        scan_down(LAM(t)->bod, app, l, a);
+        *l = new_lam(LAM(t)->var, *l);
         break;
-    case APP_NODE:
-        *l = new_app(APP(nd)->fun, APP(nd)->arg);
-        APP(nd)->cache = APP((*l));
+    case APP_TERM:
+        *l = new_app(APP(t)->fun, APP(t)->arg);
+        APP(t)->cache = APP((*l));
         upcopy_uplinks(app->arg, LAM(app->fun)->var->uplinks);
-        *a = APP(nd);
+        *a = APP(t);
         break;
     }
 }
 
-struct node reduce(struct app *app)
+struct term reduce(struct app *app)
 {
-    if (KIND(app->fun) != LAM_NODE) {
+    if (KIND(app->fun) != LAM_TERM) {
         printf("This is irreducible.\n");
-        return (struct node) { .term = NULL };
+        return (struct term) { .ptr = NULL };
     }
     struct lam *funlam = LAM(app->fun);
-    struct uplink_dll *funuplks = funlam->uplinks;
-    struct uplink_dll *varuplks = funlam->var->uplinks;
+    struct uplink_list funuplks = funlam->uplinks;
+    struct uplink_list varuplks = funlam->var->uplinks;
     
-    struct node ans;
+    struct term ans;
     
     if (is_length1(funuplks)) {
         replace_child(app->arg, funuplks);
         ans = funlam->bod;
     }
-    else if (!varuplks) {
+    else if (!varuplks.head) {
         ans = funlam->bod;
     }
 
@@ -68,18 +68,18 @@ struct node reduce(struct app *app)
         clean_caches(funlam, topapp);
     }
     replace_child(ans, app->uplinks);
-    clear_dead_node((struct node) { .term = app });
+    clear_dead_term((struct term) { .ptr = app });
     return ans;
 }
 
-void normalize_wh(struct node nd)
+void normalize_wh(struct term t)
 {
-    if (!nd.term) { return; }
-    int kind = KIND(nd);
-    if (kind == APP_NODE) {
-        normalize_wh(APP(nd)->fun);
-        if (KIND(APP(nd)->fun) == LAM_NODE) {
-            normalize_wh(reduce(APP(nd)));
+    if (!t.ptr) { return; }
+    int kind = KIND(t);
+    if (kind == APP_TERM) {
+        normalize_wh(APP(t)->fun);
+        if (KIND(APP(t)->fun) == LAM_TERM) {
+            normalize_wh(reduce(APP(t)));
         }
     }
 }
@@ -111,35 +111,35 @@ void normalize_wh(struct node nd)
 //    }
 //}
 
-void normalize(struct node nd)
+void normalize(struct term t)
 {
-    if (!nd.term) {
+    if (!t.ptr) {
         printf("Should not happen.\n");
         return;
     }
     
-    switch (KIND(nd)) {
+    switch (KIND(t)) {
 
-    case VAR_NODE:
+    case VAR_TERM:
         break;
     
-    case LAM_NODE:
-        normalize(LAM(nd)->bod);
+    case LAM_TERM:
+        normalize(LAM(t)->bod);
         break;
 
-    case APP_NODE:
-        normalize_wh(APP(nd)->fun);
+    case APP_TERM:
+        normalize_wh(APP(t)->fun);
         
-        switch (KIND(APP(nd)->fun)) {
-        case VAR_NODE:
-            normalize(APP(nd)->arg);
+        switch (KIND(APP(t)->fun)) {
+        case VAR_TERM:
+            normalize(APP(t)->arg);
             break;
-        case LAM_NODE:
-            normalize(reduce(APP(nd)));
+        case LAM_TERM:
+            normalize(reduce(APP(t)));
             break;
-        case APP_NODE:
-            normalize(APP(nd)->fun);
-            normalize(APP(nd)->arg);
+        case APP_TERM:
+            normalize(APP(t)->fun);
+            normalize(APP(t)->arg);
             break;
         }
     }

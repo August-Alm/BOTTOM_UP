@@ -14,19 +14,19 @@ int main(int argc, char *argv[])
     FILE *fp = fopen(argv[1], "r");
     if (fp) {
         heap_setup();
-        struct hmap *h = hmap_create();
+        varnames_init();
         
-        struct node nd = parse_node(fp, h);
-        fprintf_node(stdout, nd); printf("\n");
+        struct term t = parse_term(fp);
+        fprintf_term(stdout, t); printf("\n");
 
-        normalize_wh(nd);
+        normalize_wh(t);
 
         printf("\nAfter normalization:\n");
-        fprintf_node(stdout, nd);
+        fprintf_term(stdout, t);
 
 
         memory_free();
-        hmap_free(h);
+        varnames_free();
         fclose(fp);
     }
     else {

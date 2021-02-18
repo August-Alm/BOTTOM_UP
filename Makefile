@@ -9,6 +9,7 @@ OBJ =	\
 	obj/reduction.o\
 	obj/parser.o\
 	obj/hmap.o\
+	obj/varnames.o\
 
 #-std=c11 
 CFLAGS = -Wall -g

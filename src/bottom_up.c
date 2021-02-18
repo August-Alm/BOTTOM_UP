@@ -13,12 +13,12 @@ struct var *new_var(char *name)
         free(name);
         memory_free();
     }
-    store_name(name);
     x->name = name;
+    varnames_add(name, x);
     return x;
 }
 
-struct node new_lam(struct var *oldvar, struct node bod)
+struct term new_lam(struct var *oldvar, struct term bod)
 {
     struct var *newvar = new_var(oldvar->name);
     struct lam *l = lam_halloc();
@@ -26,23 +26,23 @@ struct node new_lam(struct var *oldvar, struct node bod)
     l->var = newvar;
     l->bod = bod;
     add_uplink_to(bod, &(l->bod_uplink));
-    struct node oldnd = (struct node) { .term = oldvar };
-    upcopy_uplinks(oldnd, oldvar->uplinks);
-    return (struct node) { .term = l };
+    struct term oldt = (struct term) { .ptr = oldvar };
+    upcopy_uplinks(oldt, oldvar->uplinks);
+    return (struct term) { .ptr = l };
 }
 
-struct node new_app(struct node fun, struct node arg)
+struct term new_app(struct term fun, struct term arg)
 {
     struct app *a = app_halloc();
     if (!a) { memory_free(); }
     a->fun = fun;
     a->arg = arg;
-    return (struct node) { .term = a };
+    return (struct term) { .ptr = a };
 }
 
 /* ***** ***** */
 
-void clean_up(struct uplink_dll *uplink)
+void clean_up(struct uplink *uplink)
 {
     int kind = uplink->kind;
 
@@ -50,8 +50,8 @@ void clean_up(struct uplink_dll *uplink)
         struct lam *l = LAM_OF_BOD(uplink);
         foreach_uplink(clean_up, l->uplinks);
         foreach_uplink(clean_up, l->var->uplinks);
-        l->uplinks = NULL;
-        l->var->uplinks = NULL;
+        l->uplinks.head = NULL;
+        l->var->uplinks.head = NULL;
         return;
     }
     struct app *cpy;
@@ -62,24 +62,24 @@ void clean_up(struct uplink_dll *uplink)
         cpy = APP_OF_ARG(uplink)->cache;
     }
     if (cpy) {
-        struct node fun = cpy->fun;
-        struct node arg = cpy->arg;
-        struct uplink_dll *uplinks = cpy->uplinks;
+        struct term fun = cpy->fun;
+        struct term arg = cpy->arg;
+        struct uplink_list uplinks = cpy->uplinks;
         add_uplink_to(fun, &(cpy->fun_uplink));
         add_uplink_to(arg, &(cpy->arg_uplink));
         cpy = NULL;
         foreach_uplink(clean_up, uplinks);
-        uplinks = NULL;
+        uplinks.head = NULL;
     } 
 }
 
 void lambda_scan(struct lam *l)
 {
-    struct node bod = l->bod;
-    if (bod.term) {
+    struct term bod = l->bod;
+    if (bod.ptr) {
         foreach_uplink(clean_up, l->var->uplinks);
-        l->var->uplinks = NULL;
-        if (KIND(bod) == LAM_NODE) {
+        l->var->uplinks.head = NULL;
+        if (KIND(bod) == LAM_TERM) {
             lambda_scan(LAM(bod));
         }
     }
@@ -87,8 +87,8 @@ void lambda_scan(struct lam *l)
 
 void clean_caches(struct lam *redlam, struct app *topapp)
 {
-    struct node fun = topapp->fun;
-    struct node arg = topapp->arg;
+    struct term fun = topapp->fun;
+    struct term arg = topapp->arg;
     
     add_uplink_to(fun, &(topapp->fun_uplink));
     add_uplink_to(arg, &(topapp->arg_uplink));
@@ -101,7 +101,7 @@ void clean_caches(struct lam *redlam, struct app *topapp)
 /* ***** ***** */
 
 static inline
-void install_child(struct node child, struct uplink_dll *parent)
+void install_child(struct term child, struct uplink *parent)
 {
     switch (parent->kind) {
     case BOD_UPLINK:
@@ -116,12 +116,12 @@ void install_child(struct node child, struct uplink_dll *parent)
     }
 }
 
-void replace_child(struct node newchild, struct uplink_dll *oldpars)
+void replace_child(struct term newchild, struct uplink_list oldpars)
 {
-    if (!oldpars) { return; }
+    if (!oldpars.head) { return; }
     
-    struct uplink_dll *tmp = oldpars;
-    struct uplink_dll *tmpnxt = tmp->next;
+    struct uplink *tmp = oldpars.head;
+    struct uplink *tmpnxt = tmp->next;
     while (tmpnxt) {
         install_child(newchild, tmp);
         tmp = tmpnxt;
@@ -130,108 +130,108 @@ void replace_child(struct node newchild, struct uplink_dll *oldpars)
     install_child(newchild, tmp);
     
     switch (KIND(newchild)) {
-    case VAR_NODE:
-        tmpnxt = VAR(newchild)->uplinks;
+    case VAR_TERM:
+        tmpnxt = VAR(newchild)->uplinks.head;
         VAR(newchild)->uplinks = oldpars;
-    case LAM_NODE:
-        tmpnxt = LAM(newchild)->uplinks;
+        break;
+    case LAM_TERM:
+        tmpnxt = LAM(newchild)->uplinks.head;
         LAM(newchild)->uplinks = oldpars;
-    case APP_NODE:
-        tmpnxt = APP(newchild)->uplinks;
+        break;
+    case APP_TERM:
+        tmpnxt = APP(newchild)->uplinks.head;
         APP(newchild)->uplinks = oldpars;
     }
     
-    oldpars = NULL;
+    oldpars.head = NULL;
 }
 
 /* ***** ***** */
 
 static inline
-void delete_up(struct node nd, struct uplink_dll uplink)
+void delete_up(struct term t, struct uplink *uplk)
 {
-    struct uplink_dll *uplinks = get_uplinks(nd);
-    if (uplinks) {
-        remove_uplink(uplink);
-        if (!uplinks) { clear_dead_node(nd); }
+    struct uplink_list *uplinks = get_uplinks(t);
+    if (uplinks->head) {
+        remove_uplink(uplk);
+        if (!uplinks->head) { clear_dead_term(t); }
     }
 }
 
-void clear_node(struct node nd)
+void clear_term(struct term t)
 {
-    switch (KIND(nd)) {
-    case VAR_NODE:
-        var_clear(VAR(nd));
+    switch (KIND(t)) {
+    case VAR_TERM:
+        var_clear(VAR(t));
         break;
-    case LAM_NODE:
-        if (LAM(nd)->bod.term) {
-            delete_up(LAM(nd)->bod, LAM(nd)->bod_uplink);
+    case LAM_TERM:
+        if (LAM(t)->bod.ptr) {
+            delete_up(LAM(t)->bod, &(LAM(t)->bod_uplink));
         }
-        lam_clear(LAM(nd));
+        lam_clear(LAM(t));
         break;
-    case APP_NODE:
-        if (APP(nd)->fun.term) {
-            delete_up(APP(nd)->fun, APP(nd)->fun_uplink);
+    case APP_TERM:
+        if (APP(t)->fun.ptr) {
+            delete_up(APP(t)->fun, &(APP(t)->fun_uplink));
         }
-        if (APP(nd)->arg.term) {
-            delete_up(APP(nd)->arg, APP(nd)->arg_uplink);
+        if (APP(t)->arg.ptr) {
+            delete_up(APP(t)->arg, &(APP(t)->arg_uplink));
         }
-        app_clear(APP(nd));
+        app_clear(APP(t));
         break;
     }
 }
 
-void clear_dead_node(struct node dead)
+void clear_dead_term(struct term dead)
 {
-    clear_node(dead);
+    clear_term(dead);
 }
 
 /* ***** ***** */
 
-void upcopy(struct node newchild, struct uplink_dll *uplink)
+void upcopy(struct term newchild, struct uplink *uplk)
 {
     struct lam *l;
     struct app *a;
-    struct node new;
+    struct term newt;
 
-    switch (uplink->kind) {
+    switch (uplk->kind) {
     case BOD_UPLINK:
-        l = LAM_OF_BOD(uplink);
-        new = new_lam(l->var, newchild);
-        upcopy_uplinks(new, l->uplinks);
+        l = LAM_OF_BOD(uplk);
+        newt = new_lam(l->var, newchild);
+        upcopy_uplinks(newt, l->uplinks);
         break;
     case FUN_UPLINK:
-        a = APP_OF_FUN(uplink);
+        a = APP_OF_FUN(uplk);
         if (a->cache) {
             a->cache->fun = newchild;
         }
         else {
-            new = new_app(newchild, a->arg);
-            a->cache = APP(new);
-            upcopy_uplinks(new, a->uplinks);
+            newt = new_app(newchild, a->arg);
+            a->cache = APP(newt);
+            upcopy_uplinks(newt, a->uplinks);
         }
         break;
     case ARG_UPLINK:
-        a = APP_OF_ARG(uplink);
+        a = APP_OF_ARG(uplk);
         if (a->cache) {
             a->cache->arg = newchild;
         }
         else {
-            new = new_app(a->fun, newchild);
-            a->cache = APP(new);
-            upcopy_uplinks(new, a->uplinks);
+            newt = new_app(a->fun, newchild);
+            a->cache = APP(newt);
+            upcopy_uplinks(newt, a->uplinks);
         }
         break;
     }
 }
 
 inline
-void upcopy_uplinks(struct node new, struct uplink_dll *uplinks)
+void upcopy_uplinks(struct term newt, struct uplink_list uplinks)
 {
-    struct uplink_dll *tmp = uplinks;
+    struct uplink *tmp = uplinks.head;
     while (tmp) {
-        upcopy(new, tmp);
+        upcopy(newt, tmp);
         tmp = tmp->next;
     }
 }
-
-
