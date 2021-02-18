@@ -22,22 +22,22 @@
 
 static inline
 void scan_down(struct node nd, struct app *app,
-               struct node l, struct app *a)
+               struct node *l, struct app **a)
 {
     switch (KIND(nd)) {
     case VAR_NODE:
-        l = app->arg;
-        a = NULL;
+        *l = app->arg;
+        *a = NULL;
         break;
     case LAM_NODE:
         scan_down(LAM(nd)->bod, app, l, a);
-        l = new_lam(LAM(nd)->var, l);
+        *l = new_lam(LAM(nd)->var, *l);
         break;
     case APP_NODE:
-        l = new_app(APP(nd)->fun, APP(nd)->arg);
-        APP(nd)->cache = APP(l);
+        *l = new_app(APP(nd)->fun, APP(nd)->arg);
+        APP(nd)->cache = APP((*l));
         upcopy_uplinks(app->arg, LAM(app->fun)->var->uplinks);
-        a = APP(nd);
+        *a = APP(nd);
         break;
     }
 }
@@ -63,7 +63,7 @@ struct node reduce(struct app *app)
     }
 
     struct app *topapp = app_halloc();
-    scan_down(funlam->bod, app, ans, topapp);
+    scan_down(funlam->bod, app, &ans, &topapp);
     if (topapp) {
         clean_caches(funlam, topapp);
     }

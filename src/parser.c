@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "basics.h"
 #include "parser.h"
+#include "hmap.h"
 
 /* ***** ***** */
 
@@ -125,7 +126,7 @@ struct node mk_app(struct node fun, struct node arg)
     return (struct node) { .term = a };
 }
 
-struct node parse_node(FILE *inp)
+struct node parse_node(FILE *inp, struct hmap *h)
 {
     parse_whitespace(inp);
     char c = fgetc(inp);
@@ -140,15 +141,23 @@ struct node parse_node(FILE *inp)
             free(name);
             return null_node;
         }
-        struct var *x = new_var(name);
-        struct node body = parse_node(inp);
+        struct var *x = var_halloc();
+        if (!x) {
+            free(name);
+            memory_free();
+        }
+        if (!hmap_lookup(h, name, &x)) {
+            x->name = name;
+            hmap_add(h, name, x);    
+        }
+        struct node body = parse_node(inp, h);
         if (!body.term) { return null_node; }
         return mk_lam(x, body);
     }
     if (c == '(') {
-        struct node function = parse_node(inp);
+        struct node function = parse_node(inp, h);
         if (!function.term) { return null_node; }
-        struct node argument = parse_node(inp);
+        struct node argument = parse_node(inp, h);
         if (!argument.term) { return null_node; }
         if (!parse_char(inp, ')')) { return null_node; }
         struct node application = mk_app(function, argument);
@@ -161,6 +170,14 @@ struct node parse_node(FILE *inp)
         free(name);
         return null_node;
     }
-    struct var *variable = new_var(name);
-    return (struct node) { .term = variable };
+    struct var *x = var_halloc();
+    if (!x) {
+        free(name);
+        memory_free();
+    }
+    if (!hmap_lookup(h, name, &x)) {
+        x->name = name;
+        hmap_add(h, name, x);    
+    }
+    return (struct node) { .term = x };
 }

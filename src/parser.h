@@ -11,7 +11,7 @@
 
 void fprintf_node(FILE *out, struct node nd);
 
-struct node parse_node(FILE *inp);
+struct node parse_node(FILE *inp, struct hmap *h);
 
 /* ***** ***** */
 

@@ -104,16 +104,3 @@ int is_length1(struct uplink_dll *uplinks)
     }
     return 0;
 }
-
-//struct node get_node(struct uplink_dll *lk)
-//{
-//    switch (lk->kind) {
-//    case BOD_UPLINK:
-//        return (struct node) { .term = LAM_OF_BOD(lk) };
-//    case FUN_UPLINK:
-//        return (struct node) { .term = APP_OF_FUN(lk) };
-//    case ARG_UPLINK:
-//        return (struct node) { .term = APP_OF_ARG(lk) };
-//    }
-//    return (struct node) { .term = NULL }; // To please gcc.
-//}

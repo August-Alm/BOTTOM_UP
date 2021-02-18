@@ -227,7 +227,7 @@ void upcopy(struct node newchild, struct uplink_dll *uplink)
 inline
 void upcopy_uplinks(struct node new, struct uplink_dll *uplinks)
 {
-    struct uplink_dll *tmp;
+    struct uplink_dll *tmp = uplinks;
     while (tmp) {
         upcopy(new, tmp);
         tmp = tmp->next;

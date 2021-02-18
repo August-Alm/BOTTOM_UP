@@ -70,14 +70,15 @@ void memory_clear()
 
 void memory_free()
 {
-   free(heap);
-   free(var_cleared);
-   free(lam_cleared); 
-   free(app_cleared);
-   for (int i = 0; i < idx_names; ++i) {
-       free(names[i]);
-   }
-   free(names);
+    free(heap);
+    free(var_cleared);
+    free(lam_cleared); 
+    free(app_cleared);
+    for (int i = 0; i < idx_names; ++i) {
+        printf("freeing %s.\n", names[i]);
+        //free(names[i]);
+    }
+    free(names);
 }
 
 /* ***** ***** */
