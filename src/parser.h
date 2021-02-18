@@ -6,6 +6,7 @@
 /* ***** ***** */
 
 #include "bottom_up.h"
+#include "hmap.h"
 
 /* ***** ***** */
 

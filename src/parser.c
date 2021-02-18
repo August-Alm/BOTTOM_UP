@@ -131,7 +131,7 @@ struct node parse_node(FILE *inp, struct hmap *h)
     parse_whitespace(inp);
     char c = fgetc(inp);
     if (c == '\\') {
-        char *name = malloc(sizeof(char) * 16);
+        char *name = calloc(1, sizeof(char) * 16);
         MALCHECKP(name);
         if (!parse_var(inp, name, 16)) {
             free(name);
@@ -164,7 +164,7 @@ struct node parse_node(FILE *inp, struct hmap *h)
         return application;
     }
     ungetc(c, inp);
-    char *name = malloc(sizeof(char) * 16);
+    char *name = calloc(1, sizeof(char) * 16);
     MALCHECKP(name);
     if (!parse_var(inp, name, 16)) {
         free(name);
