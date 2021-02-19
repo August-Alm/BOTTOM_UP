@@ -14,7 +14,7 @@ struct uplink_list *get_uplinks(struct term t)
         return &(VAR(t)->uplinks);
     case LAM_TERM:
         return &(LAM(t)->uplinks);
-    default: // APP_TERM
+    default: //case APP_TERM:
         return &(APP(t)->uplinks);
     }
 }

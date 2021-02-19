@@ -175,15 +175,16 @@ struct term parse_term(FILE *inp)
         free(name);
         return TERM(NULL);
     }
-    struct term tx;
-    if (ctx_lookup(name, &tx)) {
-        return tx;
-    }
     struct var *x = var_halloc();
     if (!x) {
         free(name);
         return TERM(NULL);
     }
-    ctx_add(name, TERM(x));    
-    return TERM(x);
+    struct term tx = TERM(x);
+    if (ctx_lookup(name, &tx)) {
+        return tx;
+    }
+    x->name = name;
+    ctx_add(name, tx);    
+    return tx;
 }

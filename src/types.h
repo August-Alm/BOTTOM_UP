@@ -38,14 +38,16 @@ struct term {
  * arithmetic.
  */
 struct uplink {
+    int kind; // Always `BOD_`, `FUN_` or `ARG_UPLINK`.
     struct uplink *next;
     struct uplink *prev;
-    int kind; // Always `BOD_`, `FUN_` or `ARG_UPLINK`.
 };
 
 struct uplink_list {
     struct uplink *head;
 };
+
+#define LIST(h) ((struct uplink_list) { .head = h })
 
 #define BOD_UPLINK 1
 #define FUN_UPLINK 2
@@ -70,20 +72,20 @@ struct var {
 /* ***** ***** */
 
 struct lam {
-    struct var *var;
-    struct term bod;
     struct uplink bod_uplink;
     struct uplink_list uplinks;
+    struct var *var;
+    struct term bod;
 };
 
 /* ***** ***** */
 
 struct app {
-    struct term fun;
-    struct term arg;
     struct uplink fun_uplink;
     struct uplink arg_uplink;
     struct uplink_list uplinks;
+    struct term fun;
+    struct term arg;
     struct app* cache; 
 };
 

@@ -78,7 +78,7 @@ struct var *var_halloc()
             struct var *x = (struct var*)&heap[idx_heap];
             idx_heap += sizeof(struct var);
             x->minus_one = -1;
-            x->uplinks.head = NULL;
+            x->uplinks = LIST(NULL);
             return x;
         }
         fprintf(stderr, "`heap` full.\n");
@@ -112,7 +112,7 @@ struct lam *lam_halloc()
                 .next = NULL,
                 .prev = NULL
             };
-            l->uplinks.head = NULL;
+            l->uplinks = LIST(NULL);
             return l;
         }
         fprintf(stderr, "`heap` full.\n");
@@ -153,7 +153,7 @@ struct app *app_halloc()
                 .prev = NULL
             };
             a->cache = NULL;
-            a->uplinks.head = NULL;
+            a->uplinks = LIST(NULL);
             return a;
         }
         fprintf(stderr, "`heap` full.\n");
