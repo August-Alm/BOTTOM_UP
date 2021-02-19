@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
         struct term t = parse_term(fp);
         fprintf_term(stdout, t); printf("\n");
 
-        //normalize_wh(t);
+//        normalize_wh(t);
 
         printf("\nAfter normalization:\n");
         fprintf_term(stdout, t);

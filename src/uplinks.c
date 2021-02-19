@@ -31,6 +31,7 @@ void insert_first(struct uplink_list *l, struct uplink *n)
     }
     n->next = l->head;
     l->head->prev = n;
+    // `n->prev` should be null!
     while (n->prev) { n = n->prev; }
     l->head = n;
 }

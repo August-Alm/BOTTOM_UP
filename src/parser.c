@@ -152,6 +152,7 @@ struct term parse_term(FILE *inp)
             body = parse_term(inp);
             if (!body.ptr) { return TERM(NULL); }
             ctx_swap(name, oldt);
+            free(name);
         }
         else {
             ctx_add(name, TERM(newv));
