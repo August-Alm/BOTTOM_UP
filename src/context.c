@@ -51,6 +51,8 @@ bool ctx_init()
 
 int fast_strcmp(const char *ptr0, const char *ptr1, int len)
 {
+    if (!ptr0 || !ptr1) { return 0; }
+
     int fast = len / sizeof(size_t) + 1;
     int val = (fast - 1) * sizeof(size_t);
     int current_block = 0;
@@ -96,7 +98,7 @@ bool ctx_lookup(char *key, struct term *val)
     uint64_t index = hash_func(key);
 	uint64_t start = index;
 
-	while (ctx->buckets[index]->key && strcmp(ctx->buckets[index]->key, key)) {//, STRLEN)){
+	while (fast_strcmp(ctx->buckets[index]->key, key, STRLEN)){
 		index = (index + 1) % ctx->size;
 		if (index == start) {
 			return false;
@@ -114,7 +116,7 @@ void ctx_swap(char *key, struct term newval)
 {
 	uint64_t index = hash_func(key);
 	uint64_t start = index;
-	while (ctx->buckets[index]->key && strcmp(ctx->buckets[index]->key, key)) {// STRLEN)) {
+	while (fast_strcmp(ctx->buckets[index]->key, key, STRLEN)) {
 		index = (index + 1) % ctx->size;
 		if (index == start) {
 			NOTP(key);
@@ -140,7 +142,7 @@ bool ctx_remove(char *key)
     uint64_t index = hash_func(key);
 	uint64_t start = index;
 
-	while (ctx->buckets[index]->key && strcmp(ctx->buckets[index]->key, key)) {//, STRLEN)){
+	while (fast_strcmp(ctx->buckets[index]->key, key, STRLEN)){
 		index = (index + 1) % ctx->size;
 		if (index == start) {
 			return false;
