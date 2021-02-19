@@ -9,14 +9,6 @@
 
 /* ***** ***** */
 
-#define LAM_OF_BOD(uplk) ((struct lam*)&uplk)
-
-#define APP_OF_FUN(uplk) ((struct app*)&uplk)
-
-#define APP_OF_ARG(uplk) ((struct app*)(&uplk - sizeof(struct uplink)))
-
-/* ***** ***** */
-
 typedef void (*act_uplink) (struct uplink *uplk);
 
 typedef void (*act2_uplink) (void* param, struct uplink *uplk);

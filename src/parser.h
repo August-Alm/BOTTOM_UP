@@ -16,5 +16,3 @@ struct term parse_term(FILE *inp);
 /* ***** ***** */
 
 #endif // PARSER_H
-
-

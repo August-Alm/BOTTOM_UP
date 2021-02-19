@@ -38,15 +38,15 @@ int top_app_cleared;
 void heap_setup()
 {
     heap = malloc(sizeof(int) * HEAP_MAX);
-    MALCHECKERR(heap);
+    MALCHECKx(heap);
     idx_heap = 0;
 
     var_cleared = malloc(sizeof(struct var*) * VAR_MAX);
-    MALCHECKERR(var_cleared);
+    MALCHECKx(var_cleared);
     lam_cleared = malloc(sizeof(struct lam*) * VAR_MAX);
-    MALCHECKERR(lam_cleared);
+    MALCHECKx(lam_cleared);
     app_cleared = malloc(sizeof(struct app*) * VAR_MAX);
-    MALCHECKERR(app_cleared);
+    MALCHECKx(app_cleared);
 
     top_var_cleared = -1;
     top_lam_cleared = -1;

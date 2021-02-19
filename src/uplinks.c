@@ -2,8 +2,8 @@
 
 #include <stdlib.h>
 #include "uplinks.h"
+#include <stdio.h>  // When debuging, remove later.
 
-#include <stdio.h>
 /* ***** ***** */
 
 struct uplink_list *get_uplinks(struct term t)
@@ -21,11 +21,11 @@ struct uplink_list *get_uplinks(struct term t)
 
 void insert_first(struct uplink_list *l, struct uplink *n)
 {
-    if (!l) {
+    if (!l || !n) {
         fprintf(stderr, "Invalid reference.\n");
         return;
     }
-    if (!(l->head)) {
+    if (!l->head) {
         l->head = n;
         return;
     }

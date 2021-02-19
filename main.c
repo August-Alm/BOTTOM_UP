@@ -14,19 +14,19 @@ int main(int argc, char *argv[])
     FILE *fp = fopen(argv[1], "r");
     if (fp) {
         heap_setup();
-        varnames_init();
+        ctx_init();
         
         struct term t = parse_term(fp);
         fprintf_term(stdout, t); printf("\n");
 
-        normalize_wh(t);
+        //normalize_wh(t);
 
         printf("\nAfter normalization:\n");
         fprintf_term(stdout, t);
 
 
         memory_free();
-        varnames_free();
+        ctx_free();
         fclose(fp);
     }
     else {

@@ -8,8 +8,7 @@ OBJ =	\
 	obj/bottom_up.o\
 	obj/reduction.o\
 	obj/parser.o\
-	obj/hmap.o\
-	obj/varnames.o\
+	obj/context.o\
 
 #-std=c11 
 CFLAGS = -Wall -g

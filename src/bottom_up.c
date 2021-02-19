@@ -14,7 +14,7 @@ struct var *new_var(char *name)
         memory_free();
     }
     x->name = name;
-    varnames_add(name, x);
+    ctx_add(name, TERM(x));
     return x;
 }
 
@@ -28,7 +28,7 @@ struct term new_lam(struct var *oldvar, struct term bod)
     add_uplink_to(bod, &(l->bod_uplink));
     struct term oldt = (struct term) { .ptr = oldvar };
     upcopy_uplinks(oldt, oldvar->uplinks);
-    return (struct term) { .ptr = l };
+    return TERM(l);
 }
 
 struct term new_app(struct term fun, struct term arg)
@@ -37,7 +37,7 @@ struct term new_app(struct term fun, struct term arg)
     if (!a) { memory_free(); }
     a->fun = fun;
     a->arg = arg;
-    return (struct term) { .ptr = a };
+    return TERM(a);
 }
 
 /* ***** ***** */

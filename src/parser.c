@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "basics.h"
 #include "parser.h"
-#include "hmap.h"
+#include "context.h"
 
 /* ***** ***** */
 
@@ -97,12 +97,10 @@ void parse_whitespace(FILE *inp)
 
 /* ***** ***** */
 
-const struct term null_term = { .ptr = NULL };
-
-#define MALCHECKP(s) if(!s) {                              \
+#define MALCHECKp(s) if(!s) {                              \
     fprintf(stderr, "Malloc failed at line %d in `%s`.\n"  \
                   , __LINE__, __FUNCTION__);               \
-    return null_term;                                      \
+    return TERM(NULL);                                     \
 }                                                          \
 
 struct term mk_lam(struct var *x, struct term bod)
@@ -112,7 +110,7 @@ struct term mk_lam(struct var *x, struct term bod)
     l->var = x;
     l->bod = bod;
     add_uplink_to(bod, &(l->bod_uplink));
-    return (struct term) { .ptr = l };
+    return TERM(l);
 }
 
 struct term mk_app(struct term fun, struct term arg)
@@ -123,7 +121,7 @@ struct term mk_app(struct term fun, struct term arg)
     a->arg = arg;
     add_uplink_to(fun, &(a->fun_uplink));
     add_uplink_to(arg, &(a->arg_uplink));
-    return (struct term) { .ptr = a };
+    return TERM(a);
 }
 
 struct term parse_term(FILE *inp)
@@ -132,58 +130,60 @@ struct term parse_term(FILE *inp)
     char c = fgetc(inp);
     if (c == '\\') {
         char *name = calloc(1, sizeof(char) * 16);
-        MALCHECKP(name);
+        MALCHECKp(name);
         if (!parse_var(inp, name, 16)) {
             free(name);
-            return null_term;
+            return TERM(NULL);
         }
         if (!parse_char(inp, '.')) {
             free(name);
-            return null_term;
+            return TERM(NULL);
         }
-        struct var *x = var_halloc();
-        if (!x) {
+        struct var *newv = var_halloc();
+        if (!newv) {
             free(name);
-            memory_free();
+            return TERM(NULL);
         }
-        if (!varnames_lookup(name, &x)) {
-            x->name = name;
-            varnames_add(name, x);    
+        struct term body;
+        struct term oldt;
+        if (ctx_lookup(name, &oldt)) {
+            ctx_swap(name, TERM(newv));
+            body = parse_term(inp);
+            if (!body.ptr) { return TERM(NULL); }
+            ctx_swap(name, oldt);
         }
         else {
-            free(name);
+            ctx_add(name, TERM(newv));
+            body = parse_term(inp);
+            if (!body.ptr) { return TERM(NULL); }
         }
-        struct term body = parse_term(inp);
-        if (!body.ptr) { return null_term; }
-        return mk_lam(x, body);
+        return mk_lam(newv, body);
     }
     if (c == '(') {
-        struct term function = parse_term(inp);
-        if (!function.ptr) { return null_term; }
-        struct term argument = parse_term(inp);
-        if (!argument.ptr) { return null_term; }
-        if (!parse_char(inp, ')')) { return null_term; }
-        struct term application = mk_app(function, argument);
-        return application;
+        struct term fun = parse_term(inp);
+        if (!fun.ptr) { return TERM(NULL); }
+        struct term arg = parse_term(inp);
+        if (!arg.ptr) { return TERM(NULL); }
+        if (!parse_char(inp, ')')) { return TERM(NULL); }
+        struct term app = mk_app(fun, arg);
+        return app;
     }
     ungetc(c, inp);
     char *name = calloc(1, sizeof(char) * 16);
-    MALCHECKP(name);
+    MALCHECKp(name);
     if (!parse_var(inp, name, 16)) {
         free(name);
-        return null_term;
+        return TERM(NULL);
+    }
+    struct term tx;
+    if (ctx_lookup(name, &tx)) {
+        return tx;
     }
     struct var *x = var_halloc();
     if (!x) {
         free(name);
-        memory_free();
+        return TERM(NULL);
     }
-    if (!varnames_lookup(name, &x)) {
-        x->name = name;
-        varnames_add(name, x);    
-    }
-    else {
-        free(name);
-    }
-    return (struct term) { .ptr = x };
+    ctx_add(name, TERM(x));    
+    return TERM(x);
 }

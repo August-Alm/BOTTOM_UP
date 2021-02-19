@@ -1,13 +1,3 @@
-/**
- *          ╔════════╗
- *          ║ BASICS ║
- *          ╚════════╝
- *
- * \author  August-Alm@github.com         
- *
- * \notes   General definitions and macros.
- */
-
 /* ***** ***** */
 
 #ifndef BASICS_H
@@ -16,6 +6,7 @@
 /* ***** ***** */
 
 #include <stdio.h>
+#include <stdbool.h>
 
 /* ***** ***** */
 
@@ -25,12 +16,17 @@
     return NULL;                                           \
 }                                                          \
 
-#define MALCHECKERR(s) if(!s) {                            \
+#define MALCHECKb(s) if(!s) {                              \
+    fprintf(stderr, "Malloc failed at line %d in `%s`.\n"  \
+                  , __LINE__, __FUNCTION__);               \
+    return false;                                          \
+}                                                          \
+
+#define MALCHECKx(s) if(!s) {                              \
     fprintf(stderr, "Malloc failed at line %d in `%s`.\n"  \
                   , __LINE__, __FUNCTION__);               \
     exit(EXIT_FAILURE);                                    \
 }                                                          \
-
 
 /* ***** ***** */
 
