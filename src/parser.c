@@ -144,6 +144,7 @@ struct term parse_term(FILE *inp)
             free(name);
             return TERM(NULL);
         }
+        newv->name = name;
         struct term body;
         struct term oldt;
         if (ctx_lookup(name, &oldt)) {
@@ -161,10 +162,16 @@ struct term parse_term(FILE *inp)
     }
     if (c == '(') {
         struct term fun = parse_term(inp);
-        if (!fun.ptr) { return TERM(NULL); }
+        if (!fun.ptr) {
+            return TERM(NULL);
+        }
         struct term arg = parse_term(inp);
-        if (!arg.ptr) { return TERM(NULL); }
-        if (!parse_char(inp, ')')) { return TERM(NULL); }
+        if (!arg.ptr) {
+            return TERM(NULL);
+        }
+        if (!parse_char(inp, ')')) {
+            return TERM(NULL);
+        }
         struct term app = mk_app(fun, arg);
         return app;
     }
@@ -182,6 +189,7 @@ struct term parse_term(FILE *inp)
     }
     struct term tx = TERM(x);
     if (ctx_lookup(name, &tx)) {
+        free(name);
         return tx;
     }
     x->name = name;
