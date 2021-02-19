@@ -129,7 +129,7 @@ struct term parse_term(FILE *inp)
     parse_whitespace(inp);
     char c = fgetc(inp);
     if (c == '\\') {
-        char *name = calloc(1, sizeof(char) * 16);
+        char *name = malloc(sizeof(char) * 16);
         MALCHECKp(name);
         if (!parse_var(inp, name, 16)) {
             free(name);
@@ -177,7 +177,7 @@ struct term parse_term(FILE *inp)
         return app;
     }
     ungetc(c, inp);
-    char *name = calloc(1, sizeof(char) * 16);
+    char *name = malloc(sizeof(char) * 16);
     MALCHECKp(name);
     if (!parse_var(inp, name, 16)) {
         free(name);
