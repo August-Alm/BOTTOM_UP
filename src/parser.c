@@ -150,6 +150,9 @@ struct term parse_term(FILE *inp)
             x->name = name;
             varnames_add(name, x);    
         }
+        else {
+            free(name);
+        }
         struct term body = parse_term(inp);
         if (!body.ptr) { return null_term; }
         return mk_lam(x, body);
@@ -178,6 +181,9 @@ struct term parse_term(FILE *inp)
     if (!varnames_lookup(name, &x)) {
         x->name = name;
         varnames_add(name, x);    
+    }
+    else {
+        free(name);
     }
     return (struct term) { .ptr = x };
 }

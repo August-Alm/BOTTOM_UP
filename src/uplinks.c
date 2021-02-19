@@ -11,11 +11,11 @@ struct uplink_list *get_uplinks(struct term t)
     if (!t.ptr) { return NULL; }
     switch (KIND(t)) {
     case VAR_TERM:
-        return t.ptr - sizeof(char*) - sizeof(int);
+        return &(VAR(t)->uplinks);
     case LAM_TERM:
-        return t.ptr - sizeof(struct uplink);
+        return &(LAM(t)->uplinks);
     default: // APP_TERM
-        return t.ptr - 2 * sizeof(struct uplink);
+        return &(APP(t)->uplinks);
     }
 }
 
