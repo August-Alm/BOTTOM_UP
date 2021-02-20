@@ -8,8 +8,8 @@
 
 /* ***** ***** */
 
-#define STRLEN 32
-#define DEF_SIZE 3932
+#define STRLEN 16
+#define DEF_SIZE 393
 #define NOTP(s) fprintf(stderr, "%s is not present in context\n", s);
 
 /* ***** ***** */

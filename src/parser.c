@@ -199,6 +199,7 @@ struct term parse_term(FILE *inp)
         free(name);
         return tx;
     }
+    printf("Parsing free variable.\n");
     x->name = name;
     ctx_add(name, tx);    
     return tx;

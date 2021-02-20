@@ -43,4 +43,4 @@ memtest: all
 	$(VALGRIND) ./$(LINK_TAR)  $(TEST_FILE)
 
 debug: all
-	gdb ./bin/bottomup
+	gdb --args ./bin/bottomup ${TEST_FILE}
