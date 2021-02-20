@@ -139,27 +139,33 @@ struct term parse_term(FILE *inp)
             free(name);
             return TERM(NULL);
         }
-        struct var *newv = var_halloc();
-        if (!newv) {
+        struct var *x = var_halloc();
+        if (!x) {
             free(name);
             return TERM(NULL);
         }
-        newv->name = name;
-        struct term body;
+        x->name = name;
+        struct term tx = TERM(x);
         struct term oldt;
+        // If the name is already bound we should shadow that
+        // binding for the duration of parsing the lambda body.
         if (ctx_lookup(name, &oldt)) {
-            ctx_swap(name, TERM(newv));
-            body = parse_term(inp);
-            if (!body.ptr) { return TERM(NULL); }
-            ctx_swap(name, oldt);
-            free(name);
+            ctx_swap(name, tx);
+            struct term body = parse_term(inp);
+            if (!body.ptr) {
+                free(name);
+                return TERM(NULL);
+            }
+            ctx_remove(name);
+            ctx_add(name, oldt);
+            return mk_lam(x, body);
         }
         else {
-            ctx_add(name, TERM(newv));
-            body = parse_term(inp);
+            ctx_add(name, tx);
+            struct term body = parse_term(inp);
             if (!body.ptr) { return TERM(NULL); }
+            return mk_lam(x, body);
         }
-        return mk_lam(newv, body);
     }
     if (c == '(') {
         struct term fun = parse_term(inp);
