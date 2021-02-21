@@ -126,6 +126,23 @@ void ctx_swap(char *key, struct term newval)
 	ctx->buckets[index]->val = newval;
 }
 
+void ctx_swap_replkey(char **key, struct term newval)
+{
+    char *ky = *key;
+	uint64_t index = hash_func(ky);
+	uint64_t start = index;
+	while (ctx->buckets[index]->key && strcmp(ctx->buckets[index]->key, ky)) {
+		index = (index + 1) % ctx->size;
+		if (index == start) {
+			NOTP(ky);
+			return;
+		}
+	}
+    free(ky);
+    *key = ctx->buckets[index]->key;
+	ctx->buckets[index]->val = newval;
+}
+
 void ctx_add(char *key, struct term val)
 {
 	uint64_t index = hash_func(key);

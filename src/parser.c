@@ -144,23 +144,22 @@ struct term parse_term(FILE *inp)
             free(name);
             return TERM(NULL);
         }
-        x->name = name;
         struct term tx = TERM(x);
         struct term oldt;
         // If the name is already bound we should shadow that
         // binding for the duration of parsing the lambda body.
         if (ctx_lookup(name, &oldt)) {
-            ctx_swap(name, tx);
+            ctx_swap_replkey(&name, tx);
+            x->name = name;
             struct term body = parse_term(inp);
             if (!body.ptr) {
-                free(name);
                 return TERM(NULL);
             }
-            ctx_remove(name);
-            ctx_add(name, oldt);
+            ctx_swap(name, oldt);
             return mk_lam(x, body);
         }
         else {
+            x->name = name;
             ctx_add(name, tx);
             struct term body = parse_term(inp);
             if (!body.ptr) { return TERM(NULL); }

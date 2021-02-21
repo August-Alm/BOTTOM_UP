@@ -69,7 +69,7 @@ struct term reduce(struct app *app)
     }
     replace_child(ans, app->uplinks);
     clear_dead_term((struct term) { .ptr = app });
-    fprintf_term(stdout, ans);
+    //fprintf_term(stdout, ans);
     return ans;
 }
 
@@ -92,14 +92,16 @@ void normalize_wh(struct term t0)
     struct sll **stack = &pinit;
 
     struct term t;
+    struct app *app;
+    struct term fun;
 
     while (*stack) {
         POP(t, stack);
         if (KIND(t) != APP_TERM) {
             continue;
         }
-        struct app *app = APP(t);
-        struct term fun = app->fun;
+        app = APP(t);
+        fun = app->fun;
         while (KIND(fun) == APP_TERM && (APP(fun)->fun).ptr) {
             app = APP(fun);
             fun = app->fun;
@@ -108,6 +110,7 @@ void normalize_wh(struct term t0)
             PUSH(reduce(app), stack);
         }
     }
+    fprintf_term(stdout, t);
 }
 
 void normalize(struct term t)
