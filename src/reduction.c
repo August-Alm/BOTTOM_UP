@@ -73,44 +73,44 @@ struct term reduce(struct app *app)
     return ans;
 }
 
-void normalize_wh(struct term t)
-{
-    if (!t.ptr) { return; }
-    int kind = KIND(t);
-    if (kind == APP_TERM) {
-        normalize_wh(APP(t)->fun);
-        if (KIND(APP(t)->fun) == LAM_TERM) {
-            normalize_wh(reduce(APP(t)));
-        }
-    }
-}
-
-//void normalize_wh(struct node node)
+//void normalize_wh(struct term t)
 //{
-//    struct sll { struct sll *next; struct node current; };
-//    struct sll init = { NULL, node };
-//    struct sll *pinit = &init;
-//    struct sll **stack = &pinit;
-//
-//    struct node nd;
-//
-//    while (*stack) {
-//        POP(nd, stack);
-//        int kind = KIND(nd);
-//        if (kind != APP_NODE) {
-//            continue;
-//        }
-//        struct app *app = APP(nd);
-//        struct node fun = app->fun;
-//        while (KIND(fun) == APP_NODE && (APP(fun)->fun).term) {
-//            app = APP(fun);
-//            fun = app->fun;
-//        }
-//        if (kind == LAM_NODE) {
-//            PUSH(reduce(app), stack);
+//    if (!t.ptr) { return; }
+//    int kind = KIND(t);
+//    if (kind == APP_TERM) {
+//        normalize_wh(APP(t)->fun);
+//        if (KIND(APP(t)->fun) == LAM_TERM) {
+//            normalize_wh(reduce(APP(t)));
 //        }
 //    }
 //}
+
+void normalize_wh(struct term t0)
+{
+    struct sll { struct sll *next; struct term current; };
+    struct sll init = { NULL, t0 };
+    struct sll *pinit = &init;
+    struct sll **stack = &pinit;
+
+    struct term t;
+
+    while (*stack) {
+        POP(t, stack);
+        int kind = KIND(t);
+        if (kind != APP_TERM) {
+            continue;
+        }
+        struct app *app = APP(t);
+        struct term fun = app->fun;
+        while (KIND(fun) == APP_TERM && (APP(fun)->fun).ptr) {
+            app = APP(fun);
+            fun = app->fun;
+        }
+        if (kind == LAM_TERM) {
+            PUSH(reduce(app), stack);
+        }
+    }
+}
 
 void normalize(struct term t)
 {
