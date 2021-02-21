@@ -69,6 +69,7 @@ struct term reduce(struct app *app)
     }
     replace_child(ans, app->uplinks);
     clear_dead_term((struct term) { .ptr = app });
+    fprintf_term(stdout, ans);
     return ans;
 }
 

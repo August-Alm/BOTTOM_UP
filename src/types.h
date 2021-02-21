@@ -5,6 +5,10 @@
 
 /* ***** ***** */
 
+#include <stdio.h>
+
+/* ***** ***** */
+
 struct var;
 struct lam;
 struct app;
@@ -15,6 +19,8 @@ struct app;
 struct term {
     void* ptr;
 };
+
+void fprintf_term(FILE *out, struct term t);
 
 #define TERM(p) ((struct term) { .ptr = p })
 

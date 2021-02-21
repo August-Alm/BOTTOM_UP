@@ -3,6 +3,7 @@ LINK_TAR = bin/bottomup
 TEST_FILE = parsetest.lc
 
 OBJ =	\
+	obj/types.o\
 	obj/uplinks.o\
 	obj/dag.o\
 	obj/bottom_up.o\
