@@ -44,6 +44,7 @@ bool ctx_init()
 		ctx->buckets[i]->key = NULL;
 		ctx->buckets[i]->val = (struct term) { .ptr = NULL };
 	}
+
     return true;
 }
 
@@ -169,7 +170,7 @@ bool ctx_remove(char *key)
         return false;
     }
 	
-    free(ctx->buckets[index]->key);
+    //free(ctx->buckets[index]->key);
     ctx->buckets[index]->taken = 0;
     ctx->buckets[index]->key = NULL;
     ctx->buckets[index]->val = TERM(NULL);

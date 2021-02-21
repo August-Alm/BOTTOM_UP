@@ -162,6 +162,7 @@ struct term parse_term(FILE *inp)
             x->name = name;
             ctx_add(name, tx);
             struct term body = parse_term(inp);
+            //ctx_remove(name);
             if (!body.ptr) { return TERM(NULL); }
             return mk_lam(x, body);
         }

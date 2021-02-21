@@ -9,9 +9,9 @@
 
 /* ***** ***** */
 
-void normalize_wh(struct term t);
+void normalize_wh(struct term *t);
 
-void normalize(struct term t);
+void normalize(struct term *t);
 
 /* ***** ***** */
 

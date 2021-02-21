@@ -14,19 +14,25 @@ struct var *new_var(char *name)
         memory_free();
     }
     x->name = name;
-    ctx_add(name, TERM(x));
+    struct term old;
+    if (ctx_lookup(name, &old)) { ctx_swap(name, TERM(x)); }
+    else { ctx_add(name, TERM(x)); }
     return x;
 }
 
 struct term new_lam(struct var *oldvar, struct term bod)
 {
-    struct var *newvar = new_var(oldvar->name);
+    struct var *newvar = var_halloc(); // = new_var(oldvar->name);
+    if (!newvar) {
+        memory_free();
+    }
+    newvar->name = oldvar->name;
     struct lam *l = lam_halloc();
     if (!l) { memory_free(); }
     l->var = newvar;
     l->bod = bod;
     add_uplink_to(bod, &(l->bod_uplink));
-    struct term oldt = (struct term) { .ptr = oldvar };
+    struct term oldt = TERM(oldvar);
     upcopy_uplinks(oldt, oldvar->uplinks);
     return TERM(l);
 }

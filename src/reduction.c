@@ -84,10 +84,10 @@ struct term reduce(struct app *app)
 //    }
 //}
 
-void normalize_wh(struct term t0)
+void normalize_wh(struct term *t0)
 {
     struct sll { struct sll *next; struct term current; };
-    struct sll init = { NULL, t0 };
+    struct sll init = { NULL, *t0 };
     struct sll *pinit = &init;
     struct sll **stack = &pinit;
 
@@ -110,39 +110,42 @@ void normalize_wh(struct term t0)
             PUSH(reduce(app), stack);
         }
     }
-    fprintf_term(stdout, t);
+    *t0 = t;
 }
 
-void normalize(struct term t)
+/*
+void normalize(struct term *t)
 {
-    if (!t.ptr) {
+    struct term t0 = *t;
+    if (!t0.ptr) {
         printf("Should not happen.\n");
         return;
     }
     
-    switch (KIND(t)) {
+    switch (KIND(t0)) {
 
     case VAR_TERM:
         break;
     
     case LAM_TERM:
-        normalize(LAM(t)->bod);
+        normalize(&LAM(t0)->bod);
         break;
 
     case APP_TERM:
-        normalize_wh(APP(t)->fun);
+        normalize_wh(&APP(t0)->fun);
         
-        switch (KIND(APP(t)->fun)) {
+        switch (KIND(APP(t0)->fun)) {
         case VAR_TERM:
-            normalize(APP(t)->arg);
+            normalize(&APP(t0)->arg);
             break;
         case LAM_TERM:
-            normalize(reduce(APP(t)));
+            normalize(reduce(APP(t0)));
             break;
         case APP_TERM:
-            normalize(APP(t)->fun);
-            normalize(APP(t)->arg);
+            normalize(&APP(t0)->fun);
+            normalize(&APP(t0)->arg);
             break;
         }
     }
 }
+*/
