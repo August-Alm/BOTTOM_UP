@@ -76,8 +76,7 @@ struct term reduce(struct app *app)
 //void normalize_wh(struct term t)
 //{
 //    if (!t.ptr) { return; }
-//    int kind = KIND(t);
-//    if (kind == APP_TERM) {
+//    if (KIND(t) == APP_TERM) {
 //        normalize_wh(APP(t)->fun);
 //        if (KIND(APP(t)->fun) == LAM_TERM) {
 //            normalize_wh(reduce(APP(t)));
@@ -96,8 +95,7 @@ void normalize_wh(struct term t0)
 
     while (*stack) {
         POP(t, stack);
-        int kind = KIND(t);
-        if (kind != APP_TERM) {
+        if (KIND(t) != APP_TERM) {
             continue;
         }
         struct app *app = APP(t);
@@ -106,7 +104,7 @@ void normalize_wh(struct term t0)
             app = APP(fun);
             fun = app->fun;
         }
-        if (kind == LAM_TERM) {
+        if (KIND(fun) == LAM_TERM) {
             PUSH(reduce(app), stack);
         }
     }
