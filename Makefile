@@ -3,16 +3,18 @@ LINK_TAR = bin/bottomup
 TEST_FILE = parsetest.lc
 
 OBJ =	\
-	obj/types.o\
-	obj/uplinks.o\
-	obj/dag.o\
-	obj/bottom_up.o\
-	obj/reduction.o\
-	obj/parser.o\
-	obj/context.o\
+	obj/leaf.o\
+	obj/single.o\
+	obj/branch.o\
+	obj/node.o\
+	obj/heap.o\
+	obj/uplink.o\
+	obj/downclean.o\
+	obj/uplink_stack.o\
+	obj/upcopy.o\
 
 #-std=c11 
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -std=c11
 
 run: all
 	./$(LINK_TAR) $(TEST_FILE)

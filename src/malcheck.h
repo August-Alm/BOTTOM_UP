@@ -1,7 +1,7 @@
 /* ***** ***** */
 
-#ifndef BASICS_H
-#define BASICS_H
+#ifndef MALCHECK_H
+#define MALCHECK_H
 
 /* ***** ***** */
 
@@ -10,7 +10,7 @@
 
 /* ***** ***** */
 
-#define MALCHECK(s) if(!s) {                               \
+#define MALCHECK0(s) if(!s) {                              \
     fprintf(stderr, "Malloc failed at line %d in `%s`.\n"  \
                   , __LINE__, __FUNCTION__);               \
     return NULL;                                           \
@@ -30,4 +30,4 @@
 
 /* ***** ***** */
 
-#endif // BASICS_H
+#endif // MALCHECK_H

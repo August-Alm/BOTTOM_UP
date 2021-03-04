@@ -1,10 +1,7 @@
 /* ***** ***** */
 
 #include <stdio.h>
-#include "src/parser.h"
-//#include "src/dag.h"
-#include "src/reduction.h"
-//#include "src/hmap.h"
+#include "src/heap.h"
 
 /* ***** ***** */
 
@@ -14,19 +11,7 @@ int main(int argc, char *argv[])
     FILE *fp = fopen(argv[1], "r");
     if (fp) {
         heap_setup();
-        ctx_init();
-        
-        struct term t = parse_term(fp);
-        fprintf_term(stdout, t); printf("\n");
-
-        normalize_wh(&t);
-
-        printf("\nAfter normalization:\n");
-        fprintf_term(stdout, t);
-
-
         memory_free();
-        ctx_free();
         fclose(fp);
     }
     else {
