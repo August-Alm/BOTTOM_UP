@@ -13,6 +13,7 @@
 
 struct upcopy_state {
     struct uplink_stack *stack;
+    struct uplink *current;
     struct node ccache;
     struct node pcache;
 };
