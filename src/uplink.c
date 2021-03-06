@@ -1,6 +1,7 @@
 /* ***** ***** */
 
 #include <stddef.h>
+#include <stdbool.h>
 #include "types.h"
 #include "uplink.h"
 
@@ -40,6 +41,9 @@ struct uplink *prev_uplink(struct uplink *lk);
 
 extern
 struct uplink *head_of(struct uplink_dll lks);
+
+extern
+bool is_empty(struct uplink_dll lks);
 
 /* ***** ***** */
 

@@ -11,18 +11,7 @@
 
 /* ***** ***** */
 
-struct upcopy_state {
-    struct uplink_stack *stack;
-    struct uplink *current;
-    struct node ccache;
-    struct node pcache;
-};
-
-/* ***** ***** */
-
-struct upcopy_state *init_upcopy_state(struct branch *redex);
-
-bool step_upcopy_state(struct upcopy_state *state);
+void upcopy(struct node new_child, struct uplink *cclink);
 
 /* ***** ***** */
 

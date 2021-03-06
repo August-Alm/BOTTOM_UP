@@ -21,7 +21,7 @@ struct node {
 
 /* ***** ***** */
 
-enum uplink_rel { CHILD_REL, LCHILD_REL, RCHILD_REL };
+enum uplink_rel { NIL, CHILD_REL, LCHILD_REL, RCHILD_REL };
 
 struct uplink {
     address_t next;
