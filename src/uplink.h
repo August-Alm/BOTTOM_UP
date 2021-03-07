@@ -98,7 +98,7 @@ struct uplink *head_of(struct uplink_dll lks)
 FORCEINLINE
 bool is_empty(struct uplink_dll lks)
 {
-    return lks.head == 0 || ((struct uplink*)ptr_of(lks.head))->rel == NIL;
+    return lks.head == 0;
 }
 
 /* ***** ***** */

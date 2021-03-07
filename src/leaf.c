@@ -14,7 +14,6 @@ void init_leaf(
     *l = (struct leaf) {
         .id = (addr << 2) | LEAF_NODE,
         .parents = empty_dll(),
-        .cache = (struct node) { .address = 0 },
         .name = NULL
     };
 }

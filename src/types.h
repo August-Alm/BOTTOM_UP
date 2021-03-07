@@ -21,7 +21,7 @@ struct node {
 
 /* ***** ***** */
 
-enum uplink_rel { NIL, CHILD_REL, LCHILD_REL, RCHILD_REL };
+enum uplink_rel { CHILD_REL, LCHILD_REL, RCHILD_REL };
 
 struct uplink {
     address_t next;
@@ -38,7 +38,6 @@ struct uplink_dll {
 struct leaf {
     uint32_t id;    
     struct uplink_dll parents;
-    struct node cache;
     char *name;
 };
 
@@ -49,7 +48,6 @@ struct single {
     address_t leaf;
     struct node child;
     struct uplink_dll parents;
-    struct node cache;
     struct uplink child_uplink;
 };
 

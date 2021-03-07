@@ -13,7 +13,6 @@ void init_single(struct single *s, address_t addr)
         .leaf = 0,
         .child = (struct node) { .address = 0 },
         .parents = (struct uplink_dll) { .head = 0 },
-        .cache = (struct node) { .address = 0 },
     };
     init_uplink(&s->child_uplink, CHILD_REL);
 }

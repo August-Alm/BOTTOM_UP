@@ -35,30 +35,6 @@ void set_parents_of_node(struct node nd, struct uplink_dll lks)
     }
 }
 
-struct node cache_of_node(struct node nd)
-{
-    switch (kind(nd)) {
-    case LEAF_NODE:
-        return ((struct leaf*)ptr_of(nd.address))->cache;
-    case SINGLE_NODE:
-        return ((struct single*)ptr_of(nd.address))->cache;
-    case BRANCH_NODE:
-        return ((struct branch*)ptr_of(nd.address))->cache;
-    }
-}
-
-void set_cache_of_node(struct node nd, struct node ch)
-{
-    switch (kind(nd)) {
-    case LEAF_NODE:
-        ((struct leaf*)ptr_of(nd.address))->cache = ch;
-    case SINGLE_NODE:
-        ((struct single*)ptr_of(nd.address))->cache = ch;
-    case BRANCH_NODE:
-        ((struct branch*)ptr_of(nd.address))->cache = ch;
-    }
-}
-
 void add_to_parents(struct uplink *lk, struct node nd)
 {
     struct uplink_dll pars = parents_of_node(nd);

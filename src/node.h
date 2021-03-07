@@ -23,10 +23,6 @@ struct uplink_dll parents_of_node(struct node nd);
 
 void set_parents_of_node(struct node nd, struct uplink_dll lks);
 
-struct node cache_of_node(struct node nd);
-
-void set_cache_of_node(struct node nd, struct node cache);
-
 void add_to_parents(struct uplink *lk, struct node nd);
 
 /* ***** ***** */

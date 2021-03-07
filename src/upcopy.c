@@ -119,11 +119,9 @@ void upcopy(struct node new_child, struct uplink *cclink)
 {
     struct upcopy_state *st = malloc(sizeof(struct upcopy_state));
     MALCHECKx(st);
-    *st = (struct upcopy_state) {
-        .new_child = new_child,
-        .cclink = cclink,
-        .pending = NULL
-    };
+    st->new_child = new_child;
+    st->cclink = cclink;
+    st->pending = NULL;
 
     while (st) {
     
