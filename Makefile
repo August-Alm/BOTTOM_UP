@@ -10,8 +10,7 @@ OBJ =	\
 	obj/heap.o\
 	obj/uplink.o\
 	obj/downclean.o\
-	obj/uplink_stack.o\
-	obj/upcopy.o\
+	obj/reduce.o\
 
 #-std=c11 
 CFLAGS = -Wall -g -std=c11
