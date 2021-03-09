@@ -6,11 +6,9 @@
 /* ***** ***** */
 
 #include "types.h"
-#include "upcopy.h"
+#include "reduce.h"
 
 /* ***** ***** */
-
-struct node reduce(struct branch *b);
 
 struct node normalize_wh(struct node nd);
 
