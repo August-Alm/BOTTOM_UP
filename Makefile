@@ -1,21 +1,19 @@
 LINK_TAR = bin/bottomup
-#LINK_TEST = bin/tests
+LINK_TEST = bin/tests
 TEST_FILE = parsetest.lc
+SRC = ${wildcard src/*.c}
+OBJ = ${patsubst src/%.c, obj/%.o, ${SRC}}
 
-OBJ =	\
-	obj/leaf.o\
-	obj/single.o\
-	obj/branch.o\
-	obj/node.o\
-	obj/heap.o\
-	obj/uplink.o\
-	obj/downclean.o\
-	obj/reduce.o\
-
-#-std=c11 
+#-std=c11
 CFLAGS = -Wall -g -std=c11
 
-run: all
+obj/%.o: src/%.c
+	gcc $(CFLAGS) -o $@ -c $^
+
+$(LINK_TAR): $(OBJ)
+	gcc $(CFLAGS) -o $@ $^ main.c
+
+run: ${LINK_TAR}
 	./$(LINK_TAR) $(TEST_FILE)
 
 all: clean $(LINK_TAR)
@@ -27,19 +25,13 @@ REBUILDS = $(OBJ) $(LINK_TAR) #$(LINK_TEST)
 clean:
 	rm -f $(REBUILDS)
 
-$(LINK_TAR): $(OBJ)
-	gcc $(CFLAGS) -o $@ $^ main.c
+$(LINK_TEST):
+	gcc $(CFLAGS) -o $@ ${SRC} test/test_file.c -lcunit
 
-#$(LINK_TEST): $(OBJ)
-#	gcc $(CFLAGS) -o $@ $^ test/test.c -lcunit
+VALGRIND = --leak-check=full --track-origins=yes --show-leak-kinds=all
 
-obj/%.o: src/%.c
-	gcc $(CFLAGS) -o $@ -c $<
-
-VALGRIND = valgrind --leak-check=full --track-origins=yes
-
-#tests: clean $(LINK_TEST)
-#	$(VALGRIND) ./$(LINK_TEST)
+tests: $(LINK_TEST)
+	valgrind $(VALGRIND) ./$(LINK_TEST)
 
 memtest: all
 	$(VALGRIND) ./$(LINK_TAR)  $(TEST_FILE)
