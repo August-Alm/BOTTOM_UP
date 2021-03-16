@@ -19,13 +19,13 @@ run: ${LINK_TAR}
 all: clean $(LINK_TAR)
 	echo "compiling.."
 
-REBUILDS = $(OBJ) $(LINK_TAR) #$(LINK_TEST)
+REBUILDS = $(OBJ) $(LINK_TAR) $(LINK_TEST)
 
 .PHONY clean:
 clean:
 	rm -f $(REBUILDS)
 
-$(LINK_TEST):
+$(LINK_TEST): clean
 	gcc $(CFLAGS) -o $@ ${SRC} test/test_file.c -lcunit
 
 VALGRIND = --leak-check=full --track-origins=yes --show-leak-kinds=all

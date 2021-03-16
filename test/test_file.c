@@ -17,6 +17,7 @@ void test1(void)
 {
     CU_ASSERT_PTR_NULL(heap);
     heap_setup();
+    CU_ASSERT_PTR_NOT_NULL(heap);
     memory_free();
 }
 
@@ -28,7 +29,7 @@ int main(void)
 	return CU_get_error();
     }
 
-    test_suite = CU_add_suite("Suite", init_suite, clean_suite);
+    test_suite = CU_add_suite("Tests", init_suite, clean_suite);
 
     if (!test_suite) {
 	CU_cleanup_registry();
