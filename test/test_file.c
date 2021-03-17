@@ -26,20 +26,18 @@ int main(void)
     CU_pSuite test_suite = NULL;
 
     if (CUE_SUCCESS != CU_initialize_registry()) {
-	return CU_get_error();
+	    return CU_get_error();
     }
 
     test_suite = CU_add_suite("Tests", init_suite, clean_suite);
 
     if (!test_suite) {
-	CU_cleanup_registry();
-	return CU_get_error();
+	    CU_cleanup_registry();
+	    return CU_get_error();
     }
-    if (
-	!CU_add_test(test_suite, test1_desc, test1)
-	) {
-	CU_cleanup_registry();
-	return CU_get_error();
+    if (!CU_add_test(test_suite, test1_desc, test1)) {
+	    CU_cleanup_registry();
+	    return CU_get_error();
     }
 
     CU_basic_set_mode(CU_BRM_VERBOSE);

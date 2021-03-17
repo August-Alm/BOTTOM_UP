@@ -35,10 +35,17 @@ struct uplink_dll {
 
 /* ***** ***** */
 
+#define NAME_LEN 12
+
+struct name {
+    char str[NAME_LEN];
+    uint32_t refcnt;
+};
+
 struct leaf {
     uint32_t id;    
     struct uplink_dll parents;
-    char *name;
+    struct name *name;
 };
 
 /* ***** ***** */

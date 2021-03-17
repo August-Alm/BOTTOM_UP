@@ -7,9 +7,7 @@
 
 /* ***** ***** */
 
-void init_leaf(
-    struct leaf *l,
-    address_t addr)
+void init_leaf(struct leaf *l, address_t addr)
 {
     *l = (struct leaf) {
         .id = (addr << 2) | LEAF_NODE,
