@@ -9,6 +9,9 @@
 extern
 enum node_kind kind(struct node nd);
 
+extern
+struct node as_node(void *ptr);
+
 /* ***** ***** */
 
 struct uplink_dll parents_of_node(struct node nd)

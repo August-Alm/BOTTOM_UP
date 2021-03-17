@@ -8,6 +8,10 @@
 
 /* ***** ***** */
 
+#define NAME_LEN 12
+
+/* ***** ***** */
+
 int current_lin = 1;
 int current_col = 1;
 

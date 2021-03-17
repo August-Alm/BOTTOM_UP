@@ -35,10 +35,8 @@ struct uplink_dll {
 
 /* ***** ***** */
 
-#define NAME_LEN 12
-
 struct name {
-    char str[NAME_LEN];
+    char *str;
     uint32_t refcnt;
 };
 
