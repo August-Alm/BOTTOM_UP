@@ -1,15 +1,16 @@
 /* ***** ***** */
+#include "parse.h"
+#include "malcheck.h"
+#include "name.h"
 
 #include <stdlib.h>
 #include <ctype.h>
-#include "malcheck.h"
-#include "name.h"
-#include "parse.h"
 
 /* ***** ***** */
 
 int current_lin = 1;
 int current_col = 1;
+
 
 static inline
 int peek_char(FILE *inp)
@@ -83,7 +84,8 @@ struct name *read_name(FILE *inp)
     while (isalpha(c) && i < NAME_LEN) {
         str[i++] = c;
     }
-    return get_name(str);
+    /* return get_name(str); */
+    return NULL;
 }
 
 static
@@ -92,7 +94,7 @@ struct token get_token(FILE *inp)
     int c = consume_space(inp);
     if (isalpha(c)) {
         struct name *name = read_name(inp);
-        return mk_token(name, T_VAR); 
+        return mk_token(name, T_VAR);
     }
     switch (c) {
     case '\\':
@@ -133,3 +135,38 @@ bool consume_token(enum token_tag tag, FILE *inp)
 
 
 /* ***** ***** */
+
+char parse_peek(struct input *inp)
+{
+    if (inp->peek_index == inp->max)
+	return '\0';
+
+    return inp->data[inp->peek_index];
+}
+
+char parse_get(struct input *inp)
+{
+    if (inp->index <= inp->max) {
+	++inp->peek_index;
+	return inp->data[inp->index++];
+    }
+    return '\0';
+}
+
+struct input *read_file(FILE *inp)
+{
+    fseek(inp, 0, SEEK_END);
+    size_t size = ftell(inp);
+    rewind(inp);
+
+    struct input *new = malloc(sizeof(struct input));
+
+    new->max = size;
+    new->index = 0;
+    new->peek_index = 0;
+    new->data = calloc(1, sizeof(char) * size + 1);
+
+    fread(new->data, sizeof(char), size, inp);
+
+    return new;
+}
