@@ -15,6 +15,16 @@ struct input_handle
 	int column;
 };
 
+int current_line(struct input_handle *h)
+{
+    return h->line;
+}
+
+int current_column(struct input_handle *h)
+{
+    return h->column;
+}
+
 /* ***** ****** */
 
 int read_char(struct input_handle *h)

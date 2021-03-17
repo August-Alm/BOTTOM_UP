@@ -7,6 +7,10 @@
 
 struct input_handle;
 
+int current_line(struct input_handle *h);
+
+int current_column(struct input_handle *h);
+
 int read_char(struct input_handle *h);
 
 int consume_space(struct input_handle *h);
