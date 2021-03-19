@@ -35,7 +35,7 @@ struct name *read_name(char c, struct input_handle *h)
 
 struct token read_token(struct input_handle *h)
 {
-	int c = consume_space(h);
+	int c = read_nonspace_char(h);
     int curr_lin = current_line(h);
     int curr_col = current_column(h);
 
@@ -70,7 +70,7 @@ struct token read_token(struct input_handle *h)
 
 bool consume_token(enum token_tag tag, struct input_handle *h)
 {
-    consume_space(h);
+    read_nonspace_char(h);
     int curr_lin = current_line(h);
     int curr_col = current_column(h);
 
@@ -83,3 +83,5 @@ bool consume_token(enum token_tag tag, struct input_handle *h)
 }
 
 /* ***** ***** */
+
+// end of token.c

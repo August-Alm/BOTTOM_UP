@@ -11,9 +11,11 @@ int current_line(struct input_handle *h);
 
 int current_column(struct input_handle *h);
 
+int peek_char(struct input_handle *h);
+
 int read_char(struct input_handle *h);
 
-int consume_space(struct input_handle *h);
+int read_nonspace_char(struct input_handle *h);
 
 /* ***** ***** */
 
@@ -21,7 +23,9 @@ struct file_handle;
 
 struct input_handle *input_from_file(struct file_handle *fh);
 
-void init_file_handle(struct file_handle *fh, FILE *fp);
+struct file_handle *new_file_handle(FILE *fp);
+
+void free_file_handle(struct file_handle *fh);
 
 /* ***** ***** */
 
@@ -29,7 +33,9 @@ struct string_handle;
 
 struct input_handle *input_from_string(struct string_handle *sh);
 
-void init_string_handle(struct string_handle *sh, const char *str, int sz);
+struct string_handle *new_string_handle(char *str);
+
+void free_string_handle(struct string_handle *sh);
 
 /* ***** ***** */
 
