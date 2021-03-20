@@ -182,22 +182,23 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
                 continue;
             }
             case T_LAM: {
-		        tok = read_token(h);
-		        if (tok.tag != T_NAME) {
-			        PRINT_MSG("Expected variable name", tok);
-			        retval = as_node(NULL);
+		tok = read_token(h);
+
+		if (tok.tag != T_NAME) {
+		    PRINT_MSG("Expected variable name", tok);
+		    retval = as_node(NULL);
                     continue;
-		        }
-		        struct name *nam = tok.name;
-		        tok = read_token(h);
-		        if (tok.tag != T_DOT) {
-			        PRINT_MSG("Expected '.'", tok);
-			        retval = as_node(NULL);
+		}
+		struct name *nam = tok.name;
+		tok = read_token(h);
+		if (tok.tag != T_DOT) {
+		    PRINT_MSG("Expected '.'", tok);
+		    retval = as_node(NULL);
                     continue;
-		        }
-		        struct leaf *l = halloc_leaf();
-		        l->name = nam;
-		        add_binding(nam, as_node(l), &env);
+		}
+		struct leaf *l = halloc_leaf();
+		l->name = nam;
+		add_binding(nam, as_node(l), &env);
 
                 curr.tag = S_LAM_BOD;
                 curr.lam_bod.name = nam;

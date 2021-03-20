@@ -29,13 +29,31 @@ void test1(void)
     memory_free();
 }
 
-const char *test2_desc = "2: parse easy input \"\\x.x\"";
+const char *test2_desc = "2: parse easy input \"x x\"";
 void test2(void)
 {
     heap_setup();
     setup_names();
 
-    struct string_handle *sh = new_string_handle(strdup("\\x.x"));
+    struct string_handle *sh = new_string_handle(strdup("x x"));
+    CU_ASSERT_PTR_NOT_NULL(sh);
+    struct input_handle *ih = input_from_string(sh);
+    CU_ASSERT_PTR_NOT_NULL(ih);
+    struct node result = parse_node(ih);
+    /* Don't know what it should be, leaf, branch or what */
+
+    free_string_handle(sh);
+    free_names();
+    memory_free();
+}
+
+const char *test3_desc = "3: parse easy input \"\\f.x\"";
+void test3(void)
+{
+    heap_setup();
+    setup_names();
+
+    struct string_handle *sh = new_string_handle(strdup("\\f.x"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
@@ -63,6 +81,7 @@ int main(void)
     }
     if (!CU_add_test(test_suite, test1_desc, test1)
 	|| !CU_add_test(test_suite, test2_desc, test2)
+	|| !CU_add_test(test_suite, test3_desc, test3)
 	) {
 	    CU_cleanup_registry();
 	    return CU_get_error();
