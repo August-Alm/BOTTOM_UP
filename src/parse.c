@@ -18,7 +18,7 @@ struct env_sll {
 }; 
 
 static
-void push_binding(struct name *nam, struct node nd, struct env_sll **env)
+void add_binding(struct name *nam, struct node nd, struct env_sll **env)
 {
     struct env_sll *new = malloc(sizeof(struct env_sll));
     new->next = *env;
@@ -26,6 +26,31 @@ void push_binding(struct name *nam, struct node nd, struct env_sll **env)
     new->bound = nd;
     *env = new;
 }
+
+static
+void rem_binding(struct name *nam, struct node bnd, struct env_sll *env)
+{
+    if (env) {
+        if (env->name == nam && env->bound.address == bnd.address) {
+            struct env_sll *tmp = env;
+            *env = *env->next;
+            free(tmp);
+            return;
+        }
+    }
+    struct env_sll *tmp0 = env;
+    struct env_sll *tmp1 = tmp0->next;
+    while (tmp1) {
+        if (tmp1->name == nam && tmp1->bound.address == bnd.address) {
+            *tmp0->next = *tmp1->next;
+            free(tmp1);
+            return;
+        }
+        tmp0 = tmp1;
+        tmp1 = tmp1->next;
+    }
+}
+
 
 static
 struct node get_bound(struct env_sll *env, struct name *nam)
@@ -54,182 +79,258 @@ void free_env(struct env_sll *env)
 
 /* ***** ***** */
 
-enum waiting_tag { W_UPLINK, W_NAME };
+enum state_tag {
+    S_START,
+    S_LAM_BOD,
+    S_APP_FUN,
+    S_APP_ARG,
+    S_LET_BND,
+    S_LET_BOD
+};
 
-struct waiting {
+struct state {
     union {
-        struct uplink *uplink;
-        struct name *name;
+        struct {
+             struct name *name;
+             struct leaf *leaf;
+        } lam_bod;
+        struct branch *app_arg;
+        struct name *let_bnd;
+        struct {
+             struct name *name;
+             struct node bound;
+        } let_bod;
+        void *junk;
     };
-    enum waiting_tag tag;
+    enum state_tag tag;
 };
 
-struct waiting_sll {
-    struct waiting_sll *queue;
-    struct waiting first;
+struct state_sll {
+    struct state_sll *next;
+    struct state curr;
 };
 
-static
-void push_waiting_uplink(struct uplink *lk, struct waiting_sll **ws)
+void push_state(struct state newcurr, struct state_sll **stack)
 {
-    struct waiting_sll *new = malloc(sizeof(struct waiting_sll));
-    new->queue = *ws;
-    new->first.uplink = lk;
-    new->first.tag = W_UPLINK;
-    *ws = new;
+    struct state_sll *new = malloc(sizeof(struct state_sll));
+    new->next = *stack;
+    new->curr = newcurr;
+    *stack = new;
 }
 
-static
-void push_waiting_name(struct name *nam, struct waiting_sll **ws)
+struct state pop_state(struct state_sll *stack)
 {
-    struct waiting_sll *new = malloc(sizeof(struct waiting_sll));
-    new->queue = *ws;
-    new->first.name = nam;
-    new->first.tag = W_NAME;
-    *ws = new;
-}
-
-static
-struct waiting pop_waiting(struct waiting_sll *ws)
-{
-    struct waiting w = ws->first;
-    struct waiting_sll *tmp = ws;
-    *ws = *ws->queue;
+    struct state_sll *tmp = stack;
+    if (!tmp) {
+        fprintf(stderr, "Can't pop empty state stack!\n");
+        exit(EXIT_FAILURE);
+    }
+    struct state curr = tmp->curr;
+    *stack = *tmp->next;
     free(tmp);
+    return curr;
 }
-
-/* ***** ***** */
-
-enum parse_state_tag {
-    P_INIT,
-    P_RUNNING,
-    P_BINDING,
-    P_DOT,
-    P_RPAR,
-    P_EQ,
-    P_DONE
-};
-
-struct parse_state {
-    struct env_sll *env;
-    struct waiting_sll *ws;
-    struct node res;
-    enum parse_state_tag tag;
-};
 
 /* ***** ***** */
 
 static inline
-void connect_child(struct node nd, struct uplink *lk)
+void connect_child(struct node ch, struct single *s)
 {
-    switch (lk->rel) {
-    case CHILD_REL:
-        single_of_child(lk)->child = nd;
-        break;
-    case LCHILD_REL:
-        branch_of_lchild(lk)->lchild = nd;
-        break;
-    case RCHILD_REL:
-        branch_of_rchild(lk)->rchild = nd;
-        break;
-    }
-    add_to_parents(lk, nd); 
+    s->child = ch;
+    add_to_parents(&s->child_uplink, ch);
 }
+
+static inline
+void connect_lchild(struct node lch, struct branch *b)
+{
+    b->lchild = lch;
+    add_to_parents(&b->lchild_uplink, lch); 
+}
+
+static inline
+void connect_rchild(struct node rch, struct branch *b)
+{
+    b->rchild = rch;
+    add_to_parents(&b->rchild_uplink, rch); 
+}
+
+/* ***** ***** */
 
 static
-void serve_waiting(struct parse_state *st, enum waiting_tag wtag, struct node nd)
+struct node parse_env(struct input_handle *h, struct env_sll *env)
 {
-    switch (wtag) {
-    case W_UPLINK: {
-         struct waiting first = pop_waiting(st->ws);
-         struct uplink *lk = first.uplink;
-         connect_child(nd, lk);
-         if (lk->rel == RCHILD_REL) {
-            st->tag = P_RPAR;
-            break;
-         }
-         struct waiting_sll *ws = st->ws;
-         if (!ws) {
-            st->tag = P_DONE;
-         }
-         else if (ws->first.tag == W_NAME) {
-            st->tag = P_BINDING;
-         }
-         break;
-    }
-    case W_NAME: {
-        struct waiting first = pop_waiting(st->ws);
-        struct name *nam = first.name;
-        push_binding(nam, nd, &st->env);
-        struct waiting_sll *ws = st->ws;
-        if (!ws) {
-            st->tag = P_DONE;
+    struct node retval = as_node(NULL);
+    
+    struct state_sll *stack = NULL;
+    struct state curr = (struct state) {
+        .junk = NULL,
+        .tag = S_START
+    };
+    push_state(curr, &stack);
+
+    struct token tok = read_token(h);
+
+    while (stack) {
+        curr = pop_state(stack);
+        switch (curr.tag) {
+
+        case S_START: {
+            switch (tok.tag) {
+            case T_NAME: {
+                retval = get_bound(env, tok.name);
+                continue;
+            }
+            case T_LAM: {
+		        tok = read_token(h);
+		        if (tok.tag != T_NAME) {
+			        PRINT_MSG("Expected variable name", tok);
+			        retval = as_node(NULL);
+                    continue;
+		        }
+		        struct name *nam = tok.name;
+		        tok = read_token(h);
+		        if (tok.tag != T_DOT) {
+			        PRINT_MSG("Expected '.'", tok);
+			        retval = as_node(NULL);
+                    continue;
+		        }
+		        struct leaf *l = halloc_leaf();
+		        l->name = nam;
+		        add_binding(nam, as_node(l), &env);
+            
+                curr.tag = S_LAM_BOD;
+                curr.lam_bod.name = nam;
+                curr.lam_bod.leaf = l;
+                push_state(curr, &stack);
+
+                struct state newcurr;
+                newcurr.tag = S_START;
+                newcurr.junk = NULL;
+                push_state(newcurr, &stack);
+                continue; 
+            }
+            case T_LPAR: {
+                curr.tag = S_APP_FUN;
+                curr.junk = NULL;
+                push_state(curr, &stack);
+                
+                struct state newcurr;
+                newcurr.tag = S_START;
+                newcurr.junk = NULL;
+                push_state(newcurr, &stack);
+                continue;
+            } 
+            case T_LET: {
+                tok = read_token(h);
+                if (tok.tag != T_NAME) {
+                    PRINT_MSG("Expected variable name", tok);
+                    retval = as_node(NULL);
+                    continue;
+                }
+                struct name *nam = tok.name;
+                tok = read_token(h);
+                if (tok.tag != T_EQ) {
+                    PRINT_MSG("Expected '='", tok);
+                    retval = as_node(NULL);
+                    continue;
+                }
+                
+                curr.tag = S_LET_BND;
+                curr.let_bnd = nam;
+                push_state(curr, &stack);
+
+                struct state newcurr;
+                newcurr.tag = S_START;
+                newcurr.junk = NULL;
+                push_state(newcurr, &stack);
+                continue;
+            }
+            default:
+                PRINT_MSG("Unexpected token", tok);
+                retval = as_node(NULL);
+                continue;
+            }
         }
-        else if (ws->first.tag == W_UPLINK) {
-            st->tag = P_RUNNING;
+
+        case S_LAM_BOD: {
+            struct single *s = halloc_single();
+            s->leaf = address_of(curr.lam_bod.leaf);
+            s->child = retval;
+            retval = as_node(s);
+            continue;
         }
-        break;
-    }
-    default:
-        fprintf(stderr, "Inexplicable `serve_waiting` error.\n");
-        st->tag = P_DONE;
-    }
+
+        case S_APP_FUN: {
+            struct branch *b = halloc_branch();
+            connect_lchild(retval, b);
+
+            curr.tag = S_APP_ARG;
+            curr.app_arg = b;
+            push_state(curr, &stack);
+
+            struct state newcurr;
+            newcurr.tag = S_START;
+            newcurr.junk = NULL;
+            push_state(newcurr, &stack);
+            continue;
+        }
+
+        case S_APP_ARG: {
+            struct branch *b = curr.app_arg;
+            connect_rchild(retval, b);
+            
+            tok = read_token(h);
+            if (tok.tag != T_RPAR) {
+                PRINT_MSG("Expected ')'", tok);
+                retval = as_node(NULL);
+                continue;
+            }
+
+            retval = as_node(b);
+            continue;
+        }
+        
+        case S_LET_BND: {
+            struct name *nam = curr.let_bnd;
+            struct node bnd = retval;
+            add_binding(nam, bnd, &env);
+
+            curr.tag = S_LET_BOD;
+            curr.let_bod.name = nam;
+            curr.let_bod.bound = bnd;
+            push_state(curr, &stack);
+
+            struct state newcurr;
+            newcurr.tag = S_START;
+            newcurr.junk = NULL;
+            push_state(newcurr, &stack);
+            continue;
+        }
+
+        case S_LET_BOD: {
+            struct name *nam = curr.let_bod.name;
+            struct node bnd = curr.let_bod.bound;
+            rem_binding(nam, bnd, env);
+            continue;
+        }
+        default:
+            fprintf(stderr, "Inexplicable parse error.\n");
+            return as_node(NULL);
+        }
+    } 
+    return retval;
 }
 
 /* ***** ***** */
 
-void p_init(struct parse_state *st, struct token tok)
+struct node parse_node(struct input_handle *h)
 {
-
+    struct env_sll *env = NULL;
+    struct node result = parse_env(h, env);
+    free_env(env);
+    return result;
 }
-
-void p_running(struct parse_state *st, struct token tok)
-{
-
-}
-
-void p_binding(struct parse_state *st, struct token tok)
-{
-
-}
-
-void p_dot(struct parse_state *st, struct token tok)
-{
-    if (tok.tag != T_DOT) {
-        PRINT_MSG("Expected '.'", tok);
-        st->tag = P_DONE;
-    }
-}
-
-void p_rpar(struct parse_state *st, struct token tok)
-{
-    if (tok.tag != T_RPAR) {
-        PRINT_MSG("Expected ')'", tok);
-        st->tag = P_DONE;
-        return;
-    }
-    struct waiting_sll *ws = st->ws;
-    if (!ws) {
-        st->tag = P_DONE;
-    }
-    else if (ws->first.tag == W_UPLINK) {
-        st->tag = P_RUNNING;
-    }
-    else {
-        // How to get more than one rpar?
-    }
-}
-
-void p_eq(struct parse_state *st, struct token tok)
-{
-
-}
-
-/* ***** ***** */
-
-/* ***** ***** */
 
 /* ***** ***** */
 
 // end of parse.c
-
