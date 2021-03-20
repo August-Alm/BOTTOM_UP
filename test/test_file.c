@@ -1,6 +1,7 @@
 #include <CUnit/Basic.h>
 
 #include "../src/heap.h"
+#include "../src/name.h"
 #include "../src/input.h"
 #include "../src/parse.h"
 #include "../src/types.h"
@@ -31,13 +32,19 @@ void test1(void)
 const char *test2_desc = "2: parse easy input \"\\x.x\"";
 void test2(void)
 {
+    heap_setup();
+    setup_names();
+
     struct string_handle *sh = new_string_handle(strdup("\\x.x"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node result = parse_node(ih);
     /* Don't know what it should be, leaf, branch or what */
+
     free_string_handle(sh);
+    free_names();
+    memory_free();
 }
 
 int main(void)

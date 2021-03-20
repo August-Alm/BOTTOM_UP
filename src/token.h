@@ -46,7 +46,7 @@ struct token mk_token(struct name *nam,
 }
 
 #define PRINT_MSG(str, tok) do {                                     \
-	fprintf(stderr, "%s at (%n, %n).\n", str, tok.line, tok.column); \
+	fprintf(stderr, "%s at (%d, %d).\n", str, tok.line, tok.column); \
 } while(0)
 
 /* ***** ***** */

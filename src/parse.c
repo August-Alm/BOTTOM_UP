@@ -15,7 +15,7 @@ struct env_sll {
     struct env_sll *next;
     struct name *name;
     struct node bound;
-}; 
+};
 
 static
 void add_binding(struct name *nam, struct node nd, struct env_sll **env)
@@ -118,15 +118,15 @@ void push_state(struct state newcurr, struct state_sll **stack)
     *stack = new;
 }
 
-struct state pop_state(struct state_sll *stack)
+struct state pop_state(struct state_sll **stack)
 {
-    struct state_sll *tmp = stack;
+    struct state_sll *tmp = *stack;
     if (!tmp) {
         fprintf(stderr, "Can't pop empty state stack!\n");
         exit(EXIT_FAILURE);
     }
     struct state curr = tmp->curr;
-    *stack = *tmp->next;
+    *stack = tmp->next;
     free(tmp);
     return curr;
 }
@@ -144,14 +144,14 @@ static inline
 void connect_lchild(struct node lch, struct branch *b)
 {
     b->lchild = lch;
-    add_to_parents(&b->lchild_uplink, lch); 
+    add_to_parents(&b->lchild_uplink, lch);
 }
 
 static inline
 void connect_rchild(struct node rch, struct branch *b)
 {
     b->rchild = rch;
-    add_to_parents(&b->rchild_uplink, rch); 
+    add_to_parents(&b->rchild_uplink, rch);
 }
 
 /* ***** ***** */
@@ -160,7 +160,7 @@ static
 struct node parse_env(struct input_handle *h, struct env_sll *env)
 {
     struct node retval = as_node(NULL);
-    
+
     struct state_sll *stack = NULL;
     struct state curr = (struct state) {
         .junk = NULL,
@@ -171,7 +171,8 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
     struct token tok = read_token(h);
 
     while (stack) {
-        curr = pop_state(stack);
+        curr = pop_state(&stack);
+
         switch (curr.tag) {
 
         case S_START: {
@@ -197,7 +198,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
 		        struct leaf *l = halloc_leaf();
 		        l->name = nam;
 		        add_binding(nam, as_node(l), &env);
-            
+
                 curr.tag = S_LAM_BOD;
                 curr.lam_bod.name = nam;
                 curr.lam_bod.leaf = l;
@@ -207,19 +208,19 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
                 newcurr.tag = S_START;
                 newcurr.junk = NULL;
                 push_state(newcurr, &stack);
-                continue; 
+                continue;
             }
             case T_LPAR: {
                 curr.tag = S_APP_FUN;
                 curr.junk = NULL;
                 push_state(curr, &stack);
-                
+
                 struct state newcurr;
                 newcurr.tag = S_START;
                 newcurr.junk = NULL;
                 push_state(newcurr, &stack);
                 continue;
-            } 
+            }
             case T_LET: {
                 tok = read_token(h);
                 if (tok.tag != T_NAME) {
@@ -234,7 +235,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
                     retval = as_node(NULL);
                     continue;
                 }
-                
+
                 curr.tag = S_LET_BND;
                 curr.let_bnd = nam;
                 push_state(curr, &stack);
@@ -278,7 +279,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
         case S_APP_ARG: {
             struct branch *b = curr.app_arg;
             connect_rchild(retval, b);
-            
+
             tok = read_token(h);
             if (tok.tag != T_RPAR) {
                 PRINT_MSG("Expected ')'", tok);
@@ -289,7 +290,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
             retval = as_node(b);
             continue;
         }
-        
+
         case S_LET_BND: {
             struct name *nam = curr.let_bnd;
             struct node bnd = retval;
@@ -317,7 +318,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
             fprintf(stderr, "Inexplicable parse error.\n");
             return as_node(NULL);
         }
-    } 
+    }
     return retval;
 }
 
