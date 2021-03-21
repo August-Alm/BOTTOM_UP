@@ -29,13 +29,13 @@ void test1(void)
     memory_free();
 }
 
-const char *test2_desc = "2: parse easy input \"x x\"";
+const char *test2_desc = "2: parse easy input \"\\x.x\"";
 void test2(void)
 {
     heap_setup();
     setup_names();
 
-    struct string_handle *sh = new_string_handle(strdup("x x"));
+    struct string_handle *sh = new_string_handle(strdup("\\x.x"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
@@ -47,13 +47,13 @@ void test2(void)
     memory_free();
 }
 
-const char *test3_desc = "3: parse easy input \"\\f.x\"";
+const char *test3_desc = "3: parse easy input \"\\f.\\x.(f x)\"";
 void test3(void)
 {
     heap_setup();
     setup_names();
 
-    struct string_handle *sh = new_string_handle(strdup("\\f.x"));
+    struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);

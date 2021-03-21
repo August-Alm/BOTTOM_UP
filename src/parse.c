@@ -168,7 +168,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
     };
     push_state(curr, &stack);
 
-    struct token tok = read_token(h);
+    struct token tok;
 
     while (stack) {
         curr = pop_state(&stack);
@@ -176,29 +176,30 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
         switch (curr.tag) {
 
         case S_START: {
+            tok = read_token(h);
             switch (tok.tag) {
             case T_NAME: {
                 retval = get_bound(env, tok.name);
                 continue;
             }
             case T_LAM: {
-		tok = read_token(h);
+		        tok = read_token(h);
 
-		if (tok.tag != T_NAME) {
-		    PRINT_MSG("Expected variable name", tok);
-		    retval = as_node(NULL);
+		        if (tok.tag != T_NAME) {
+		            PRINT_MSG("Expected variable name", tok);
+		            retval = as_node(NULL);
                     continue;
-		}
-		struct name *nam = tok.name;
-		tok = read_token(h);
-		if (tok.tag != T_DOT) {
-		    PRINT_MSG("Expected '.'", tok);
-		    retval = as_node(NULL);
+		        }
+		        struct name *nam = tok.name;
+		        tok = read_token(h);
+		        if (tok.tag != T_DOT) {
+		            PRINT_MSG("Expected '.'", tok);
+		            retval = as_node(NULL);
                     continue;
-		}
-		struct leaf *l = halloc_leaf();
-		l->name = nam;
-		add_binding(nam, as_node(l), &env);
+		        }
+		        struct leaf *l = halloc_leaf();
+		        l->name = nam;
+		        add_binding(nam, as_node(l), &env);
 
                 curr.tag = S_LAM_BOD;
                 curr.lam_bod.name = nam;
@@ -315,6 +316,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
             rem_binding(nam, bnd, env);
             continue;
         }
+
         default:
             fprintf(stderr, "Inexplicable parse error.\n");
             return as_node(NULL);
