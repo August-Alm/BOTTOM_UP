@@ -3,6 +3,7 @@
 #include "../src/heap.h"
 #include "../src/name.h"
 #include "../src/input.h"
+#include "../src/token.h"
 #include "../src/parse.h"
 #include "../src/types.h"
 
@@ -29,8 +30,30 @@ void test1(void)
     memory_free();
 }
 
-const char *test2_desc = "2: parse easy input \"\\x.x\"";
+const char *test2_desc = "2: tokenizing \"\\f.\\x.(f x)\"";
 void test2(void)
+{
+    heap_setup();
+    setup_names();
+
+    struct string_handle *sh = new_string_handle(strdup("\\x.x"));
+    CU_ASSERT_PTR_NOT_NULL(sh);
+    struct input_handle *ih = input_from_string(sh);
+    CU_ASSERT_PTR_NOT_NULL(ih);
+    
+    struct token tok = read_token(ih);
+    while (tok.tag != T_EOF) {
+        fprintf_token(stdout, tok);
+        tok = read_token(ih);
+    }
+
+    free_string_handle(sh);
+    free_names();
+    memory_free();
+}
+
+const char *test3_desc = "3: parse easy input \"\\x.x\"";
+void test3(void)
 {
     heap_setup();
     setup_names();
@@ -47,8 +70,8 @@ void test2(void)
     memory_free();
 }
 
-const char *test3_desc = "3: parse easy input \"\\f.\\x.(f x)\"";
-void test3(void)
+const char *test4_desc = "4: parse easy input \"\\f.\\x.(f x)\"";
+void test4(void)
 {
     heap_setup();
     setup_names();

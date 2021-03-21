@@ -84,7 +84,7 @@ bool consume_token(enum token_tag tag, struct input_handle *h)
 
 /* ***** ***** */
 
-void print_token(FILE *fp, struct token tok)
+void fprintf_token(FILE *fp, struct token tok)
 {
     switch (tok.tag) {
     case T_NAME:
