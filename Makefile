@@ -37,4 +37,9 @@ memtest: all
 	$(VALGRIND) ./$(LINK_TAR)  $(TEST_FILE)
 
 debug: all
-	gdb --args ./bin/bottomup ${TEST_FILE}
+	${LINK_TEST}
+	ifeq (${MODE}, testing)
+		gdb --args ./${LINK_TEST}
+	else
+		gdb --args ./bin/bottomup ${TEST_FILE}
+	endif

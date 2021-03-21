@@ -36,7 +36,7 @@ void test2(void)
     heap_setup();
     setup_names();
 
-    struct string_handle *sh = new_string_handle(strdup("\\x.x"));
+    struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
@@ -70,23 +70,23 @@ void test3(void)
     memory_free();
 }
 
-const char *test4_desc = "4: parse easy input \"\\f.\\x.(f x)\"";
-void test4(void)
-{
-    heap_setup();
-    setup_names();
-
-    struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
-    CU_ASSERT_PTR_NOT_NULL(sh);
-    struct input_handle *ih = input_from_string(sh);
-    CU_ASSERT_PTR_NOT_NULL(ih);
-    struct node result = parse_node(ih);
-    /* Don't know what it should be, leaf, branch or what */
-
-    free_string_handle(sh);
-    free_names();
-    memory_free();
-}
+//const char *test4_desc = "4: parse easy input \"\\f.\\x.(f x)\"";
+//void test4(void)
+//{
+//    heap_setup();
+//    setup_names();
+//
+//    struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
+//    CU_ASSERT_PTR_NOT_NULL(sh);
+//    struct input_handle *ih = input_from_string(sh);
+//    CU_ASSERT_PTR_NOT_NULL(ih);
+//    struct node result = parse_node(ih);
+//    /* Don't know what it should be, leaf, branch or what */
+//
+//    free_string_handle(sh);
+//    free_names();
+//    memory_free();
+//}
 
 int main(void)
 {

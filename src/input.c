@@ -138,7 +138,7 @@ struct string_handle *new_string_handle(char *str)
 	sh->base.column = 1;
     sh->base.peek = *str;
 	sh->string = str;
-	sh->position = 0;
+	sh->position = 1;
     return sh;
 }
 

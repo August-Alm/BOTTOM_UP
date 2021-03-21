@@ -80,18 +80,18 @@ struct name *get_name(char *str)
         index = (index + 1) % names->size;
         if (index == start) {
             uint64_t idx = names_add(str);
-            return (struct name*)&names->buckets[idx]->val;
+            return (struct name*)&names->buckets[idx]->key;
         }
     }
     if (!names->buckets[index]->key) {
         uint64_t idx = names_add(str);
-        return (struct name*)&names->buckets[idx]->val;
+        return (struct name*)&names->buckets[idx]->key;
     }
 
-    struct name *val = (struct name*)&names->buckets[index]->val;
-    val->refcnt++;
+    struct name *nam = (struct name*)&names->buckets[index]->key;
+    nam->refcnt++;
     free(str);
-    return val;
+    return nam;
 }
 
 void clear_names()

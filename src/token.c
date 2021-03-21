@@ -24,7 +24,7 @@ struct name *read_name(char c, struct input_handle *h)
     char *str = calloc(1, sizeof(char) * NAME_LEN);
     MALCHECK0(str);
     int i = 0;
-    while (isalpha(c) && i < NAME_LEN) {
+    while (isalpha(c) && i < NAME_LEN - 1) {
         str[i++] = c;
         c = read_char(h);
     }
