@@ -24,10 +24,13 @@ struct name *read_name(char c, struct input_handle *h)
     char *str = calloc(1, sizeof(char) * NAME_LEN);
     MALCHECK0(str);
     int i = 0;
-    while (isalpha(c) && i < NAME_LEN - 1) {
+    int cnext = peek_char(h);
+    while (isalpha(cnext) && i < NAME_LEN - 2) {
         str[i++] = c;
         c = read_char(h);
+        cnext = peek_char(h);
     }
+    str[i] = c;
     return get_name(str);
 }
 
@@ -88,28 +91,28 @@ void fprintf_token(FILE *fp, struct token tok)
 {
     switch (tok.tag) {
     case T_NAME:
-        fprintf(fp, "T_NAME: %s", tok.name->str);
+        fprintf(fp, "T_NAME: %s ", tok.name->str);
         break;
     case T_LAM:
-        fprintf(fp, "T_LAM");
+        fprintf(fp, "T_LAM ");
         break;
     case T_DOT:
-        fprintf(fp, "T_DOT");
+        fprintf(fp, "T_DOT ");
         break;
     case T_LPAR:
-        fprintf(fp, "T_LPAR");
+        fprintf(fp, "T_LPAR ");
         break;
     case T_RPAR:
-        fprintf(fp, "T_RPAR");
+        fprintf(fp, "T_RPAR ");
         break;
     case T_LET:
-        fprintf(fp, "T_LET");
+        fprintf(fp, "T_LET ");
         break;
     case T_EQ:
-        fprintf(fp, "T_EQ");
+        fprintf(fp, "T_EQ ");
         break;
     case T_EOF:
-        fprintf(fp, "T_EOF");
+        fprintf(fp, "T_EOF ");
         break;
     }
 }
