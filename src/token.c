@@ -84,4 +84,36 @@ bool consume_token(enum token_tag tag, struct input_handle *h)
 
 /* ***** ***** */
 
+void print_token(FILE *fp, struct token tok)
+{
+    switch (tok.tag) {
+    case T_NAME:
+        fprintf(fp, "T_NAME: %s", tok.name->str);
+        break;
+    case T_LAM:
+        fprintf(fp, "T_LAM");
+        break;
+    case T_DOT:
+        fprintf(fp, "T_DOT");
+        break;
+    case T_LPAR:
+        fprintf(fp, "T_LPAR");
+        break;
+    case T_RPAR:
+        fprintf(fp, "T_RPAR");
+        break;
+    case T_LET:
+        fprintf(fp, "T_LET");
+        break;
+    case T_EQ:
+        fprintf(fp, "T_EQ");
+        break;
+    case T_EOF:
+        fprintf(fp, "T_EOF");
+        break;
+    }
+}
+
+/* ***** ***** */
+
 // end of token.c

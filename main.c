@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 #include "src/heap.h"
+#include "src/name.h"
+#include "src/input.h"
+#include "src/parse.h"
 
 /* ***** ***** */
 
@@ -11,8 +14,12 @@ int main(int argc, char *argv[])
     FILE *fp = fopen(argv[1], "r");
     if (fp) {
         heap_setup();
+        setup_names();
+        struct file_handle *fh = new_file_handle(fp);
+        struct node nd = parse_node(input_from_file(fh));
         memory_free();
-        fclose(fp);
+        free_names();
+        free_file_handle(fh);
     }
     else {
         fprintf(stderr, "Error reading file.\n");
