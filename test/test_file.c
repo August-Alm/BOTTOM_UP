@@ -1,3 +1,5 @@
+/* ***** ***** */
+
 #include <CUnit/Basic.h>
 
 #include "../src/heap.h"
@@ -6,8 +8,11 @@
 #include "../src/token.h"
 #include "../src/parse.h"
 #include "../src/types.h"
+#include "../src/print.h"
 
 #include <string.h>
+
+/* ***** ***** */
 
 extern char * strdup(const char *);
 
@@ -70,7 +75,7 @@ void test3(void)
     memory_free();
 }
 
-const char *test4_desc = "4: parse easy input \"\\f.\\x.(f x)\"";
+const char *test4_desc = "4: parse and print input \"\\f.\\x.(f x)\"";
 void test4(void)
 {
     heap_setup();
@@ -81,12 +86,14 @@ void test4(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node result = parse_node(ih);
-    /* Don't know what it should be, leaf, branch or what */
+    fprintf_node(stdout, result);
 
     free_string_handle(sh);
     free_names();
     memory_free();
 }
+
+/* ***** ***** */
 
 int main(void)
 {
@@ -117,3 +124,9 @@ int main(void)
     CU_cleanup_registry();
     return CU_get_error();
 }
+
+/* ***** ***** */
+
+// end of test_file.c
+
+

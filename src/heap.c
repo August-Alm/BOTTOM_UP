@@ -7,6 +7,7 @@
 #include "leaf.h"
 #include "single.h"
 #include "branch.h"
+#include "name.h"
 
 /* ***** ***** */
 
@@ -106,6 +107,7 @@ struct leaf *halloc_leaf()
 void dehalloc_leaf(struct leaf *l)
 {
     if (top_cleared_leaves < LEAF_MAX - 1) {
+        decref_name(l->name);
         cleared_leaves[++top_cleared_leaves] = l; 
     }
     else {
@@ -135,6 +137,7 @@ struct single *halloc_single()
 
 void dehalloc_single(struct single *s)
 {
+    dehalloc_leaf((struct leaf*)ptr_of(s->leaf));
     if (top_cleared_singles < SINGLE_MAX - 1) {
         cleared_singles[++top_cleared_singles] = s; 
     }

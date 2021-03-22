@@ -57,7 +57,7 @@ void push_or_goto_pending(void *node_ptr, struct uplink_dll lks)
         exit(EXIT_FAILURE);
     }
     upcopy_stack[++top_upcopy_stack] = (struct upcopy_state) {
-        .new_child = (struct node) { .address = address_of(node_ptr) },
+        .new_child = as_node(node_ptr),
         .cclink = head_of(lks)
     };
 }
@@ -70,7 +70,9 @@ void upcopy_child(struct node nc, struct uplink *lk)
     struct single *s = single_of_child(lk);
     struct leaf *l = (struct leaf*)ptr_of(s->leaf);
     struct leaf *cl = halloc_leaf();
-    cl->name = l->name;
+    struct name *nam = l->name;
+    cl->name = nam;
+    nam->refcnt++;
     struct single *cs = halloc_single();
     cs->leaf = address_of(cl);
     cs->child = nc;
@@ -107,7 +109,7 @@ void upcopy_rchild(struct node nc, struct uplink *lk)
         cb = halloc_branch();
         cb->lchild = b->lchild;
         cb->rchild = nc;
-        b->cache = (struct node) { .address = address_of(cb) };
+        b->cache = as_node(cb);
         push_or_goto_pending(cb, b->parents);
     }
     else {
@@ -210,28 +212,30 @@ struct node reduce(struct branch *redex)
     struct branch *topapp = get_topapp(lam);
     
     struct branch *cc_topapp = cc_branch(topapp->lchild, topapp->rchild);
-    topapp->cache = (struct node) { .address = address_of(cc_topapp) };
+    topapp->cache = as_node(cc_topapp);
     
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
     push_or_goto_pending(&redex->rchild, var->parents);
     
     upcopy();
     
-    struct node ans = (struct node) { .address = address_of(cc_topapp) };
+    struct node ans = as_node(cc_topapp);
     
     while (top_uplink_stack != -1) {
         struct uplink *lk = pop_uplink_stack();
         struct single *s = single_of_child(lk);
         struct leaf *l = (struct leaf*)ptr_of(s->leaf);
         struct leaf *cl = halloc_leaf();
-        cl->name = l->name;
+        struct name *nam = l->name;
+        cl->name = nam;
+        nam->refcnt++;
         struct single *cs = halloc_single();
         cs->leaf = address_of(cl);
         cs->child = ans;
         prepend(&cs->child_uplink, &cl->parents);
         push_or_goto_pending(cl, l->parents);
     
-        ans = (struct node) { .address = address_of(cs) };
+        ans = as_node(cs);
     }
     
     upcopy();

@@ -27,6 +27,23 @@ struct hmap {
 
 /* ***** ***** */
 
+void decref_name(struct name *nam)
+{
+	uint32_t refcnt = nam->refcnt;
+	if (refcnt == 1) {
+		struct entry *e = (struct entry*)nam;
+		free(e->key);
+		e->key = NULL;
+		e->val = 0;
+		e->taken = 0;
+	}
+	else {
+		nam->refcnt = refcnt - 1;
+	}
+}
+
+/* ***** ***** */
+
 static uint64_t hash_func(struct hmap *h, char *key)
 {
     uint64_t hashed = 0;

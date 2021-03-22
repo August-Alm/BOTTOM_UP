@@ -82,9 +82,10 @@ void downclean(struct node contractum, struct branch *redex)
     PUSH(redex->rchild, stack);
     dehalloc_branch(redex);
 
+    struct node nd;
+
     while (*stack) {
 
-        struct node nd;
         POP(nd, stack);
         if (is_empty(parents_of_node(nd))) { continue; }
         
@@ -104,13 +105,13 @@ void downclean(struct node contractum, struct branch *redex)
             b = (struct branch*)ptr_of(nd.address);
             delpar(b->lchild, &b->lchild_uplink);
             delpar(b->rchild, &b->rchild_uplink);
-            PUSH(b->lchild, stack);
             PUSH(b->rchild, stack);
+            PUSH(b->lchild, stack);
             dehalloc_branch(b);
             break;
 
         case LEAF_NODE:
-            dehalloc_leaf((struct leaf*)ptr_of(nd.address));
+            //dehalloc_leaf((struct leaf*)ptr_of(nd.address));
             break;
         }
     }
