@@ -36,10 +36,11 @@ tests: $(LINK_TEST)
 memtest: all
 	$(VALGRIND) ./$(LINK_TAR)  $(TEST_FILE)
 
-debug: all
-	${LINK_TEST}
-	ifeq (${MODE}, testing)
-		gdb --args ./${LINK_TEST}
-	else
-		gdb --args ./bin/bottomup ${TEST_FILE}
-	endif
+MODE =
+debug: all ${LINK_TEST}
+ifeq (${MODE}, testing)
+	gdb --args ./${LINK_TEST}
+else
+	gdb --args ./bin/bottomup ${TEST_FILE}
+endif
+

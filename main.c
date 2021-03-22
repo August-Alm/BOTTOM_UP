@@ -5,6 +5,7 @@
 #include "src/name.h"
 #include "src/input.h"
 #include "src/parse.h"
+#include "src/print.h"
 
 /* ***** ***** */
 
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
         setup_names();
         struct file_handle *fh = new_file_handle(fp);
         struct node nd = parse_node(input_from_file(fh));
+        fprintf_node(stdout, nd);
         memory_free();
         free_names();
         free_file_handle(fh);

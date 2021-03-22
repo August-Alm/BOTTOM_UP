@@ -183,20 +183,16 @@ struct branch *cc_branch(struct node lc, struct node rc)
 }
 
 static
-struct branch *get_topapp(struct single *s)
+struct node get_topnode(struct single *s)
 {
-    struct branch *topbranch = NULL;
-    struct node nd = s->child;
+    struct node topnode = s->child;
     
-    while (kind(nd) == SINGLE_NODE) {
-        struct single *s = (struct single*)ptr_of(nd.address);
-        push_uplink_stack(&s->child_uplink);
-        nd = ((struct single*)ptr_of(nd.address))->child;
+    while (kind(topnode) == SINGLE_NODE) {
+        struct single *si = (struct single*)ptr_of(topnode.address);
+        push_uplink_stack(&si->child_uplink);
+        topnode = si->child;
     }
-    if (kind(nd) == BRANCH_NODE) {
-        topbranch = (struct branch*)ptr_of(nd.address);
-    }
-    return topbranch;
+    return topnode;
 }
 
 /* ***** ***** */
@@ -209,17 +205,22 @@ struct node reduce(struct branch *redex)
     }
     struct single *lam = (struct single*)ptr_of(lchild.address);
 
-    struct branch *topapp = get_topapp(lam);
-    
-    struct branch *cc_topapp = cc_branch(topapp->lchild, topapp->rchild);
-    topapp->cache = as_node(cc_topapp);
-    
+    struct node ans;
+
+    struct node topnode = get_topnode(lam);
+    if (kind(topnode) == BRANCH_NODE) {
+        struct branch *topapp = (struct branch*)ptr_of(topnode.address);
+        struct branch *cc_topapp = cc_branch(topapp->lchild, topapp->rchild);
+        topapp->cache = as_node(cc_topapp);
+        ans = as_node(cc_topapp);
+    }
+    else {
+        ans = as_node(ptr_of(lam->leaf));
+    }
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
     push_or_goto_pending(&redex->rchild, var->parents);
     
     upcopy();
-    
-    struct node ans = as_node(cc_topapp);
     
     while (top_uplink_stack != -1) {
         struct uplink *lk = pop_uplink_stack();

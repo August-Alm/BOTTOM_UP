@@ -9,6 +9,7 @@
 #include "../src/parse.h"
 #include "../src/types.h"
 #include "../src/print.h"
+#include "../src/normalize.h"
 
 #include <string.h>
 
@@ -57,26 +58,8 @@ void test2(void)
     memory_free();
 }
 
-const char *test3_desc = "3: parse easy input \"\\x.x\"";
+const char *test3_desc = "3: parse and print input \"\\f.\\x.(f x)\"";
 void test3(void)
-{
-    heap_setup();
-    setup_names();
-
-    struct string_handle *sh = new_string_handle(strdup("\\x.x"));
-    CU_ASSERT_PTR_NOT_NULL(sh);
-    struct input_handle *ih = input_from_string(sh);
-    CU_ASSERT_PTR_NOT_NULL(ih);
-    struct node result = parse_node(ih);
-    /* Don't know what it should be, leaf, branch or what */
-
-    free_string_handle(sh);
-    free_names();
-    memory_free();
-}
-
-const char *test4_desc = "4: parse and print input \"\\f.\\x.(f x)\"";
-void test4(void)
 {
     heap_setup();
     setup_names();
@@ -92,6 +75,45 @@ void test4(void)
     free_names();
     memory_free();
 }
+
+const char *test4_desc = "4: parse and print input \"@ f = \\x.x (f f)\"";
+void test4(void)
+{
+    heap_setup();
+    setup_names();
+
+    struct string_handle *sh = new_string_handle(strdup("@ f = \\x.x (f f)"));
+    CU_ASSERT_PTR_NOT_NULL(sh);
+    struct input_handle *ih = input_from_string(sh);
+    CU_ASSERT_PTR_NOT_NULL(ih);
+    struct node result = parse_node(ih);
+    fprintf_node(stdout, result);
+
+    free_string_handle(sh);
+    free_names();
+    memory_free();
+}
+
+const char *test5_desc = "5: reduce input \"(\\x.x \\x.x)\"";
+void test5(void)
+{
+    heap_setup();
+    setup_names();
+
+    struct string_handle *sh = new_string_handle(strdup("(\\x.x \\x.x)"));
+    CU_ASSERT_PTR_NOT_NULL(sh);
+    struct input_handle *ih = input_from_string(sh);
+    CU_ASSERT_PTR_NOT_NULL(ih);
+    struct node nd = parse_node(ih);
+    struct branch *b = (struct branch*)ptr_of(nd.address);
+    struct node result = reduce(b);
+    fprintf_node(stdout, result);
+
+    free_string_handle(sh);
+    free_names();
+    memory_free();
+}
+
 
 /* ***** ***** */
 
@@ -113,7 +135,8 @@ int main(void)
         !CU_add_test(test_suite, test1_desc, test1) ||
         !CU_add_test(test_suite, test2_desc, test2) ||
         !CU_add_test(test_suite, test3_desc, test3) ||
-        !CU_add_test(test_suite, test4_desc, test4)
+        !CU_add_test(test_suite, test4_desc, test4) ||
+        !CU_add_test(test_suite, test5_desc, test5)
 	) {
 	    CU_cleanup_registry();
 	    return CU_get_error();
