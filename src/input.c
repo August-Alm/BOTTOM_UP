@@ -65,7 +65,7 @@ int read_char(struct input_handle *h)
 int read_nonspace_char(struct input_handle *h) {
 	int c = read_char(h);
 	while (isspace(c)) {
-		read_char(h);
+		c = read_char(h);
 	}
 	return c;
 }

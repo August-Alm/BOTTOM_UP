@@ -28,26 +28,17 @@ void add_binding(struct name *nam, struct node nd, struct env_sll **env)
 }
 
 static
-void rem_binding(struct name *nam, struct node bnd, struct env_sll *env)
+void rem_binding(struct name *nam, struct node bnd, struct env_sll **env)
 {
-    if (env) {
-        if (env->name == nam && env->bound.address == bnd.address) {
-            struct env_sll *tmp = env;
-            *env = *env->next;
-            free(tmp);
-            return;
+    struct env_sll **tmp = env;
+    while (*tmp) {
+        if ((*tmp)->name == nam && (*tmp)->bound.address == bnd.address) {
+            struct env_sll *next = (*tmp)->next;
+            free(*tmp);
+            *tmp = next;
+            break;
         }
-    }
-    struct env_sll *tmp0 = env;
-    struct env_sll *tmp1 = tmp0->next;
-    while (tmp1) {
-        if (tmp1->name == nam && tmp1->bound.address == bnd.address) {
-            *tmp0->next = *tmp1->next;
-            free(tmp1);
-            return;
-        }
-        tmp0 = tmp1;
-        tmp1 = tmp1->next;
+        tmp = &(*tmp)->next;
     }
 }
 
@@ -257,9 +248,11 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
 
         case S_LAM_BOD: {
             struct single *s = halloc_single();
-            s->leaf = address_of(curr.lam_bod.leaf);
+            struct leaf *l = curr.lam_bod.leaf;
+            s->leaf = address_of(l);
             s->child = retval;
             retval = as_node(s);
+            rem_binding(l->name, as_node(l), &env);
             continue;
         }
 
@@ -313,7 +306,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
         case S_LET_BOD: {
             struct name *nam = curr.let_bod.name;
             struct node bnd = curr.let_bod.bound;
-            rem_binding(nam, bnd, env);
+            rem_binding(nam, bnd, &env);
             continue;
         }
 

@@ -102,9 +102,11 @@ int main(void)
 	    CU_cleanup_registry();
 	    return CU_get_error();
     }
-    if (!CU_add_test(test_suite, test1_desc, test1)
-	|| !CU_add_test(test_suite, test2_desc, test2)
-	|| !CU_add_test(test_suite, test3_desc, test3)
+    if (
+        !CU_add_test(test_suite, test1_desc, test1) ||
+        !CU_add_test(test_suite, test2_desc, test2) ||
+        !CU_add_test(test_suite, test3_desc, test3) ||
+        !CU_add_test(test_suite, test4_desc, test4)
 	) {
 	    CU_cleanup_registry();
 	    return CU_get_error();
