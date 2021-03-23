@@ -1,5 +1,6 @@
 /* ***** ***** */
 
+#include <assert.h>
 #include <stdlib.h>
 #include "malcheck.h"
 #include "types.h"
@@ -36,6 +37,7 @@ struct uplink *pop_cclink()
     else {
         top_upcopy_stack -= 1;
     }
+    assert(cclink); 
     return cclink;
 }
 
