@@ -26,7 +26,6 @@ void install_child(struct node nd, struct uplink *lk)
     }    
 }
 
-static
 void replace_child(struct node nd, struct uplink_dll *lks)
 {
     if (!lks->head) { return; }

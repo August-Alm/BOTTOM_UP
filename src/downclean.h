@@ -9,6 +9,8 @@
 
 /* ***** ***** */
 
+void replace_child(struct node nd, struct uplink_dll *lks);
+
 void downclean(struct node contractum, struct branch *redex);
 
 /* ***** ***** */

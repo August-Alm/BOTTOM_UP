@@ -1,6 +1,5 @@
 /* ***** ***** */
 
-#include <assert.h>
 #include <stdlib.h>
 #include "malcheck.h"
 #include "types.h"
@@ -37,7 +36,6 @@ struct uplink *pop_cclink()
     else {
         top_upcopy_stack -= 1;
     }
-    assert(cclink); 
     return cclink;
 }
 
@@ -175,6 +173,16 @@ void push_uplink_stack(struct uplink *lk)
 
 /* ***** ***** */
 
+static
+int is_length_one(struct uplink_dll lks)
+{
+    struct uplink *head = head_of(lks);
+    if (!lks.head) { return 0; }
+    struct uplink *next = next_uplink(head);
+    if (!address_of(next)) { return 1; }
+    return false;
+}
+
 static inline
 struct branch *cc_branch(struct node lc, struct node rc)
 {
@@ -206,8 +214,21 @@ struct node reduce(struct branch *redex)
         exit(EXIT_FAILURE);
     }
     struct single *lam = (struct single*)ptr_of(lchild.address);
+    struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
 
     struct node ans;
+
+    if (is_length_one(lam->parents)) {
+        replace_child(redex->rchild, &var->parents);
+        ans = lam->child;
+        downclean(ans, redex);
+        return ans;
+    }
+    else if (is_empty(var->parents)) {
+        ans = lam->child;
+        downclean(ans, redex);
+        return ans;
+    }
 
     struct node topnode = get_topnode(lam);
     if (kind(topnode) == BRANCH_NODE) {
@@ -217,9 +238,8 @@ struct node reduce(struct branch *redex)
         ans = as_node(cc_topapp);
     }
     else {
-        ans = as_node(ptr_of(lam->leaf));
+        ans = redex->rchild;
     }
-    struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
     push_or_goto_pending(&redex->rchild, var->parents);
     
     upcopy();

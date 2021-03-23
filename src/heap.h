@@ -7,18 +7,19 @@
 
 #include <stdint.h>
 #include "types.h"
+#include "forceinline.h"
 
 /* ***** ***** */
 
 extern uint32_t *heap;
 
-inline __attribute__((always_inline))
+FORCEINLINE
 void *ptr_of(address_t a)
 {
     return (void*)(heap + a);
 }
 
-inline __attribute__((always_inline))
+FORCEINLINE
 address_t address_of(void *p)
 {
     return (address_t)((uint32_t*)p - heap);
