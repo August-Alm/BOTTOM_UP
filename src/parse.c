@@ -197,10 +197,10 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
                 curr.lam_bod.leaf = l;
                 push_state(curr, &stack);
 
-                //struct state newcurr;
-                //newcurr.tag = S_START;
-                //newcurr.junk = NULL;
-                //push_state(newcurr, &stack);
+                struct state newcurr;
+                newcurr.tag = S_START;
+                newcurr.junk = NULL;
+                push_state(newcurr, &stack);
                 continue;
             }
             case T_LPAR: {
