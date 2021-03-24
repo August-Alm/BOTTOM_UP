@@ -3,6 +3,8 @@
 #include <CUnit/Basic.h>
 
 #include "../src/heap.h"
+#include "../src/uplink.h"
+#include "../src/node.h"
 #include "../src/name.h"
 #include "../src/input.h"
 #include "../src/token.h"
@@ -114,6 +116,33 @@ void test5(void)
     memory_free();
 }
 
+const char *test6_desc = "6: check uplinks of \"\\f.\\x.(f x)\"";
+void test6(void)
+{
+    heap_setup();
+    setup_names();
+
+    struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
+    CU_ASSERT_PTR_NOT_NULL(sh);
+    struct input_handle *ih = input_from_string(sh);
+    CU_ASSERT_PTR_NOT_NULL(ih);
+    struct node nd = parse_node(ih);
+    CU_ASSERT_EQUAL(kind(nd), SINGLE_NODE);
+    struct single *s = (struct single*)ptr_of(nd.address);
+    struct single *chs = (struct single*)ptr_of(s->child.address);
+    struct uplink_dll chspars = chs->parents;
+    CU_ASSERT_FALSE(is_empty(chspars));
+    //prepend(&s->child_uplink, &chspars);
+    add_to_parents(&s->child_uplink, s->child);
+    CU_ASSERT_FALSE(is_empty(chs->parents));
+    fprintf_node(stdout, nd);
+
+    free_string_handle(sh);
+    free_names();
+    memory_free();
+}
+
+
 
 /* ***** ***** */
 
@@ -136,7 +165,8 @@ int main(void)
         !CU_add_test(test_suite, test2_desc, test2) ||
         !CU_add_test(test_suite, test3_desc, test3) ||
         !CU_add_test(test_suite, test4_desc, test4) ||
-        !CU_add_test(test_suite, test5_desc, test5)
+        !CU_add_test(test_suite, test5_desc, test5) ||
+        !CU_add_test(test_suite, test6_desc, test6)
 	) {
 	    CU_cleanup_registry();
 	    return CU_get_error();

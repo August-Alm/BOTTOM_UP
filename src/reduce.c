@@ -221,6 +221,8 @@ struct node reduce(struct branch *redex)
     if (is_length_one(lam->parents)) {
         replace_child(redex->rchild, &var->parents);
         ans = lam->child;
+        push_or_goto_pending(&redex->rchild, var->parents);
+        upcopy();
         downclean(ans, redex);
         return ans;
     }

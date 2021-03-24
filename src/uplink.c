@@ -66,7 +66,7 @@ void prepend(struct uplink *lk, struct uplink_dll *lks)
 {
     struct uplink *h = head_of(*lks);
     link_uplinks(lk, h);
-    *lks = (struct uplink_dll) { .head = address_of(lk) };
+    lks->head = address_of(lk);
 }
 
 /* ***** ***** */
