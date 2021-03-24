@@ -49,7 +49,8 @@ void goto_pending()
 static
 void push_or_goto_pending(void *node_ptr, struct uplink_dll lks)
 {
-    if (is_empty(lks)) {
+    struct uplink *lk = head_of(lks);
+    if (!lk) {
         goto_pending();
         return;
     }
@@ -58,7 +59,7 @@ void push_or_goto_pending(void *node_ptr, struct uplink_dll lks)
     }
     upcopy_stack[++top_upcopy_stack] = (struct upcopy_state) {
         .new_child = as_node(node_ptr),
-        .cclink = head_of(lks)
+        .cclink = lk
     };
 }
 
@@ -124,25 +125,27 @@ void upcopy_rchild(struct node nc, struct uplink *lk)
 static
 void upcopy()
 {
-     while (top_upcopy_stack != -1) {
+     while (top_upcopy_stack >= 0) {
     
         struct node nc = upcopy_stack[top_upcopy_stack].new_child;
         struct uplink *lk = pop_cclink();
-        if (!lk) { break; }
         
         switch (lk->rel) {
 
         case CHILD_REL:
+            fprintf(stderr, "upcopy child_rel\n");
             upcopy_child(nc, lk);
-             break;
+            continue;
 
         case LCHILD_REL:
+            fprintf(stderr, "upcopy lchild_rel\n");
             upcopy_lchild(nc, lk); 
-            break;
+            continue;
 
         case RCHILD_REL:
+            fprintf(stderr, "upcopy rchild_rel\n");
             upcopy_rchild(nc, lk); 
-            break;
+            continue;
         }
     }
 }
@@ -216,24 +219,23 @@ struct node reduce(struct branch *redex)
     }
     struct single *lam = (struct single*)ptr_of(lchild.address);
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
+    struct uplink_dll varpars = var->parents;
 
     struct node ans;
 
-    if (is_length_one(lam->parents)) {
-        fprintf(stderr, "length one lampars fast track\n");
-        replace_child(redex->rchild, &var->parents);
-        ans = lam->child;
-        push_or_goto_pending(&redex->rchild, var->parents);
-        upcopy();
-        downclean(ans, redex);
-        return ans;
-    }
-    else if (is_empty(var->parents)) {
+    if (is_empty(varpars)) {
         ans = lam->child;
         downclean(ans, redex);
         return ans;
     }
 
+    if (is_length_one(lam->parents)) {
+        replace_child(redex->rchild, &varpars);
+        ans = lam->child;
+        downclean(ans, redex);
+        return ans;
+    }
+    
     struct node topnode = get_topnode(lam);
     if (kind(topnode) == BRANCH_NODE) {
         struct branch *topapp = (struct branch*)ptr_of(topnode.address);

@@ -96,13 +96,13 @@ void test4(void)
     memory_free();
 }
 
-const char *test5_desc = "5: reduce input \"(\\x.x \\x.x)\"";
+const char *test5_desc = "5: reduce input \"(\\f.(f f) \\x.x)\"";
 void test5(void)
 {
     heap_setup();
     setup_names();
 
-    struct string_handle *sh = new_string_handle(strdup("(\\x.x \\x.x)"));
+    struct string_handle *sh = new_string_handle(strdup("(\\f.(f f) \\x.x)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
