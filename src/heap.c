@@ -101,7 +101,9 @@ struct leaf *halloc_leaf()
         fprintf(stderr, "`heap` full.\n");
         return NULL;
     }
-    return cleared_leaves[top_cleared_leaves--];
+    struct leaf *l = cleared_leaves[top_cleared_leaves--];
+    init_leaf(l, address_of(l));
+    return l;
 }
 
 void dehalloc_leaf(struct leaf *l)
@@ -132,7 +134,9 @@ struct single *halloc_single()
         fprintf(stderr, "`heap` full.\n");
         return 0;
     }
-    return cleared_singles[top_cleared_singles--];
+    struct single *s = cleared_singles[top_cleared_singles--];
+    init_single(s, address_of(s));
+    return s;
 }
 
 void dehalloc_single(struct single *s)
@@ -164,7 +168,9 @@ struct branch *halloc_branch()
         memory_free();
         exit(EXIT_FAILURE);
     }
-    return cleared_branches[top_cleared_branches--];
+    struct branch *b = cleared_branches[top_cleared_branches--];
+    init_branch(b, address_of(b));
+    return b;
 }
 
 void dehalloc_branch(struct branch *b)
