@@ -80,6 +80,7 @@ void memory_clear()
 
 void memory_free()
 {
+    memory_clear();
     free(heap);
     free(cleared_leaves);
     free(cleared_singles); 
