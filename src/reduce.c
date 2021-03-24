@@ -180,7 +180,7 @@ int is_length_one(struct uplink_dll lks)
     if (!lks.head) { return 0; }
     struct uplink *next = next_uplink(head);
     if (!address_of(next)) { return 1; }
-    return false;
+    return 0;
 }
 
 static inline
@@ -217,6 +217,17 @@ struct node reduce(struct branch *redex)
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
 
     struct node ans;
+
+    if (is_empty(lam->parents)) {
+        fprintf(stderr, "empty lampars\n");
+    }
+    int i = 0;
+    struct uplink *h = head_of(lam->parents);
+    while (h) {
+        fprintf(stderr, "%d\n", i);
+        i++;
+        h = next_uplink(h);
+    }
 
     if (is_length_one(lam->parents)) {
         replace_child(redex->rchild, &var->parents);
