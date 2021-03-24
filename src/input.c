@@ -56,6 +56,7 @@ int read_char(struct input_handle *h)
 		h->line++;
 		h->column = 0;
 		c = read(h);
+        c = h->peek;
 	}
 	h->column++;
     h->peek = read(h);

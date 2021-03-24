@@ -116,26 +116,21 @@ void test5(void)
     memory_free();
 }
 
-const char *test6_desc = "6: check uplinks of \"\\f.\\x.(f x)\"";
+const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)\"";
 void test6(void)
 {
     heap_setup();
     setup_names();
 
-    struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
+    struct string_handle *sh = new_string_handle(strdup(
+       "@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)"
+    ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node nd = parse_node(ih);
-    CU_ASSERT_EQUAL(kind(nd), SINGLE_NODE);
-    struct single *s = (struct single*)ptr_of(nd.address);
-    struct single *chs = (struct single*)ptr_of(s->child.address);
-    struct uplink_dll chspars = chs->parents;
-    CU_ASSERT_FALSE(is_empty(chspars));
-    //prepend(&s->child_uplink, &chspars);
-    add_to_parents(&s->child_uplink, s->child);
-    CU_ASSERT_FALSE(is_empty(chs->parents));
-    fprintf_node(stdout, nd);
+    struct node res = normalize(nd);
+    fprintf_node(stdout, res);
 
     free_string_handle(sh);
     free_names();
