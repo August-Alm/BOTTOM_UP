@@ -128,6 +128,7 @@ void upcopy()
     
         struct node nc = upcopy_stack[top_upcopy_stack].new_child;
         struct uplink *lk = pop_cclink();
+        if (!lk) { break; }
         
         switch (lk->rel) {
 
@@ -177,9 +178,9 @@ static
 int is_length_one(struct uplink_dll lks)
 {
     struct uplink *head = head_of(lks);
-    if (!lks.head) { return 0; }
+    if (!head) { return 0; }
     struct uplink *next = next_uplink(head);
-    if (!address_of(next)) { return 1; }
+    if (!next) { return 1; }
     return 0;
 }
 
@@ -218,18 +219,8 @@ struct node reduce(struct branch *redex)
 
     struct node ans;
 
-    if (is_empty(lam->parents)) {
-        fprintf(stderr, "empty lampars\n");
-    }
-    int i = 0;
-    struct uplink *h = head_of(lam->parents);
-    while (h) {
-        fprintf(stderr, "%d\n", i);
-        i++;
-        h = next_uplink(h);
-    }
-
     if (is_length_one(lam->parents)) {
+        fprintf(stderr, "length one lampars fast track\n");
         replace_child(redex->rchild, &var->parents);
         ans = lam->child;
         push_or_goto_pending(&redex->rchild, var->parents);

@@ -49,8 +49,12 @@ bool is_empty(struct uplink_dll lks);
 
 void link_uplinks(struct uplink *lk1, struct uplink *lk2)
 {
-   if (lk1) { lk1->next = address_of(lk2); }
-   if (lk2) { lk2->prev = address_of(lk1); }
+   if (lk1 && address_of(lk1)) {
+        lk1->next = lk2 ? address_of(lk2) : 0;
+   }
+   if (lk2 && address_of(lk2)) {
+        lk2->prev = lk1 ? address_of(lk1) : 0;
+   }
 }
 
 void unlink_uplink(struct uplink *lk)

@@ -70,11 +70,10 @@ void init_uplink(struct uplink *lk, enum uplink_rel rel)
         .rel = rel
     };
 }
-#include <stdio.h>
+
 FORCEINLINE
 struct uplink *next_uplink(struct uplink *lk)
 {
-    fprintf(stdout, "heap: %p, lk: %p", ptr_of(0), lk);
     if (!lk) { return  NULL; }
     address_t n = lk->next;
     if (n) { return (struct uplink*)ptr_of(n); }
