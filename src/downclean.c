@@ -46,6 +46,7 @@ void replace_child(struct node nd, struct uplink_dll *lks)
 static
 void delpar(struct node nd, struct uplink *lk)
 {
+    if (!lk) { return; }
     struct uplink *n = next_uplink(lk);
     struct uplink *p = prev_uplink(lk);
     link_uplinks(p, n);
@@ -54,7 +55,8 @@ void delpar(struct node nd, struct uplink *lk)
 
     if (!p) {
         struct uplink_dll lks;
-        lks.head = address_of(n);
+        lks.head = n ? address_of(n) : 0;
+        printf("lks.head = %d\n", lks.head);
         set_parents_of_node(nd, lks);
     }
 }
@@ -74,7 +76,7 @@ struct node pop_node_stack()
     if (top_node_stack < 0) { return as_node(NULL); }
     return node_stack[top_node_stack--];
 }
-#include <stdlib.h>
+
 static inline
 void push_node_stack(struct node nd)
 {
@@ -102,30 +104,27 @@ void downclean(struct node contractum, struct branch *redex)
         nd = pop_node_stack();
         if (is_empty(parents_of_node(nd))) { continue; }
         
-        struct single *s;
-        struct branch *b;
-
         switch (kind(nd)) {
 
-        case SINGLE_NODE:
-            s = (struct single*)ptr_of(nd.address);
+        case SINGLE_NODE: {
+            struct single *s = (struct single*)ptr_of(nd.address);
             delpar(s->child, &s->child_uplink);
             push_node_stack(s->child);
             dehalloc_single(s);
-            break;
-
-        case BRANCH_NODE:
-            b = (struct branch*)ptr_of(nd.address);
+            continue;
+        }
+        case BRANCH_NODE: {
+            struct branch *b = (struct branch*)ptr_of(nd.address);
             delpar(b->lchild, &b->lchild_uplink);
             delpar(b->rchild, &b->rchild_uplink);
             push_node_stack(b->rchild);
             push_node_stack(b->lchild);
             dehalloc_branch(b);
-            break;
-
+            continue;
+        }
         case LEAF_NODE:
             //dehalloc_leaf((struct leaf*)ptr_of(nd.address));
-            break;
+            continue;
         }
     }
 }

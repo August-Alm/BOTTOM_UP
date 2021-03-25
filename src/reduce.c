@@ -222,18 +222,18 @@ struct node reduce(struct branch *redex)
     }
     struct single *lam = (struct single*)ptr_of(lchild.address);
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
-    struct uplink_dll varpars = var->parents;
-
+    printf("address_of(var) = %d\n", address_of(var));
+    printf("var->parents.head = %d\n", var->parents.head);
     struct node ans;
 
-    if (is_empty(varpars)) {
+    if (is_empty(var->parents)) {
         ans = lam->child;
         downclean(ans, redex);
         return ans;
     }
 
     if (is_length_one(lam->parents)) {
-        replace_child(redex->rchild, &varpars);
+        replace_child(redex->rchild, &var->parents);
         ans = lam->child;
         downclean(ans, redex);
         return ans;
