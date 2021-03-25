@@ -42,7 +42,7 @@ struct uplink *pop_cclink()
 static inline
 void goto_pending()
 {
-    if (!top_upcopy_stack) { exit(EXIT_FAILURE); }
+    if (top_upcopy_stack <= 0) { exit(EXIT_FAILURE); }
     top_upcopy_stack -= 1;
 }
 
@@ -91,7 +91,7 @@ void upcopy_lchild(struct node nc, struct uplink *lk)
         cb = halloc_branch();
         cb->lchild = nc;
         cb->rchild = b->rchild;
-        b->cache = (struct node) { .address = address_of(cb) };
+        b->cache = as_node(cb);
         push_or_goto_pending(cb, b->parents);
     }
     else {
@@ -210,11 +210,14 @@ struct node get_topnode(struct single *s)
 }
 
 /* ***** ***** */
-
+#include "name.h"
 struct node reduce(struct branch *redex)
 {
     struct node lchild = redex->lchild;
     if (kind(lchild) != SINGLE_NODE) {
+        fprintf(stderr, "Not a redex!\n");
+        memory_free();
+        free_names();
         exit(EXIT_FAILURE);
     }
     struct single *lam = (struct single*)ptr_of(lchild.address);

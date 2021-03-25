@@ -9,6 +9,7 @@
 static inline
 struct branch *is_redex(struct node nd)
 {
+    if (!nd.address) { return NULL; }
     if (kind(nd) != BRANCH_NODE) {
         return NULL;
     }
@@ -27,6 +28,7 @@ struct node normalize_wh(struct node nd)
     struct node ans = nd;
     struct branch *b = is_redex(ans);
     while (b) {
+        fprintf(stderr, "reduce once\n");
         ans = reduce(b);
         b = is_redex(ans);
     }
@@ -65,7 +67,7 @@ void push_norm_stack(struct node nd)
 struct node normalize(struct node nd)
 {
     push_norm_stack(nd);
-    while (top_norm_stack != -1){
+    while (top_norm_stack != -1) {
         struct node nd = pop_norm_stack();
         
         switch (kind(nd)) {

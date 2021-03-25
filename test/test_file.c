@@ -107,8 +107,9 @@ void test5(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node nd = parse_node(ih);
-    struct branch *b = (struct branch*)ptr_of(nd.address);
-    struct node result = reduce(b);
+    //struct branch *b = (struct branch*)ptr_of(nd.address);
+    //struct node result = reduce(b);
+    struct node result = normalize_wh(nd);
     fprintf_node(stdout, result);
 
     free_string_handle(sh);
@@ -129,7 +130,7 @@ void test6(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node nd = parse_node(ih);
-    struct node res = normalize(nd);
+    struct node res = normalize_wh(nd);
     fprintf_node(stdout, res);
 
     free_string_handle(sh);

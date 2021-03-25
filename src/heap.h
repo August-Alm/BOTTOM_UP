@@ -23,11 +23,11 @@ void *ptr_of(address_t a)
 FORCEINLINE
 address_t address_of(void *p)
 {
-    address_t a = (address_t)((uint32_t*)p - heap);
-    if (a > 39321) { 
-        fprintf(stderr, "%p", heap);
-        free(NULL);
-    } 
+    //address_t a = (address_t)((uint32_t*)p - heap);
+    //if (a > 39321) { 
+    //    fprintf(stderr, "%p", heap);
+    //    free(NULL);
+    //} 
     return (address_t)((uint32_t*)p - heap);
 }
 
