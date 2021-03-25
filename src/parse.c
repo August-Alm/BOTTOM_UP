@@ -113,7 +113,7 @@ struct state pop_state(struct state_sll **stack)
 {
     struct state_sll *tmp = *stack;
     if (!tmp) {
-        fprintf(stderr, "Can't pop empty state stack!\n");
+        fprintf(stderr, "%s\n", __FUNCTION__);
         exit(EXIT_FAILURE);
     }
     struct state curr = tmp->curr;

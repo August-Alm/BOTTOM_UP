@@ -33,7 +33,7 @@ static
 struct print_state pop_print_state(struct print_state_sll **stk)
 {
     if (!stk) {
-        fprintf(stderr, "Tried to pop empty stack while printing.\n");
+        fprintf(stderr, "%s.\n", __FUNCTION__);
         exit(EXIT_FAILURE);
     }
     struct print_state_sll *tmp = *stk;

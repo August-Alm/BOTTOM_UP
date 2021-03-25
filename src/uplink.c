@@ -69,9 +69,7 @@ void unlink_uplink(struct uplink *lk)
 void prepend(struct uplink *lk, struct uplink_dll *lks)
 {
     struct uplink *h = head_of(*lks);
-    if (h) {
-        link_uplinks(lk, h);
-    }
+    if (h) { link_uplinks(lk, h); }
     lks->head = address_of(lk);
 }
 

@@ -10,7 +10,6 @@
 /* ***** ***** */
 
 #define DEF_SIZE 3932
-#define NOTP(s) fprintf(stderr, "%s is not present in hmap\n", s);
 
 /* ***** ***** */
 
@@ -132,3 +131,7 @@ void free_names()
     free(names->buckets);
     free(names);
 }
+
+/* ***** ***** */
+
+// end of name.c

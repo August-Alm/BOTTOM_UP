@@ -96,7 +96,7 @@ void test4(void)
     memory_free();
 }
 
-const char *test5_desc = "5: reduce input \"(\\f.(f f) \\x.x)\"";
+const char *test5_desc = "5: normalize_wh input \"(\\f.(f f) \\x.x)\"";
 void test5(void)
 {
     heap_setup();
@@ -107,8 +107,6 @@ void test5(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node nd = parse_node(ih);
-    //struct branch *b = (struct branch*)ptr_of(nd.address);
-    //struct node result = reduce(b);
     struct node result = normalize_wh(nd);
     fprintf_node(stdout, result);
 
@@ -130,7 +128,7 @@ void test6(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node nd = parse_node(ih);
-    struct node res = normalize_wh(nd);
+    struct node res = normalize(nd);
     fprintf_node(stdout, res);
 
     free_string_handle(sh);

@@ -34,7 +34,7 @@ struct uplink *pop_cclink()
         upcopy_stack[top_upcopy_stack].cclink = nxt;
     }
     else {
-        top_upcopy_stack -= 1;
+        --top_upcopy_stack;
     }
     return cclink;
 }
@@ -42,8 +42,10 @@ struct uplink *pop_cclink()
 static inline
 void goto_pending()
 {
-    if (top_upcopy_stack <= 0) { exit(EXIT_FAILURE); }
-    top_upcopy_stack -= 1;
+    if (top_upcopy_stack == -1) {
+        return;
+    }
+    --top_upcopy_stack;
 }
 
 static
@@ -55,6 +57,7 @@ void push_or_goto_pending(void *node_ptr, struct uplink_dll lks)
         return;
     }
     if (top_upcopy_stack == UPCOPY_STACK_SZ1) {
+        fprintf(stderr, "%s.\n", __FUNCTION__);
         exit(EXIT_FAILURE);
     }
     upcopy_stack[++top_upcopy_stack] = (struct upcopy_state) {
@@ -125,25 +128,22 @@ void upcopy_rchild(struct node nc, struct uplink *lk)
 static
 void upcopy()
 {
-     while (top_upcopy_stack >= 0) {
-    
+     while (top_upcopy_stack != -1) {
+
         struct node nc = upcopy_stack[top_upcopy_stack].new_child;
         struct uplink *lk = pop_cclink();
         
         switch (lk->rel) {
 
         case CHILD_REL:
-            fprintf(stderr, "upcopy child_rel\n");
             upcopy_child(nc, lk);
             continue;
 
         case LCHILD_REL:
-            fprintf(stderr, "upcopy lchild_rel\n");
             upcopy_lchild(nc, lk); 
             continue;
 
         case RCHILD_REL:
-            fprintf(stderr, "upcopy rchild_rel\n");
             upcopy_rchild(nc, lk); 
             continue;
         }
@@ -170,6 +170,7 @@ static inline
 void push_uplink_stack(struct uplink *lk)
 {
     if (top_uplink_stack == UPLINK_STACK_SZ1) {
+        fprintf(stderr, "%s.\n", __FUNCTION__);
         exit(EXIT_FAILURE);
     }
     uplink_stack[++top_uplink_stack] = lk;
@@ -210,20 +211,16 @@ struct node get_topnode(struct single *s)
 }
 
 /* ***** ***** */
-#include "name.h"
+
 struct node reduce(struct branch *redex)
 {
     struct node lchild = redex->lchild;
     if (kind(lchild) != SINGLE_NODE) {
-        fprintf(stderr, "Not a redex!\n");
-        memory_free();
-        free_names();
+        fprintf(stderr, "%s.\n", __FUNCTION__);
         exit(EXIT_FAILURE);
     }
     struct single *lam = (struct single*)ptr_of(lchild.address);
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
-    printf("address_of(var) = %d\n", address_of(var));
-    printf("var->parents.head = %d\n", var->parents.head);
     struct node ans;
 
     if (is_empty(var->parents)) {

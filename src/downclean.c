@@ -1,7 +1,8 @@
 /* ***** ***** */
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
-#include "stack.h"
 #include "types.h"
 #include "node.h"
 #include "uplink.h"
@@ -56,7 +57,6 @@ void delpar(struct node nd, struct uplink *lk)
     if (!p) {
         struct uplink_dll lks;
         lks.head = n ? address_of(n) : 0;
-        printf("lks.head = %d\n", lks.head);
         set_parents_of_node(nd, lks);
     }
 }
@@ -73,7 +73,10 @@ int top_node_stack = -1;
 static inline
 struct node pop_node_stack()
 {
-    if (top_node_stack < 0) { return as_node(NULL); }
+    if (top_node_stack == -1) { 
+        fprintf(stderr, "%s.\n", __FUNCTION__);
+        exit(EXIT_FAILURE);
+    }
     return node_stack[top_node_stack--];
 }
 
@@ -81,6 +84,7 @@ static inline
 void push_node_stack(struct node nd)
 {
     if (top_node_stack == NODE_STACK_SZ1) {
+        fprintf(stderr, "%s.\n", __FUNCTION__);
         exit(EXIT_FAILURE);
     }
     node_stack[++top_node_stack] = nd;

@@ -41,10 +41,12 @@ int read_char(struct input_handle *h)
 	while (c == '\r') {
 		c = read(h);
 		if (c != '\n') {
-			fprintf(stderr,
-			        "Error at (%d, %d). "
-			        "Line and column numbers expect '\r' to always be followed by  '\n'.",
-					h->line, h->column);
+			fprintf(
+                stderr,
+			    "Error at (%d, %d). "
+			    "Line and column numbers expect '\r' to always be followed by '\n'.",
+			    h->line, h->column
+            );
 			h->column += 2;
 			return c;
 		}
