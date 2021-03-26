@@ -115,14 +115,37 @@ void test5(void)
     memory_free();
 }
 
-const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)\"";
+const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)) \r\n (two two)\"";
+//@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)\"";
 void test6(void)
 {
     heap_setup();
     setup_names();
 
     struct string_handle *sh = new_string_handle(strdup(
-       "@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)"
+       "(\\f.\\x.(f (f x)) \\f.\\x.(f (f x)))" // "@ two = \\f.\\x.(f (f x)) \r\n (two two)"
+    ));
+    CU_ASSERT_PTR_NOT_NULL(sh);
+    struct input_handle *ih = input_from_string(sh);
+    CU_ASSERT_PTR_NOT_NULL(ih);
+    struct node nd = parse_node(ih);
+    struct node res = normalize(nd);
+    fprintf_node(stdout, res);
+
+    free_string_handle(sh);
+    free_names();
+    memory_free();
+}
+
+const char *test7_desc = "t: article example"
+    "\"\\u.\\t.(\\x. @ f = \\y.(x (u y)) \r\n ((x f) f) t)\"";
+void test7(void)
+{
+    heap_setup();
+    setup_names();
+
+    struct string_handle *sh = new_string_handle(strdup(
+       "\\u.\\t.(\\x. @ f = \\y.(x (u y)) \r\n ((x f) f) t)"
     ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);

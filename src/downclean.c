@@ -47,7 +47,6 @@ void replace_child(struct node nd, struct uplink_dll *lks)
 static
 void delpar(struct node nd, struct uplink *lk)
 {
-    if (!lk) { return; }
     struct uplink *n = next_uplink(lk);
     struct uplink *p = prev_uplink(lk);
     link_uplinks(p, n);
@@ -95,18 +94,14 @@ void push_node_stack(struct node nd)
 void downclean(struct node contractum, struct branch *redex)
 {
     replace_child(contractum, &redex->parents);
-    unlink_uplink(&redex->lchild_uplink);
-    unlink_uplink(&redex->rchild_uplink);
-
-    push_node_stack(redex->rchild);
-    dehalloc_branch(redex);
+    push_node_stack(as_node(redex));
 
     struct node nd;
 
     while (top_node_stack != -1) {
 
         nd = pop_node_stack();
-        if (is_empty(parents_of_node(nd))) { continue; }
+        if (!is_empty(parents_of_node(nd))) { continue; }
         
         switch (kind(nd)) {
 

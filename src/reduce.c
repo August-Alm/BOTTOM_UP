@@ -128,11 +128,13 @@ void upcopy_rchild(struct node nc, struct uplink *lk)
 static
 void upcopy()
 {
-     while (top_upcopy_stack != -1) {
+    struct node nc;
+    struct uplink *lk;
 
-        struct node nc = upcopy_stack[top_upcopy_stack].new_child;
-        struct uplink *lk = pop_cclink();
+    while (top_upcopy_stack != -1) {
         
+        nc = upcopy_stack[top_upcopy_stack].new_child;
+        lk = pop_cclink();
         switch (lk->rel) {
 
         case CHILD_REL:
@@ -201,7 +203,6 @@ static
 struct node get_topnode(struct single *s)
 {
     struct node topnode = s->child;
-    
     while (kind(topnode) == SINGLE_NODE) {
         struct single *si = (struct single*)ptr_of(topnode.address);
         push_uplink_stack(&si->child_uplink);
@@ -211,7 +212,7 @@ struct node get_topnode(struct single *s)
 }
 
 /* ***** ***** */
-
+#include "print.h"
 struct node reduce(struct branch *redex)
 {
     struct node lchild = redex->lchild;
@@ -249,7 +250,7 @@ struct node reduce(struct branch *redex)
     push_or_goto_pending(&redex->rchild, var->parents);
     
     upcopy();
-    
+
     while (top_uplink_stack != -1) {
         struct uplink *lk = pop_uplink_stack();
         struct single *s = single_of_child(lk);
@@ -263,7 +264,6 @@ struct node reduce(struct branch *redex)
         cs->child = ans;
         prepend(&cs->child_uplink, &cl->parents);
         push_or_goto_pending(cl, l->parents);
-    
         ans = as_node(cs);
     }
     

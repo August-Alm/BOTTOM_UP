@@ -69,9 +69,10 @@ void push_norm_stack(struct node nd)
 struct node normalize(struct node nd)
 {
     push_norm_stack(nd);
+
     while (top_norm_stack != -1) {
-        printf("normalize ");
-        struct node nd = pop_norm_stack();
+
+        nd = pop_norm_stack();
         
         switch (kind(nd)) {
         
