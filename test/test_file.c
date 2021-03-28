@@ -123,7 +123,7 @@ void test6(void)
     setup_names();
 
     struct string_handle *sh = new_string_handle(strdup(
-       "(\\f.\\x.(f (f x)) \\f.\\x.(f (f x)))" // "@ two = \\f.\\x.(f (f x)) \r\n (two two)"
+       "@ two = \\f.\\x.(f (f x)) \r\n (two two)"
     ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
@@ -182,8 +182,8 @@ int main(void)
         !CU_add_test(test_suite, test2_desc, test2) ||
         !CU_add_test(test_suite, test3_desc, test3) ||
         !CU_add_test(test_suite, test4_desc, test4) ||
-        !CU_add_test(test_suite, test5_desc, test5) ||
-        !CU_add_test(test_suite, test6_desc, test6)
+        !CU_add_test(test_suite, test5_desc, test5) //||
+        //!CU_add_test(test_suite, test6_desc, test6)
 	) {
 	    CU_cleanup_registry();
 	    return CU_get_error();

@@ -110,7 +110,7 @@ struct leaf *halloc_leaf()
 void dehalloc_leaf(struct leaf *l)
 {
     if (top_cleared_leaves < LEAF_MAX - 1) {
-        decref_name(l->name);
+        //decref_name(l->name);
         cleared_leaves[++top_cleared_leaves] = l; 
     }
     else {

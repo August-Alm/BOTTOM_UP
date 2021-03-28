@@ -94,15 +94,20 @@ void push_node_stack(struct node nd)
 void downclean(struct node contractum, struct branch *redex)
 {
     replace_child(contractum, &redex->parents);
-    push_node_stack(as_node(redex));
+    delpar(redex->rchild, &redex->rchild_uplink);
+    delpar(redex->lchild, &redex->lchild_uplink);
+    push_node_stack(redex->rchild);
+    dehalloc_branch(redex);
 
     struct node nd;
 
     while (top_node_stack != -1) {
 
         nd = pop_node_stack();
-        if (!is_empty(parents_of_node(nd))) { continue; }
-        
+        if (!is_empty(parents_of_node(nd))) { 
+            continue;
+        }
+            
         switch (kind(nd)) {
 
         case SINGLE_NODE: {
@@ -110,23 +115,40 @@ void downclean(struct node contractum, struct branch *redex)
             delpar(s->child, &s->child_uplink);
             push_node_stack(s->child);
             dehalloc_single(s);
-            continue;
+            printf("dealloc_single\n");
+            break;
         }
         case BRANCH_NODE: {
             struct branch *b = (struct branch*)ptr_of(nd.address);
-            delpar(b->lchild, &b->lchild_uplink);
             delpar(b->rchild, &b->rchild_uplink);
+            delpar(b->lchild, &b->lchild_uplink);
             push_node_stack(b->rchild);
             push_node_stack(b->lchild);
             dehalloc_branch(b);
-            continue;
+            printf("dehalloc_branch\n");
+            break;
         }
         case LEAF_NODE:
             //dehalloc_leaf((struct leaf*)ptr_of(nd.address));
-            continue;
+            printf("\"dehalloc_leaf\", name = %s\n",
+                   ((struct leaf*)ptr_of(nd.address))->name->str);
+            break;
         }
     }
 }
+
+void downclean_is_length_one(struct node contractum, struct branch *redex)
+{
+    struct single *lam = (struct single*)ptr_of(redex->lchild.address);
+    replace_child(contractum, &redex->parents);
+    delpar(redex->rchild, &redex->rchild_uplink);
+    delpar(redex->lchild, &redex->lchild_uplink);
+    dehalloc_branch(redex);
+    delpar(lam->child, &lam->child_uplink);
+    dehalloc_single(lam);
+}
+
+
 
 /* ***** ***** */
 

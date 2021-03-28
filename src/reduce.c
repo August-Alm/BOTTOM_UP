@@ -233,7 +233,7 @@ struct node reduce(struct branch *redex)
     if (is_length_one(lam->parents)) {
         replace_child(redex->rchild, &var->parents);
         ans = lam->child;
-        downclean(ans, redex);
+        downclean_is_length_one(ans, redex);
         return ans;
     }
     

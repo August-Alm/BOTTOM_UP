@@ -23,13 +23,14 @@ struct branch *is_redex(struct node nd)
 }
 
 /* ***** ***** */
-
+#include "print.h"
 struct node normalize_wh(struct node nd)
 {
     struct node ans = nd;
     struct branch *b = is_redex(ans);
     while (b) {
         ans = reduce(b);
+        fprintf_node(stderr, ans);
         b = is_redex(ans);
     }
     return ans;
