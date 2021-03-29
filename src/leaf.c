@@ -8,11 +8,9 @@
 
 void init_leaf(struct leaf *l, address_t addr)
 {
-    *l = (struct leaf) {
-        .id = (addr << 2) | LEAF_NODE,
-        .parents = (struct uplink_dll) { .head = 0 },
-        .name = NULL
-    };
+    l->id = (addr << 2) | LEAF_NODE;
+    l->parents = (struct uplink_dll) { .head = 0 };
+    l->name = NULL;
 }
 
 /* ***** ***** */

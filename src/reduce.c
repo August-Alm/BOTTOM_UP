@@ -107,6 +107,7 @@ void upcopy_lchild(struct node nc, struct uplink *lk)
         cb->lchild = nc;
         cb->rchild = b->rchild;
         b->cache = as_node(cb);
+        printf("upcopy_lchild... %p ", (struct branch*)ptr_of(b->cache.address)); 
         push_or_goto_pending(cb, b->parents);
     }
     else {
@@ -126,6 +127,7 @@ void upcopy_rchild(struct node nc, struct uplink *lk)
         cb->lchild = b->lchild;
         cb->rchild = nc;
         b->cache = as_node(cb);
+        printf("upcopy_lchild... %p ", (struct branch*)ptr_of(b->cache.address)); 
         push_or_goto_pending(cb, b->parents);
     }
     else {
@@ -203,11 +205,11 @@ int is_length_one(struct uplink_dll lks)
 }
 
 static inline
-struct branch *cc_branch(struct node lc, struct node rc)
+struct branch *cc_branch(struct branch *b)
 {
     struct branch *cb = halloc_branch();
-    cb->lchild = lc;
-    cb->rchild = rc;
+    cb->lchild = b->lchild;
+    cb->rchild = b->rchild;
     return cb;
 }
 
@@ -252,7 +254,7 @@ struct node reduce(struct branch *redex)
     struct node topnode = get_topnode(lam);
     if (kind(topnode) == BRANCH_NODE) {
         struct branch *topapp = (struct branch*)ptr_of(topnode.address);
-        struct branch *cc_topapp = cc_branch(topapp->lchild, topapp->rchild);
+        struct branch *cc_topapp = cc_branch(topapp);
         topapp->cache = as_node(cc_topapp);
         ans = as_node(cc_topapp);
     }

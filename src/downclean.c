@@ -150,8 +150,9 @@ void clean_up()
         }
         case LCHILD_REL: {
             struct branch *b = branch_of_lchild(lk);
-            if (!b->cache.address) { continue; }
             struct branch *cb = (struct branch*)ptr_of(b->cache.address);
+            if (!cb) { continue; }
+            printf("LCHILD, cb = %p ", cb);
             add_to_parents(&cb->lchild_uplink, cb->lchild);
             add_to_parents(&cb->rchild_uplink, cb->rchild);
             b->cache = as_node(0);
@@ -160,8 +161,9 @@ void clean_up()
         }
         case RCHILD_REL: {
             struct branch *b = branch_of_rchild(lk);
-            if (!b->cache.address) { continue; }
             struct branch *cb = (struct branch*)ptr_of(b->cache.address);
+            if (!cb) { continue; }
+            printf("RCHILD, cb = %p ", cb);
             add_to_parents(&cb->lchild_uplink, cb->lchild);
             add_to_parents(&cb->rchild_uplink, cb->rchild);
             b->cache = as_node(0);
