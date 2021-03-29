@@ -186,7 +186,6 @@ void dehalloc_branch(struct branch *b)
     }
 }
 
-
 /* ***** ***** */
 
 // end of heap.c

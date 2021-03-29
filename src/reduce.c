@@ -73,16 +73,28 @@ void upcopy_child(struct node nc, struct uplink *lk)
 {
     struct single *s = single_of_child(lk);
     struct leaf *l = (struct leaf*)ptr_of(s->leaf);
-    struct leaf *cl = halloc_leaf();
     struct name *nam = l->name;
-    cl->name = nam;
-    nam->refcnt++;
-    struct single *cs = halloc_single();
-    cs->leaf = address_of(cl);
-    cs->child = nc;
-    prepend(&cs->child_uplink, &cl->parents);
-    push_or_goto_pending(cs, s->parents);
-    push_or_goto_pending(cl, l->parents);
+    struct leaf *cl;
+    if (kind(nc) == LEAF_NODE &&
+        ((struct leaf*)ptr_of(nc.address))->name == nam) {
+        cl = (struct leaf*)ptr_of(nc.address);
+        struct single *cs = halloc_single();
+        cs->leaf = address_of(cl);
+        cs->child = nc;
+        prepend(&cs->child_uplink, &cl->parents);
+        push_or_goto_pending(cs, s->parents);
+    }
+    else {
+        cl = halloc_leaf();
+        cl->name = nam;
+        nam->refcnt++;
+        struct single *cs = halloc_single();
+        cs->leaf = address_of(cl);
+        cs->child = nc;
+        prepend(&cs->child_uplink, &cl->parents);
+        push_or_goto_pending(cs, s->parents);
+        push_or_goto_pending(cl, l->parents);
+    }
 }
 
 static
@@ -226,7 +238,7 @@ struct node reduce(struct branch *redex)
 
     if (is_empty(var->parents)) {
         ans = lam->child;
-        downclean(ans, redex);
+        downclean_is_empty(ans, redex);
         return ans;
     }
 
@@ -247,6 +259,7 @@ struct node reduce(struct branch *redex)
     else {
         ans = redex->rchild;
     }
+
     push_or_goto_pending(&redex->rchild, var->parents);
     
     upcopy();
@@ -269,6 +282,11 @@ struct node reduce(struct branch *redex)
     
     upcopy();
     
+    if (kind(topnode) == BRANCH_NODE) {
+        struct branch *topapp = (struct branch*)ptr_of(topnode.address);
+        clear_caches(lam, topapp);
+    }
+
     downclean(ans, redex);
     
     return ans;
