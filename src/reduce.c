@@ -262,7 +262,7 @@ struct node reduce(struct branch *redex)
         ans = redex->rchild;
     }
 
-    push_or_goto_pending(&redex->rchild, var->parents);
+    push_or_goto_pending(ptr_of(redex->rchild.address), var->parents);
     
     upcopy();
 
