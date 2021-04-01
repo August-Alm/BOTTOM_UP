@@ -16,12 +16,14 @@ extern uint32_t *heap;
 FORCEINLINE
 void *ptr_of(address_t a)
 {
+    if (!a) { return 0; }
     return (void*)(heap + a);
 }
 
 FORCEINLINE
 address_t address_of(void *p)
 {
+    if (!p) { return 0; }
     return (address_t)((uint32_t*)p - heap);
 }
 
