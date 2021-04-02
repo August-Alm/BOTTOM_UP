@@ -91,8 +91,8 @@ void push_node_stack(struct node nd)
 
 /* ***** ***** */
 
-#define PARENT_STACK_SZ 1024
-#define PARENT_STACK_SZ1 1023
+#define PARENT_STACK_SZ 4096
+#define PARENT_STACK_SZ1 4095
 
 struct uplink *parent_stack[PARENT_STACK_SZ];
 
@@ -101,37 +101,36 @@ int top_parent_stack = -1;
 static inline
 struct uplink *pop_parent_stack()
 {
-    if (top_parent_stack == -1) { 
-        fprintf(stderr, "%s.\n", __FUNCTION__);
-        exit(EXIT_FAILURE);
+    if (top_parent_stack < 0) { 
+        return NULL;
     }
-    return parent_stack[top_parent_stack--];
+    struct uplink *lk = parent_stack[top_parent_stack];
+    struct uplink *nxt = next_uplink(lk);
+    if (nxt) {
+        parent_stack[top_parent_stack] = nxt;
+    }
+    else {
+        --top_parent_stack;
+    }
+    return lk;
 }
 
 static inline
-void push_parent_stack(struct uplink *lk)
+void push_parents(struct uplink_dll lks)
 {
+    struct uplink *h = head_of(lks);
+    if (!h) { return; }
     if (top_parent_stack == PARENT_STACK_SZ1) {
         fprintf(stderr, "%s.\n", __FUNCTION__);
         exit(EXIT_FAILURE);
     }
-    parent_stack[++top_parent_stack] = lk;
-}
-
-static inline
-void push_uplinks(struct uplink_dll lks)
-{
-    struct uplink *lk = head_of(lks);
-    while (lk) {
-        push_parent_stack(lk);
-        lk = next_uplink(lk);
-    }
+    parent_stack[++top_parent_stack] = h;
 }
 
 /* ***** ***** */
 
 static
-void clean_up()
+void clean_up(struct single *redlam)
 {
     struct uplink *lk;
 
@@ -143,31 +142,30 @@ void clean_up()
 
         case CHILD_REL: {
             struct single *s = single_of_child(lk);
-            struct leaf *l = (struct leaf*)ptr_of(s->leaf);
-            push_uplinks(s->parents);
-            push_uplinks(l->parents);
+            if (s == redlam) { continue; }
+            struct leaf *l = ptr_of(s->leaf);
+            push_parents(s->parents);
+            push_parents(l->parents);
             continue;
         }
         case LCHILD_REL: {
             struct branch *b = branch_of_lchild(lk);
             if (!b->cache.address) { continue; }
             struct branch *cb = ptr_of(b->cache.address);
-            printf("LCHILD, cb = %p\n", cb);
             add_to_parents(&cb->lchild_uplink, cb->lchild);
             add_to_parents(&cb->rchild_uplink, cb->rchild);
             b->cache = as_node(0);
-            push_uplinks(b->parents);
+            push_parents(b->parents);
             continue;
         }
         case RCHILD_REL: {
             struct branch *b = branch_of_rchild(lk);
             if (!b->cache.address) { continue; }
             struct branch *cb = ptr_of(b->cache.address);
-            printf("RCHILD, cb = %p\n", cb);
             add_to_parents(&cb->lchild_uplink, cb->lchild);
             add_to_parents(&cb->rchild_uplink, cb->rchild);
             b->cache = as_node(0);
-            push_uplinks(b->parents);
+            push_parents(b->parents);
             continue;
         }
 
@@ -177,22 +175,22 @@ void clean_up()
 
 void clear_caches(struct single* redlam, struct branch *topapp)
 {
-    struct branch *topcopy = (struct branch*)ptr_of(topapp->cache.address);
+    struct branch *topcopy = ptr_of(topapp->cache.address);
     topapp->cache = as_node(0);
     add_to_parents(&topcopy->lchild_uplink, topcopy->lchild);
     add_to_parents(&topcopy->rchild_uplink, topcopy->rchild);
 
     struct single *s = redlam;
-    struct leaf *l = (struct leaf*)ptr_of(s->leaf);
-    push_uplinks(l->parents);
+    struct leaf *l = ptr_of(s->leaf);
+    push_parents(l->parents);
     struct node ch = redlam->child;
     while (kind(ch) == SINGLE_NODE) {
-        s = (struct single*)ptr_of(ch.address);
-        l = (struct leaf*)ptr_of(s->leaf);
-        push_uplinks(l->parents);
+        s = ptr_of(ch.address);
+        l = ptr_of(s->leaf);
+        push_parents(l->parents);
         ch = s->child;
     }
-    clean_up();    
+    clean_up(redlam); 
 }
 
 /* ***** ***** */
@@ -222,7 +220,6 @@ void downclean(struct node contractum, struct branch *redex)
             delpar(s->child, &s->child_uplink);
             push_node_stack(s->child);
             dehalloc_single(s);
-            printf("dealloc_single\n");
             break;
         }
         case BRANCH_NODE: {
@@ -232,13 +229,10 @@ void downclean(struct node contractum, struct branch *redex)
             push_node_stack(b->rchild);
             push_node_stack(b->lchild);
             dehalloc_branch(b);
-            printf("dehalloc_branch\n");
             break;
         }
         case LEAF_NODE:
             //dehalloc_leaf((struct leaf*)ptr_of(nd.address));
-            printf("\"dehalloc_leaf\", name = %s\n",
-                   ((struct leaf*)ptr_of(nd.address))->name->str);
             break;
         }
     }

@@ -39,21 +39,21 @@ struct uplink *pop_cclink()
     return cclink;
 }
 
-static inline
-void goto_pending()
-{
-    if (top_upcopy_stack == -1) {
-        return;
-    }
-    --top_upcopy_stack;
-}
+//static inline
+//void goto_pending()
+//{
+//    if (top_upcopy_stack == -1) {
+//        return;
+//    }
+//    --top_upcopy_stack;
+//}
 
 static
 void push_or_goto_pending(void *node_ptr, struct uplink_dll lks)
 {
     struct uplink *lk = head_of(lks);
     if (!lk) {
-        goto_pending();
+        //goto_pending();
         return;
     }
     if (top_upcopy_stack == UPCOPY_STACK_SZ1) {
@@ -107,13 +107,12 @@ void upcopy_lchild(struct node nc, struct uplink *lk)
         cb->lchild = nc;
         cb->rchild = b->rchild;
         b->cache = as_node(cb);
-        printf("upcopy_lchild... %p ", (struct branch*)ptr_of(b->cache.address)); 
         push_or_goto_pending(cb, b->parents);
     }
     else {
         cb = (struct branch*)ptr_of(b->cache.address);
         cb->lchild = nc;
-        goto_pending();
+        //goto_pending();
     }
 }
 
@@ -127,13 +126,12 @@ void upcopy_rchild(struct node nc, struct uplink *lk)
         cb->lchild = b->lchild;
         cb->rchild = nc;
         b->cache = as_node(cb);
-        printf("upcopy_lchild... %p ", (struct branch*)ptr_of(b->cache.address)); 
         push_or_goto_pending(cb, b->parents);
     }
     else {
         cb = (struct branch*)ptr_of(b->cache.address);
         cb->rchild = nc;
-        goto_pending();
+        //goto_pending();
     }
 }
 
@@ -226,7 +224,7 @@ struct node get_topnode(struct single *s)
 }
 
 /* ***** ***** */
-#include "print.h"
+
 struct node reduce(struct branch *redex)
 {
     struct node lchild = redex->lchild;
@@ -238,18 +236,18 @@ struct node reduce(struct branch *redex)
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
     struct node ans;
 
-    if (is_empty(var->parents)) {
-        ans = lam->child;
-        downclean_is_empty(ans, redex);
-        return ans;
-    }
+    //if (is_empty(var->parents)) {
+    //    ans = lam->child;
+    //    downclean_is_empty(ans, redex);
+    //    return ans;
+    //}
 
-    if (is_length_one(lam->parents)) {
-        replace_child(redex->rchild, &var->parents);
-        ans = lam->child;
-        downclean_is_length_one(ans, redex);
-        return ans;
-    }
+    //if (is_length_one(lam->parents)) {
+    //    replace_child(redex->rchild, &var->parents);
+    //    ans = lam->child;
+    //    downclean_is_length_one(ans, redex);
+    //    return ans;
+    //}
     
     struct node topnode = get_topnode(lam);
     if (kind(topnode) == BRANCH_NODE) {
@@ -269,7 +267,7 @@ struct node reduce(struct branch *redex)
     while (top_uplink_stack != -1) {
         struct uplink *lk = pop_uplink_stack();
         struct single *s = single_of_child(lk);
-        struct leaf *l = (struct leaf*)ptr_of(s->leaf);
+        struct leaf *l = ptr_of(s->leaf);
         struct leaf *cl = halloc_leaf();
         struct name *nam = l->name;
         cl->name = nam;
@@ -285,7 +283,7 @@ struct node reduce(struct branch *redex)
     upcopy();
     
     if (kind(topnode) == BRANCH_NODE) {
-        struct branch *topapp = (struct branch*)ptr_of(topnode.address);
+        struct branch *topapp = ptr_of(topnode.address);
         clear_caches(lam, topapp);
     }
 
