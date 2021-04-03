@@ -123,37 +123,37 @@ void test6(void)
     setup_names();
 
     struct string_handle *sh = new_string_handle(strdup(
-       "(\\f.\\x.(f (f x)) \\g.\\y.(g (g y)))" //"@ two = \\f.\\x.(f (f x)) \r\n (two two)"
+       "\\x.(\\g.\\y.(g (g y)) (\\g.\\y.(g (g y)) x))" //"@ two = \\f.\\x.(f (f x)) \r\n (two two)"
     ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node nd = parse_node(ih);
-    struct node res = normalize_wh(nd);
+    struct node res = normalize(nd);
     fprintf_node(stdout, res);
-    printf("\n");
+    //printf("\n");
  
-    struct single *s = ptr_of(res.address);
-    struct branch *b = ptr_of(s->child.address);
-    struct node lch = b->lchild;
-    printf("lch = ");
-    fprintf_node(stdout, lch);
-    printf("\n");
+    //struct single *s = ptr_of(res.address);
+    //struct branch *b = ptr_of(s->child.address);
+    //struct node lch = b->lchild;
+    //printf("lch = ");
+    //fprintf_node(stdout, lch);
+    //printf("\n");
 
-    struct node rch = b->rchild;
-    printf("rch = ");
-    fprintf_node(stdout, rch);
-    printf("\n");
+    //struct node rch = b->rchild;
+    //printf("rch = ");
+    //fprintf_node(stdout, rch);
+    //printf("\n");
 
-    b = ptr_of(rch.address);
-    struct node rchrch = b->rchild;
-    printf("rchrch = ");
-    fprintf_node(stdout, rchrch);
-    printf("\n");
-    
-    struct node res2 = normalize_wh(rch);
-    printf("normalize_wh(rch) = ");
-    fprintf_node(stdout, res2);
+    //b = ptr_of(rch.address);
+    //struct node rchrch = b->rchild;
+    //printf("rchrch = ");
+    //fprintf_node(stdout, rchrch);
+    //printf("\n");
+    //
+    //printf("normalize_wh(rch) = ");
+    //struct node res2 = normalize_wh(rch);
+    //fprintf_node(stdout, res2);
 
     free_string_handle(sh);
     free_names();

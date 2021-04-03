@@ -23,15 +23,13 @@ struct branch *is_redex(struct node nd)
 }
 
 /* ***** ***** */
-#include "print.h"
+
 struct node normalize_wh(struct node nd)
 {
     struct node ans = nd;
     struct branch *b = is_redex(ans);
     while (b) {
         ans = reduce(b);
-        fprintf_node(stderr, ans);
-        printf("\n");
         b = is_redex(ans);
     }
     return ans;
@@ -70,6 +68,7 @@ void push_norm_stack(struct node nd)
 
 struct node normalize(struct node nd)
 {
+    struct node ans = nd;
     push_norm_stack(nd);
 
     while (top_norm_stack != -1) {
@@ -82,12 +81,12 @@ struct node normalize(struct node nd)
             continue;
         
         case SINGLE_NODE: {
-            struct single *s = (struct single*)ptr_of(nd.address);
+            struct single *s = ptr_of(nd.address);
             push_norm_stack(s->child);
             continue;
         }
         case BRANCH_NODE: {
-            struct branch *b = (struct branch*)ptr_of(nd.address);
+            struct branch *b = ptr_of(nd.address);
             struct node lchild = b->lchild;
             struct node wh_lchild = normalize_wh(lchild);
 
@@ -107,7 +106,7 @@ struct node normalize(struct node nd)
         }
         }
     }
-    return nd;
+    return ans;
 }
 
 /* ***** ***** */
