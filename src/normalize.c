@@ -31,6 +31,7 @@ struct node normalize_wh(struct node nd)
     while (b) {
         ans = reduce(b);
         fprintf_node(stderr, ans);
+        printf("\n");
         b = is_redex(ans);
     }
     return ans;
