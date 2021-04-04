@@ -112,7 +112,6 @@ void upcopy_lchild(struct node nc, struct uplink *lk)
     else {
         cb = (struct branch*)ptr_of(b->cache.address);
         cb->lchild = nc;
-        //goto_pending();
     }
 }
 
@@ -131,7 +130,6 @@ void upcopy_rchild(struct node nc, struct uplink *lk)
     else {
         cb = (struct branch*)ptr_of(b->cache.address);
         cb->rchild = nc;
-        //goto_pending();
     }
 }
 

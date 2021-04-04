@@ -68,8 +68,8 @@ void push_norm_stack(struct node nd)
 
 struct node normalize(struct node nd)
 {
-    struct node ans = nd;
-    push_norm_stack(nd);
+    struct node ans = normalize_wh(nd);
+    push_norm_stack(ans);
 
     while (top_norm_stack != -1) {
 
@@ -82,24 +82,24 @@ struct node normalize(struct node nd)
         
         case SINGLE_NODE: {
             struct single *s = ptr_of(nd.address);
-            push_norm_stack(s->child);
+            push_norm_stack(normalize_wh(s->child));
             continue;
         }
         case BRANCH_NODE: {
             struct branch *b = ptr_of(nd.address);
-            struct node lchild = b->lchild;
-            struct node wh_lchild = normalize_wh(lchild);
+            struct node lch_wh = normalize_wh(b->lchild);
+            struct node rch_wh = normalize_wh(b->rchild);
 
-            switch (kind(wh_lchild)) {
+            switch (kind(lch_wh)) {
             case LEAF_NODE:
-                push_norm_stack(b->rchild);
+                push_norm_stack(rch_wh);
                 continue;
             case SINGLE_NODE:
                 push_norm_stack(reduce(b));
                 continue;
             case BRANCH_NODE:
-                push_norm_stack(b->rchild);
-                push_norm_stack(wh_lchild);
+                push_norm_stack(lch_wh);
+                push_norm_stack(rch_wh);
                 continue;
             }
             continue;
