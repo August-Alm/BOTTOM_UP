@@ -81,12 +81,13 @@ struct node normalize(struct node nd)
         case SINGLE_NODE: {
             struct single *s = ptr_of(nd.address);
             printf("case SINGLE_NODE, push: "); fprintf_node(stdout, s->child);printf("\n");
-            push_norm_stack(normalize_wh(s->child));
+            push_norm_stack(s->child);
             continue;
         }
         case BRANCH_NODE: {
             struct branch *b = ptr_of(nd.address);
             struct node lch = b->lchild;
+            printf("kind(lch) = %d\n", kind(lch));
 
             switch (kind(lch)) {
             case LEAF_NODE:
@@ -101,7 +102,7 @@ struct node normalize(struct node nd)
             case BRANCH_NODE:
                 printf("case BRANCH<BRANCH, push: "); fprintf_node(stdout, b->rchild); fprintf_node(stdout, lch); printf("\n");
                 push_norm_stack(b->rchild);
-                push_norm_stack(normalize_wh(lch));
+                push_norm_stack(lch);
                 continue;
             }
             continue;
