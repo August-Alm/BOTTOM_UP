@@ -130,7 +130,8 @@ void test6(void)
     CU_ASSERT_PTR_NOT_NULL(ih);
     struct node nd = parse_node(ih);
     struct node res = normalize(nd);
-    fprintf_node(stdout, res);
+    struct node res2 = normalize(res);
+    fprintf_node(stdout, res2);
  
     free_string_handle(sh);
     free_names();
