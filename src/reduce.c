@@ -234,18 +234,18 @@ struct node reduce(struct branch *redex)
     struct leaf *var = (struct leaf*)ptr_of(lam->leaf);
     struct node ans;
 
-    //if (is_empty(var->parents)) {
-    //    ans = lam->child;
-    //    downclean_is_empty(ans, redex);
-    //    return ans;
-    //}
+    if (is_empty(var->parents)) {
+        ans = lam->child;
+        downclean_is_empty(ans, redex);
+        return ans;
+    }
 
-    //if (is_length_one(lam->parents)) {
-    //    replace_child(redex->rchild, &var->parents);
-    //    ans = lam->child;
-    //    downclean_is_length_one(ans, redex);
-    //    return ans;
-    //}
+    if (is_length_one(lam->parents)) {
+        replace_child(redex->rchild, &var->parents);
+        ans = lam->child;
+        downclean_is_length_one(ans, redex);
+        return ans;
+    }
     
     struct node topnode = get_topnode(lam);
     if (kind(topnode) == BRANCH_NODE) {
