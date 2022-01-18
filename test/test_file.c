@@ -2,6 +2,7 @@
 
 #include <CUnit/Basic.h>
 
+#include "../src/memory.h"
 #include "../src/heap.h"
 #include "../src/uplink.h"
 #include "../src/node.h"
@@ -35,14 +36,13 @@ void test1(void)
     CU_ASSERT_PTR_NULL(heap);
     heap_setup();
     CU_ASSERT_PTR_NOT_NULL(heap);
-    memory_free();
+    heap_free();
 }
 
 const char *test2_desc = "2: tokenizing \"\\f.\\x.(f x)\"";
 void test2(void)
 {
-    heap_setup();
-    setup_names();
+    memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
@@ -56,62 +56,56 @@ void test2(void)
     }
 
     free_string_handle(sh);
-    free_names();
     memory_free();
 }
 
 const char *test3_desc = "3: parse and print input \"\\f.\\x.(f x)\"";
 void test3(void)
 {
-    heap_setup();
-    setup_names();
+    memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup("\\f.\\x.(f x)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
-    struct node result = parse_node(ih);
+    node_t result = parse_node(ih);
     fprintf_node(stdout, result);
 
     free_string_handle(sh);
-    free_names();
+
     memory_free();
 }
 
 const char *test4_desc = "4: parse and print input \"@ f = \\x.x (f f)\"";
 void test4(void)
 {
-    heap_setup();
-    setup_names();
+    memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup("@ f = \\x.x (f f)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
-    struct node result = parse_node(ih);
+    node_t result = parse_node(ih);
     fprintf_node(stdout, result);
 
     free_string_handle(sh);
-    free_names();
     memory_free();
 }
 
 const char *test5_desc = "5: normalize_wh input \"(\\f.(f f) \\x.x)\"";
 void test5(void)
 {
-    heap_setup();
-    setup_names();
+    memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup("(\\f.(f f) \\x.x)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
-    struct node nd = parse_node(ih);
-    struct node result = normalize_wh(nd);
+    node_t result = parse_node(ih);
+    normalize_wh(&result);
     fprintf_node(stdout, result);
 
     free_string_handle(sh);
-    free_names();
     memory_free();
 }
 
@@ -119,8 +113,7 @@ const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)) \r\n (two two
 //@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)\"";
 void test6(void)
 {
-    heap_setup();
-    setup_names();
+    memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup(
        "\\x.(\\g.\\y.(g (g y)) (\\g.\\y.(g (g y)) x))" //"@ two = \\f.\\x.(f (f x)) \r\n (two two)"
@@ -128,13 +121,11 @@ void test6(void)
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
-    struct node nd = parse_node(ih);
-    struct node res = normalize(nd);
-    struct node res2 = normalize(res);
-    fprintf_node(stdout, res2);
+    node_t result = parse_node(ih);
+    normalize(&result);
+    fprintf_node(stdout, result);
  
     free_string_handle(sh);
-    free_names();
     memory_free();
 }
 
@@ -142,8 +133,7 @@ const char *test7_desc = "t: article example"
     "\"\\u.\\t.(\\x. @ f = \\y.(x (u y)) \r\n ((x f) f) t)\"";
 void test7(void)
 {
-    heap_setup();
-    setup_names();
+    memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup(
        "\\u.\\t.(\\x. @ f = \\y.(x (u y)) \r\n ((x f) f) t)"
@@ -151,12 +141,11 @@ void test7(void)
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
-    struct node nd = parse_node(ih);
-    struct node res = normalize(nd);
+    node_t res = parse_node(ih);
+    normalize(&res);
     fprintf_node(stdout, res);
 
     free_string_handle(sh);
-    free_names();
     memory_free();
 }
 
@@ -201,5 +190,3 @@ int main(void)
 /* ***** ***** */
 
 // end of test_file.c
-
-
