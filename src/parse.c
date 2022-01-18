@@ -45,9 +45,8 @@ void rem_binding(int32_t nid, node_t bnd, struct env_sll **env)
     }
 }
 
-
 static
-node_t get_bound(struct env_sll *env, int32_t *nid)
+node_t get_bound(struct env_sll *env, int32_t nid)
 {
     struct env_sll *tmp = env;
     while (tmp) {
@@ -144,7 +143,7 @@ void connect_lchild(node_t lch, branch_t b)
 static inline
 void connect_rchild(node_t rch, branch_t b)
 {
-    add_to_parents(get_fchild_uplink(b), get_rchild(b));
+    add_to_parents(get_rchild_uplink(b), get_rchild(b));
 }
 
 /* ***** ***** */
@@ -172,7 +171,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
             tok = read_token(h);
             switch (tok.tag) {
             case T_NAME: {
-                retval = get_bound(env, tok.name);
+                retval = get_bound(env, get_name_id(tok.name));
                 continue;
             }
             case T_LAM: {

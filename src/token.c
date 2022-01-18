@@ -30,7 +30,7 @@ char *read_name(char c, struct input_handle *h)
         cnext = peek_char(h);
     }
     str[i] = c;
-    str;
+    return str;
 }
 
 /* ***** ***** */
@@ -42,7 +42,7 @@ struct token read_token(struct input_handle *h)
     int curr_col = current_column(h);
 
 	if (isalpha(c)) {
-		struct name *nam = read_name(c, h);
+		char *nam = read_name(c, h);
 		return mk_token(nam, curr_lin, curr_col, T_NAME);
 	}
 

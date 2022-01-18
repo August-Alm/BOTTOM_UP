@@ -28,7 +28,7 @@ uplink_dll_t get_parents(node_t nd)
         return get_leaf_parents(nd);
     case SINGLE_NODE:
         return get_single_parents(nd);
-    case BRANCH_NODE:
+    default: // BRANCH_NODE:
         return get_branch_parents(nd);
     }
 }
@@ -43,7 +43,7 @@ void set_parents(node_t nd, uplink_dll_t lks)
     case SINGLE_NODE:
         set_single_parents(nd, lks);
         break;
-    case BRANCH_NODE:
+    default: // BRANCH_NODE:
         set_branch_parents(nd, lks);
         break;
     }

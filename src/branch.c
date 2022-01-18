@@ -26,7 +26,7 @@ extern
 uplink_dll_t get_branch_parents(branch_t b);
 
 extern
-uplink_dll_t set_branch_parents(branch_t b, uplink_dll_t lks);
+void set_branch_parents(branch_t b, uplink_dll_t lks);
 
 extern
 branch_t get_cache(branch_t b);

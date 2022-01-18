@@ -48,7 +48,7 @@ int32_t get_name_id(char *str)
 
 char *get_name(int32_t nid)
 {
-    if (nid = -1) return NULL;
+    if (nid == -1) return NULL;
     return names[nid];
 }
 

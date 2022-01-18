@@ -55,7 +55,7 @@ uplink_dll_t get_branch_parents(branch_t b)
 }
 
 FORCEINLINE
-uplink_dll_t set_branch_parents(branch_t b, uplink_dll_t lks)
+void set_branch_parents(branch_t b, uplink_dll_t lks)
 {
     heap[b + 9] = get_head(lks);
 }

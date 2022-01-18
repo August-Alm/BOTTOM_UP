@@ -110,7 +110,7 @@ void upcopy_uplink(node_t newch, uplink_t par)
     case LCHILD_REL: {
         branch_t b = get_node(par);
         branch_t cc = get_cache(b);
-        if (cc = -1) {
+        if (cc == -1) {
             node_t nd = new_branch(newch, get_rchild(b));
             set_cache(b, nd);
             upcopy_stack_push(nd, get_branch_parents(b));
@@ -123,7 +123,7 @@ void upcopy_uplink(node_t newch, uplink_t par)
     case RCHILD_REL: {
         branch_t b = get_node(par);
         branch_t cc = get_cache(b);
-        if (cc = -1) {
+        if (cc == -1) {
             node_t nd = new_branch(newch, get_lchild(b));
             set_cache(b, nd);
             upcopy_stack_push(nd, get_branch_parents(b));
@@ -142,7 +142,7 @@ void upcopy()
     uplink_dll_t pars = -1;
     while (upcopy_stack_trypop(&newch, &pars)) {
         uplink_t lk = get_head(pars);
-        if (lk = -1) continue;
+        if (lk == -1) continue;
         uplink_t nxt = get_next(lk);
         while (lk != -1) {
             upcopy_uplink(newch, lk);

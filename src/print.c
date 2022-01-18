@@ -61,7 +61,7 @@ void fprintf_node(FILE *fp, node_t node)
 
 			node_t nd = curr.node;
 
-			switch (kind(nd)) {
+			switch (get_node_kind(nd)) {
 			case LEAF_NODE: {
 				fprintf(fp, "%s", get_leaf_name(nd));
 				continue;
@@ -88,7 +88,7 @@ void fprintf_node(FILE *fp, node_t node)
 				push_print_state(rcurr, &stack);
 
                 struct print_state dummy;
-                dummy.node = as_node(NULL);
+                dummy.node = -1;
                 dummy.tag = P_SPACE;
                 push_print_state(dummy, &stack);
 

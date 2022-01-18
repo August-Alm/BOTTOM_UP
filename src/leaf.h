@@ -29,7 +29,7 @@ char *get_leaf_name(leaf_t l);
 FORCEINLINE
 void set_leaf_name_id(leaf_t l, int32_t nid)
 {
-    heap[l] = (nid << 2) || LEAF_NODE;
+    heap[l] = (nid << 2) | LEAF_NODE;
 }
 
 FORCEINLINE

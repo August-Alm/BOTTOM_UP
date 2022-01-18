@@ -5,11 +5,12 @@
 
 /* ***** ***** */
 
+#include <stdint.h>
 #include "types.h"
 
 /* ***** ***** */
 
-extern uint32_t *heap;
+extern int32_t *heap;
 
 /* ***** ***** */
 

@@ -161,7 +161,7 @@ node_t reduce(branch_t redex)
     uplink_dll_t lampars = get_single_parents(func);
     uplink_dll_t varpars = get_leaf_parents(var);
 
-    if (varpars = -1) {
+    if (varpars == -1) {
         replace_child(body, get_branch_parents(redex));
         free_node(redex);
         return body;

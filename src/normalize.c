@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "malcheck.h"
 #include "normalize.h"
 #include "uplink.h"
 #include "leaf.h"
@@ -77,7 +78,7 @@ bool norm_stack_trypop(bool *islch, node_t *rt, node_t *nd)
 static inline
 branch_t is_redex(node_t nd)
 {
-    if (get_node_kind != BRANCH_NODE) return -1;
+    if (get_node_kind(nd) != BRANCH_NODE) return -1;
     if (get_node_kind(get_lchild(nd)) != SINGLE_NODE) return -1;
     return nd;
 }
@@ -90,7 +91,7 @@ void normalize_wh(node_t *nd)
     branch_t b = is_redex(res);
     while (b != -1) {
         res = reduce(b);
-        b = is_redex(nd);
+        b = is_redex(res);
     }
     *nd = res;
 }
@@ -125,8 +126,8 @@ void normalize_iter(node_t *nd)
             }
         }
         if (get_node_kind(*nd) == SINGLE_NODE) {
-            node_t red = reduce(nd);
-            if (node = root) {
+            node_t red = reduce(node);
+            if (node == root) {
                 norm_stack_push(false, red, red);
             }
             else {
@@ -134,7 +135,7 @@ void normalize_iter(node_t *nd)
             }
         }
         else {
-            node_t rch = get_rchild(nd);
+            node_t rch = get_rchild(node);
             norm_stack_push(false, root, rch);
         }
     }

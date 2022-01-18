@@ -43,4 +43,3 @@ ifeq (${MODE}, testing)
 else
 	gdb --args ./bin/bottomup ${TEST_FILE}
 endif
-

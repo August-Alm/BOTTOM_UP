@@ -27,7 +27,7 @@ uplink_t get_next(uplink_t lk)
 FORCEINLINE
 void set_next(uplink_t lk, uplink_t nxt)
 {
-    heap[lk + 1] <- nxt;
+    heap[lk + 1] = nxt;
 }
 
 FORCEINLINE
@@ -113,16 +113,16 @@ void append(uplink_dll_t lks, uplink_t lk)
     set_head(lks, lk);
 }
 
-typedef void (*uplink_action_t(uplink_t));
+typedef void (*uplink_action_t)(uplink_t);
 
 FORCEINLINE
 void iter_dll(uplink_action_t act, uplink_dll_t lks)
 {
     uplink_t lk = get_head(lks);
-    if (lk = -1) return;
+    if (lk == -1) return;
     uplink_t nxt = get_next(lk);
     while (lk != -1) {
-        *act(lk);
+        (*act)(lk);
         lk = nxt;
         nxt = get_next(lk);
     }
