@@ -7,111 +7,167 @@
 
 /* ***** ***** */
 
-static inline
-struct branch *is_redex(struct node nd)
+struct normstate {
+    bool is_lch;
+    node_t root;
+    node_t node;
+};
+
+#define NORM_STACK_MAX 65536
+
+struct normstate *norm_stack;
+
+int32_t top_norm_stack;
+
+void norm_stack_setup()
 {
-    if (!nd.address) { return NULL; }
-    if (kind(nd) != BRANCH_NODE) {
-        return NULL;
-    }
-    struct branch *b = (struct branch*)ptr_of(nd.address);
-    struct node lchild = b->lchild;
-    if (kind(lchild) == SINGLE_NODE) {
-        return b;
-    }
-    return NULL;
+    norm_stack = malloc(sizeof(struct normstate) * NORM_STACK_MAX);
+    MALCHECKx(norm_stack);
+    top_norm_stack = -1;
 }
 
-/* ***** ***** */
-
-struct node normalize_wh(struct node nd)
+void norm_stack_free()
 {
-    struct node ans = nd;
-    struct branch *b = is_redex(ans);
-    while (b) {
-        ans = reduce(b);
-        b = is_redex(ans);
-    }
-    return ans;
+    free(norm_stack);
 }
 
-/* ***** ***** */
-
-#define NORM_STACK_SZ 512
-#define NORM_STACK_SZ1 511
-
-int top_norm_stack = -1;
-
-struct node norm_stack[NORM_STACK_SZ];
-
-static inline
-struct node pop_norm_stack()
+int norm_stack_count()
 {
-    if (top_norm_stack == -1) {
-        fprintf(stderr, "%s.\n", __FUNCTION__);
+    return top_norm_stack + 1;
+}
+
+void norm_stack_push(bool islch, node_t rt, node_t nd)
+{
+    if (top_norm_stack < NORM_STACK_MAX - 1) {
+        norm_stack[++top_norm_stack] =
+            (struct normstate) {.is_lch = islch, .root = rt, .node = nd};
+    }
+    else {
+        fprintf(stderr, "`norm_stack` full.\n");
+        free(norm_stack);
+        memory_free();
         exit(EXIT_FAILURE);
     }
+}
+
+struct normstate norm_stack_pop()
+{
     return norm_stack[top_norm_stack--];
 }
 
-static inline
-void push_norm_stack(struct node nd)
+bool norm_stack_trypop(bool *islch, node_t *rt, node_t *nd)
 {
-    if (top_norm_stack == NORM_STACK_SZ1) {
-        fprintf(stderr, "%s.\n", __FUNCTION__);
-        exit(EXIT_FAILURE);
+    if (top_norm_stack >= 0) {
+        struct normstate ns = norm_stack[top_norm_stack--];
+        *islch = ns.is_lch; 
+        *rt = ns.root;
+        *nd = ns.node;
+        return true;
     }
-    norm_stack[++top_norm_stack] = nd;
+    return false;
 }
 
 /* ***** ***** */
-#include "print.h"
-struct node normalize(struct node nd)
+
+static inline
+branch_t is_redex(node_t nd)
 {
-    struct node ans = normalize_wh(nd);
-    push_norm_stack(ans);
+    if (get_node_kind != BRANCH_NODE) return -1;
+    if (get_node_kind(get_lchild(nd)) != SINGLE_NODE) return -1;
+    return nd;
+}
 
-    while (top_norm_stack != -1) {
+/* ***** ***** */
 
-        nd = pop_norm_stack();
-        printf("popped nd of kind %d\n", kind(nd));
+void normalize_wh(node_t *nd)
+{
+    node_t res = *nd;
+    branch_t b = is_redex(res);
+    while (b != -1) {
+        res = reduce(b);
+        b = is_redex(nd);
+    }
+    *nd = res;
+}
 
-        switch (kind(nd)) {
+/* ***** ***** */
 
-        case SINGLE_NODE: {
-            struct single *s = ptr_of(nd.address);
-            printf("case SINGLE_NODE, push: "); fprintf_node(stdout, s->child);printf("\n");
-            push_norm_stack(s->child);
-            continue;
-        }
-        case BRANCH_NODE: {
-            struct branch *b = ptr_of(nd.address);
-            struct node lch = b->lchild;
-            printf("kind(lch) = %d\n", kind(lch));
+void normalize_iter(node_t *nd)
+{
+    bool is_lch = false;
+    node_t root = *nd;
+    node_t node = *nd;
+    norm_stack_push(is_lch, root, node);
 
-            switch (kind(lch)) {
+    while (norm_stack_trypop(&is_lch, &root, &node)) {
+
+        if (!is_lch) {
+            switch (get_node_kind(node)) {
             case LEAF_NODE:
-                printf("case LEAF<BRANCH, push: "); fprintf_node(stdout, b->rchild);printf("\n");
-                push_norm_stack(b->rchild);
+                *nd = root;
                 continue;
-            case SINGLE_NODE:
-                nd = reduce(b);
-                printf("case SINGLE<BRANCH, push: "); fprintf_node(stdout, nd);printf("\n");
-                push_norm_stack(nd);
-                continue;
-            case BRANCH_NODE:
-                printf("case BRANCH<BRANCH, push: "); fprintf_node(stdout, b->rchild); fprintf_node(stdout, lch); printf("\n");
-                push_norm_stack(b->rchild);
-                push_norm_stack(lch);
+            case SINGLE_NODE: {
+                node_t ch = get_child(node);
+                norm_stack_push(false, root, ch);
                 continue;
             }
-            continue;
+            case BRANCH_NODE: {
+                node_t lch = get_lchild(node);
+                norm_stack_push(true, root, node);
+                norm_stack_push(false, lch, lch);
+                continue;
+            }
+            }
         }
-        case LEAF_NODE:
-            continue;
+        if (get_node_kind(*nd) == SINGLE_NODE) {
+            node_t red = reduce(nd);
+            if (node = root) {
+                norm_stack_push(false, red, red);
+            }
+            else {
+                norm_stack_push(false, root, red);
+            }
+        }
+        else {
+            node_t rch = get_rchild(nd);
+            norm_stack_push(false, root, rch);
         }
     }
-    return ans;
+}
+
+/* ***** ***** */
+
+void normalize_rec(node_t *nd)
+{
+    switch (get_node_kind(*nd)) {
+        case LEAF_NODE:
+            return;
+        case SINGLE_NODE: {
+            node_t ch = get_child(*nd);
+            normalize_rec(&ch);
+            break;
+        }
+        case BRANCH_NODE : {
+            branch_t b = *nd;
+            node_t lch = get_lchild(b);
+            normalize_rec(&lch);
+            if (get_node_kind(lch) == SINGLE_NODE) {
+                *nd = reduce(b);
+                normalize_rec(nd);
+            }
+            else {
+                node_t rch = get_rchild(b);
+                normalize_rec(&rch);
+            }
+        }
+    }
+}
+
+/* ***** ***** */
+
+void normalize(node_t *nd)
+{
+    normalize_iter(nd);
 }
 
 /* ***** ***** */

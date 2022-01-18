@@ -1,7 +1,7 @@
 /* ***** ***** */
 
-#ifndef REDUCE_H
-#define REDUCE_H
+#ifndef UPCOPY_H
+#define UPCOPY_H
 
 /* ***** ***** */
 
@@ -16,18 +16,25 @@
 #include "branch.h"
 #include "node.h"
 #include "freenode.h"
-#include "upcopy.h"
 
 /* ***** ***** */
 
-void single_stack_setup();
+void upcopy_stack_setup();
 
-void single_stack_free();
+void upcopy_stack_free();
 
-/* ***** ***** */
-
-node_t reduce(branch_t redex);
+void upcopy_stack_push(node_t newch, uplink_dll_t pars);
 
 /* ***** ***** */
 
-#endif // REDUCE_H
+single_t new_single(leaf_t oldvar, node_t body);
+
+branch_t new_branch(node_t func, node_t argm);
+
+/* ***** ***** */
+
+void upcopy();
+
+/* ***** ***** */
+
+#endif // UPCOPY_H
