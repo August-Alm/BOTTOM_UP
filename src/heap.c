@@ -18,7 +18,7 @@ int32_t *heap;
 
 /* ***** ***** */
 
-#define HEAP_MAX 1073751824 // 2^30
+#define HEAP_MAX 1048576 // 1073751824 // 2^30
 
 /* Daft magic numbers. The maximum number of freed nodes
  * of the respective kind at any given time.

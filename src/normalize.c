@@ -173,7 +173,7 @@ void normalize_rec(node_t *nd)
 
 void normalize(node_t *nd)
 {
-    normalize_iter(nd);
+    normalize_rec(nd);
 }
 
 /* ***** ***** */

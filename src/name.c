@@ -29,7 +29,7 @@ void names_setup()
 void names_free()
 {
     if (!names) return;
-    for (int i = 0; i <= count; ++i) {
+    for (int i = 0; i < count; ++i) {
         free(names[i]);
     }
     free(names);
@@ -38,7 +38,7 @@ void names_free()
 
 int32_t get_name_id(char *str)
 {
-    for (int i = 0; i <= count; ++i) {
+    for (int i = 0; i < count; ++i) {
         if (!strcmp(names[i], str)) {
             return i;
         }
@@ -59,9 +59,10 @@ int32_t add_name(char *str)
         free(str);
         return nid;
     }
+    int32_t idx = count;
+    names[idx] = str;
     ++count;
-    names[count] = str;
-    return count;
+    return idx;
 }
 
 /* ***** ***** */
