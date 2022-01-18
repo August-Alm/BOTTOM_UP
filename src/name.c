@@ -1,11 +1,11 @@
 /* ***** ***** */
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
 #include "malcheck.h"
 #include "name.h"
 #include "node.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 
 /* ***** ***** */
 

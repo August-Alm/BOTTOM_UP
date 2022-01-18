@@ -1,8 +1,5 @@
 /* ***** ***** */
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "memory.h"
 #include "freenode.h"
 #include "malcheck.h"
@@ -12,6 +9,9 @@
 #include "single.h"
 #include "branch.h"
 #include "node.h"
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
 /* ***** ***** */
 

@@ -5,10 +5,10 @@
 
 /* ***** ***** */
 
-#include <stdbool.h>
 #include "forceinline.h"
 #include "types.h"
 #include "heap.h"
+#include <stdbool.h>
 
 /* ***** ***** */
 

@@ -1,7 +1,5 @@
 /* ***** ***** */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "malcheck.h"
 #include "memory.h"
 #include "normalize.h"
@@ -11,6 +9,8 @@
 #include "branch.h"
 #include "node.h"
 #include "reduce.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 /* ***** ***** */
 

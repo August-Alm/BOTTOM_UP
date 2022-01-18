@@ -1,12 +1,12 @@
 /* ***** ***** */
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include "token.h"
 #include "malcheck.h"
 #include "name.h"
 #include "input.h"
+#include <ctype.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 /* ***** ***** */
 

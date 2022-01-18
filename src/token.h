@@ -5,11 +5,11 @@
 
 /* ***** ***** */
 
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include "forceinline.h"
 #include "input.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <stdbool.h>
 
 /* ***** ***** */
 

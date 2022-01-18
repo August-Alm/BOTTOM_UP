@@ -1,7 +1,5 @@
 /* ***** ***** */
 
-#include <stdint.h>
-#include <stdlib.h>
 #include "memory.h"
 #include "reduce.h"
 #include "malcheck.h"
@@ -13,6 +11,8 @@
 #include "node.h"
 #include "freenode.h"
 #include "upcopy.h"
+#include <stdint.h>
+#include <stdlib.h>
 
 /* ***** ***** */
 
