@@ -9,6 +9,12 @@
 
 /* ***** ***** */
 
+void norm_stack_setup();
+
+void norm_stack_free();
+
+/* ***** ***** */
+
 void normalize_wh(node_t *nd);
 
 void normalize(node_t *nd);

@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include "memory.h"
 #include "malcheck.h"
 #include "heap.h"
 #include "leaf.h"
@@ -52,16 +53,16 @@ void heap_setup()
     top_cleared_branches = -1;
 }
 
-void memory_clear()
+void heap_clear()
 {
     idx_heap = 0;
     top_cleared_singles = -1;
     top_cleared_branches = -1;
 }
 
-void memory_free()
+void heap_free()
 {
-    memory_clear();
+    heap_clear();
     free(heap);
     free(cleared_singles); 
     free(cleared_branches);

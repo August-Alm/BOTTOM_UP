@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "memory.h"
 #include "freenode.h"
 #include "malcheck.h"
 #include "heap.h"
@@ -44,7 +45,6 @@ void cleanup_stack_push(uplink_dll_t lks)
     }
     else {
         fprintf(stderr, "`cleanup_stack` full.\n");
-        free(cleanup_stack);
         memory_free();
         exit(EXIT_FAILURE);
     }

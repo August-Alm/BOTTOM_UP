@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "malcheck.h"
+#include "memory.h"
 #include "normalize.h"
 #include "uplink.h"
 #include "leaf.h"
@@ -50,7 +51,6 @@ void norm_stack_push(bool islch, node_t rt, node_t nd)
     }
     else {
         fprintf(stderr, "`norm_stack` full.\n");
-        free(norm_stack);
         memory_free();
         exit(EXIT_FAILURE);
     }

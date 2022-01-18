@@ -11,7 +11,7 @@
 
 void uplink_dll_stack_setup();
 
-void free_stack_free();
+void uplink_dll_stack_free();
 
 void free_stack_setup();
 

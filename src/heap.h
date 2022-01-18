@@ -16,9 +16,9 @@ extern int32_t *heap;
 
 void heap_setup();
 
-void memory_clear();
+void heap_clear();
 
-void memory_free();
+void heap_free();
 
 /* ***** ***** */
 

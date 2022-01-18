@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include "memory.h"
 #include "reduce.h"
 #include "malcheck.h"
 #include "heap.h"
@@ -45,7 +46,6 @@ void single_stack_push(single_t x)
     }
     else {
         fprintf(stderr, "`single_stack` full.\n");
-        free(single_stack);
         memory_free();
         exit(EXIT_FAILURE);
     }

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "memory.h"
 #include "malcheck.h"
 #include "upcopy.h"
 #include "heap.h"
@@ -51,7 +52,6 @@ void upcopy_stack_push(node_t newch, uplink_dll_t pars)
     }
     else {
         fprintf(stderr, "`upcopy_stack` full.\n");
-        free(upcopy_stack);
         memory_free();
         exit(EXIT_FAILURE);
     }
