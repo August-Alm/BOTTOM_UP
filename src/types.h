@@ -43,13 +43,6 @@ typedef int32_t uplink_dll_t;
 
 /* ***** ***** */
 
-struct name {
-    char *str;
-    uint32_t refcnt;
-};
-
-/* ***** ***** */
-
 typedef int32_t leaf_t;
 
 struct leaf {

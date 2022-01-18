@@ -5,6 +5,7 @@
 
 /* ***** ***** */
 
+#include "name.h"
 #include "types.h"
 #include "heap.h"
 #include "uplink.h"
@@ -23,6 +24,8 @@ int32_t get_leaf_name_id(leaf_t l)
 {
     return heap[l] >> 2;
 }
+
+char *get_leaf_name(leaf_t l);
 
 FORCEINLINE
 void set_leaf_name_id(leaf_t l, int32_t nid)

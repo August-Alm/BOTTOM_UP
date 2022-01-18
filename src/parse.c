@@ -13,26 +13,26 @@
 
 struct env_sll {
     struct env_sll *next;
-    struct name *name;
-    struct node bound;
+    int32_t namid;
+    node_t bound;
 };
 
 static
-void add_binding(struct name *nam, struct node nd, struct env_sll **env)
+void add_binding(int32_t nid, node_t nd, struct env_sll **env)
 {
     struct env_sll *new = malloc(sizeof(struct env_sll));
     new->next = *env;
-    new->name = nam;
+    new->namid = nid;
     new->bound = nd;
     *env = new;
 }
 
 static
-void rem_binding(struct name *nam, struct node bnd, struct env_sll **env)
+void rem_binding(int32_t nid, node_t bnd, struct env_sll **env)
 {
     struct env_sll **tmp = env;
     while (*tmp) {
-        if ((*tmp)->name == nam && (*tmp)->bound.address == bnd.address) {
+        if ((*tmp)->namid == nid && (*tmp)->bound == bnd) {
             struct env_sll *next = (*tmp)->next;
             free(*tmp);
             *tmp = next;
@@ -44,17 +44,16 @@ void rem_binding(struct name *nam, struct node bnd, struct env_sll **env)
 
 
 static
-struct node get_bound(struct env_sll *env, struct name *nam)
+node_t get_bound(struct env_sll *env, int32_t *nid)
 {
     struct env_sll *tmp = env;
     while (tmp) {
-        if (tmp->name == nam) {
-            nam->refcnt++;
+        if (tmp->namid == nid) {
             return tmp->bound;
         }
         tmp = tmp->next;
     }
-    return as_node(NULL);
+    return -1;
 }
 
 static
@@ -82,14 +81,15 @@ enum state_tag {
 struct state {
     union {
         struct {
-             struct name *name;
-             struct leaf *leaf;
+            int32_t namid;
         } lam_bod;
-        struct branch *app_arg;
-        struct name *let_bnd;
+        branch_t app_arg;
         struct {
-             struct name *name;
-             struct node bound;
+            int32_t namid;
+        } let_bnd;
+        struct {
+             int32_t namid;
+             node_t bound;
         } let_bod;
         void *junk;
     };
@@ -125,32 +125,30 @@ struct state pop_state(struct state_sll **stack)
 /* ***** ***** */
 
 static inline
-void connect_child(struct node ch, struct single *s)
+void connect_child(node_t ch, single_t s)
 {
-    s->child = ch;
-    add_to_parents(&s->child_uplink, ch);
+    set_child(s, ch);
+    add_to_parents(get_child_uplink(s), ch);
 }
 
 static inline
-void connect_lchild(struct node lch, struct branch *b)
+void connect_lchild(node_t lch, branch_t b)
 {
-    b->lchild = lch;
-    add_to_parents(&b->lchild_uplink, lch);
+    add_to_parents(get_lchild_uplink(b), get_lchild(b));
 }
 
 static inline
-void connect_rchild(struct node rch, struct branch *b)
+void connect_rchild(node_t rch, branch_t b)
 {
-    b->rchild = rch;
-    add_to_parents(&b->rchild_uplink, rch);
+    add_to_parents(get_fchild_uplink(b), get_rchild(b));
 }
 
 /* ***** ***** */
 
 static
-struct node parse_env(struct input_handle *h, struct env_sll *env)
+node_t parse_env(struct input_handle *h, struct env_sll *env)
 {
-    struct node retval = as_node(NULL);
+    node_t retval = as_node(NULL);
 
     struct state_sll *stack = NULL;
     struct state curr = (struct state) {
@@ -188,8 +186,6 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
 		            retval = as_node(NULL);
                     continue;
 		        }
-		        struct leaf *l = halloc_leaf();
-		        l->name = nam;
 		        add_binding(nam, as_node(l), &env);
 
                 curr.tag = S_LAM_BOD;
@@ -247,8 +243,8 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
         }
 
         case S_LAM_BOD: {
-            struct single *s = halloc_single();
-            struct leaf *l = curr.lam_bod.leaf;
+            single_t *s = halloc_single();
+            leaf_t *l = curr.lam_bod.leaf;
             s->leaf = address_of(l);
             connect_child(retval, s);
             retval = as_node(s);
@@ -257,7 +253,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
         }
 
         case S_APP_FUN: {
-            struct branch *b = halloc_branch();
+            branch_t *b = halloc_branch();
             connect_lchild(retval, b);
 
             curr.tag = S_APP_ARG;
@@ -272,7 +268,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
         }
 
         case S_APP_ARG: {
-            struct branch *b = curr.app_arg;
+            branch_t *b = curr.app_arg;
             connect_rchild(retval, b);
 
             tok = read_token(h);
@@ -288,7 +284,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
 
         case S_LET_BND: {
             struct name *nam = curr.let_bnd;
-            struct node bnd = retval;
+            node_t bnd = retval;
             add_binding(nam, bnd, &env);
 
             curr.tag = S_LET_BOD;
@@ -305,7 +301,7 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
 
         case S_LET_BOD: {
             struct name *nam = curr.let_bod.name;
-            struct node bnd = curr.let_bod.bound;
+            node_t bnd = curr.let_bod.bound;
             rem_binding(nam, bnd, &env);
             continue;
         }
@@ -320,10 +316,10 @@ struct node parse_env(struct input_handle *h, struct env_sll *env)
 
 /* ***** ***** */
 
-struct node parse_node(struct input_handle *h)
+node_t parse_node(struct input_handle *h)
 {
     struct env_sll *env = NULL;
-    struct node result = parse_env(h, env);
+    node_t result = parse_env(h, env);
     free_env(env);
     return result;
 }

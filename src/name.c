@@ -1,135 +1,64 @@
 /* ***** ***** */
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include "name.h"
 #include "malcheck.h"
+#include "name.h"
 #include "node.h"
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 
 /* ***** ***** */
 
-#define DEF_SIZE 3932
+#define DEF_SIZE 4096
 
 /* ***** ***** */
 
-struct entry {
-    char *key;
-    uint32_t val;
-    char taken;
-};
+char **names;
 
-struct hmap {
-    struct entry **buckets;
-    int size;
-};
+int count;
 
 /* ***** ***** */
 
-void decref_name(struct name *nam)
+void names_setup()
 {
-	uint32_t refcnt = nam->refcnt;
-	if (refcnt == 1) {
-		struct entry *e = (struct entry*)nam;
-		free(e->key);
-		e->key = NULL;
-		e->val = 0;
-		e->taken = 0;
-	}
-	else {
-		nam->refcnt = refcnt - 1;
-	}
+    names = malloc(sizeof(char*) * DEF_SIZE);
+    MALCHECKx(names);
+    count = 0;
 }
 
-/* ***** ***** */
-
-static uint64_t hash_func(struct hmap *h, char *key)
+void names_free()
 {
-    uint64_t hashed = 0;
-    for (int i = 0; key[i] != 0; ++i) {
-        hashed += key[i];
+    if (!names) return;
+    for (int i = 0; i <= count; ++i) {
+        free(names[i]);
     }
-    return hashed % h->size;
-}
-/* ***** ***** */
-
-struct hmap *names;
-
-void setup_names()
-{
-    struct hmap *new = malloc(sizeof(struct hmap));
-    MALCHECKx(new);
-
-    new->size = DEF_SIZE;
-    new->buckets = calloc(new->size, sizeof(struct entry*));
-    MALCHECKx(new->buckets);
-
-    for (int i = 0; i < new->size; ++i) {
-        new->buckets[i] = calloc(1, sizeof(struct entry));
-        new->buckets[i]->taken = 0;
-        new->buckets[i]->key = NULL;
-        new->buckets[i]->val = 0;
-    }
-    names = new;
+    free(names);
+    count = 0;
 }
 
-/* ***** ***** */
-
-uint64_t names_add(char *key)
+int32_t get_name_id(char *str)
 {
-    uint64_t index = hash_func(names, key);
-    while (names->buckets[index]->taken) {
-        index = (index + 1) % names->size;
-    }
-    names->buckets[index]->key = key;
-    names->buckets[index]->val = 1;
-    names->buckets[index]->taken = 1;
-    return index;
-}
-
-struct name *get_name(char *str)
-{
-    uint64_t index = hash_func(names, str);
-    uint64_t start = index;
-
-    while (names->buckets[index]->key && strcmp(names->buckets[index]->key, str)) {
-        index = (index + 1) % names->size;
-        if (index == start) {
-            uint64_t idx = names_add(str);
-            return (struct name*)&names->buckets[idx]->key;
+    for (int i = 0; i <= count; ++i) {
+        if (!strcmp(names[i], str)) {
+            return i;
         }
     }
-    if (!names->buckets[index]->key) {
-        uint64_t idx = names_add(str);
-        return (struct name*)&names->buckets[idx]->key;
-    }
-
-    struct name *nam = (struct name*)&names->buckets[index]->key;
-    nam->refcnt++;
-    free(str);
-    return nam;
+    return -1;
 }
 
-void clear_names()
+char *get_name(int32_t nid)
 {
-    for (int i = 0; i < names->size; ++i) {
-        free(names->buckets[i]->key);
-        names->buckets[i]->taken = 0;
-        names->buckets[i]->key = NULL;
-        names->buckets[i]->val = 0;
-    }
-    free(names->buckets);
-    free(names);
+    if (nid = -1) return NULL;
+    return names[nid];
 }
 
-void free_names()
+int32_t add_name(char *str)
 {
-    for (int i = 0; i < names->size; ++i) {
-        free(names->buckets[i]->key);
-        free(names->buckets[i]);
-    }
-    free(names->buckets);
-    free(names);
+    int32_t nid = get_name_id(str);
+    if (nid != -1) return nid;
+    ++count;
+    names[count] = str;
+    return count;
 }
 
 /* ***** ***** */

@@ -11,7 +11,7 @@ enum print_state_tag {
 };
 
 struct print_state {
-	struct node node;
+	node_t node;
 	enum print_state_tag tag;
 };
 
@@ -45,7 +45,7 @@ struct print_state pop_print_state(struct print_state_sll **stk)
 
 /* ***** ***** */
 
-void fprintf_node(FILE *fp, struct node node)
+void fprintf_node(FILE *fp, node_t node)
 {
 	struct print_state_sll *stack = NULL;
 	struct print_state curr = { node, P_NORMAL };
@@ -59,35 +59,31 @@ void fprintf_node(FILE *fp, struct node node)
 
 		case P_NORMAL: {
 
-			struct node nd = curr.node;
-			void *nd_ptr = ptr_of(nd.address);
+			node_t nd = curr.node;
 
 			switch (kind(nd)) {
 			case LEAF_NODE: {
-				struct leaf *l = (struct leaf*)nd_ptr;
-				fprintf(fp, "%s", l->name->str);
+				fprintf(fp, "%s", get_leaf_name(nd));
 				continue;
 			}
 			case SINGLE_NODE: {
-				struct single *s = (struct single*)nd_ptr;
-				struct leaf *l = (struct leaf*)ptr_of(s->leaf);
-				fprintf(fp, "\\%s.", l->name->str);
+				leaf_t l = get_leaf(nd);
+				fprintf(fp, "\\%s.", get_leaf_name(l));
 
-				curr.node = s->child;
+				curr.node = get_child(nd);
 				curr.tag = P_NORMAL;
 				push_print_state(curr, &stack);
 				continue;
 			}
 			case BRANCH_NODE: {
-				struct branch *b = (struct branch*)nd_ptr;
 				fprintf(fp, "(");
 
-				curr.node = as_node(NULL);
+				curr.node = -1;
 				curr.tag = P_CLOSING;
 				push_print_state(curr, &stack);
 
 				struct print_state rcurr;
-				rcurr.node = b->rchild;
+				rcurr.node = get_rchild(nd);
 				rcurr.tag = P_NORMAL;
 				push_print_state(rcurr, &stack);
 
@@ -97,7 +93,7 @@ void fprintf_node(FILE *fp, struct node node)
                 push_print_state(dummy, &stack);
 
 				struct print_state lcurr;
-				lcurr.node = b->lchild;
+				lcurr.node = get_lchild(nd);
 				lcurr.tag = P_NORMAL;
 				push_print_state(lcurr, &stack);
 				continue;

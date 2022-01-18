@@ -9,15 +9,17 @@
 
 /* ***** ***** */
 
-void setup_names();
+void names_setup();
 
-struct name *get_name(char *str);
+void names_free();
 
-void decref_name(struct name *nam);
+/* ***** ***** */
 
-void clear_names();
+int32_t get_name_id(char *str);
 
-void free_names();
+char *get_name(int32_t nid);
+
+int32_t add_name(char *str);
 
 /* ***** ***** */
 
