@@ -5,6 +5,10 @@
 
 /* ***** ***** */
 
+#include <stdio.h>
+
+/* ***** ***** */
+
 struct input_handle;
 
 int current_line(struct input_handle *h);
