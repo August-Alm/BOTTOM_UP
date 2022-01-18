@@ -21,6 +21,7 @@ enum token_tag {
 	T_RPAR,
 	T_LET,
 	T_EQ,
+	T_SCLN,
 	T_EOF
 };
 
@@ -50,7 +51,7 @@ struct token mk_token(char *nam, int lin, int col, enum token_tag tag)
 
 struct token read_token(struct input_handle *h);
 
-bool consume_token(enum token_tag tag, struct input_handle *h);
+bool consume_token(struct input_handle *h, enum token_tag tag);
 
 /* ***** ***** */
 

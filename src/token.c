@@ -59,6 +59,8 @@ struct token read_token(struct input_handle *h)
 		return mk_token(NULL, curr_lin, curr_col, T_LET);
 	case '=':
 		return mk_token(NULL, curr_lin, curr_col, T_EQ);
+	case ';':
+		return mk_token(NULL, curr_lin, curr_col, T_SCLN);
 	case -1:
 		return mk_token(NULL, curr_lin, curr_col, T_EOF);
 	default:
@@ -70,7 +72,7 @@ struct token read_token(struct input_handle *h)
 
 /* ***** ***** */
 
-bool consume_token(enum token_tag tag, struct input_handle *h)
+bool consume_token(struct input_handle *h, enum token_tag tag)
 {
     read_nonspace_char(h);
     int curr_lin = current_line(h);
@@ -78,7 +80,7 @@ bool consume_token(enum token_tag tag, struct input_handle *h)
 
 	struct token tok = read_token(h);
 	if (tok.tag != tag) {
-		fprintf(stderr, "Error at (%d, %d).\n", curr_lin, curr_col);
+		fprintf(stderr, "Unexpected token at (%d, %d).\n", curr_lin, curr_col);
 		return false;
 	}
 	return true;

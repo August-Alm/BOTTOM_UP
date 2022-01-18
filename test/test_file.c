@@ -69,10 +69,9 @@ void test3(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
-    fprintf_node(stdout, result);
+    //fprintf_node(stdout, result);
 
     free_string_handle(sh);
-
     memory_free();
 }
 
@@ -86,7 +85,7 @@ void test4(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
-    fprintf_node(stdout, result);
+    //fprintf_node(stdout, result);
 
     free_string_handle(sh);
     memory_free();
@@ -103,7 +102,7 @@ void test5(void)
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
     normalize_wh(&result);
-    fprintf_node(stdout, result);
+    //fprintf_node(stdout, result);
 
     free_string_handle(sh);
     memory_free();
@@ -123,7 +122,7 @@ void test6(void)
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
     normalize(&result);
-    fprintf_node(stdout, result);
+    //fprintf_node(stdout, result);
  
     free_string_handle(sh);
     memory_free();
@@ -143,7 +142,7 @@ void test7(void)
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t res = parse_node(ih);
     normalize(&res);
-    fprintf_node(stdout, res);
+    //fprintf_node(stdout, res);
 
     free_string_handle(sh);
     memory_free();
