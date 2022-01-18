@@ -15,102 +15,120 @@
 /* ***** ***** */
 
 FORCEINLINE
-struct single *single_of_child(struct uplink *lk)
+enum uplink_rel get_rel(uplink_t lk)
 {
-    return CONTAINEROF(lk, struct single, child_uplink);
+    return heap[lk];
 }
 
 FORCEINLINE
-struct node node_of_child(struct uplink *lk)
+uplink_t get_next(uplink_t lk)
 {
-    struct single *s = CONTAINEROF(lk, struct single, child_uplink);
-    return (struct node) { .address = (s->id) << 2 };
+    return heap[lk + 1];
 }
 
 FORCEINLINE
-struct branch *branch_of_lchild(struct uplink *lk)
+void set_next(uplink_t lk, uplink_t nxt)
 {
-    return CONTAINEROF(lk, struct branch, lchild_uplink);
+    heap[lk + 1] <- nxt;
 }
 
 FORCEINLINE
-struct node node_of_lchild(struct uplink *lk)
+uplink_t get_prev(uplink_t lk)
 {
-    struct branch *b = CONTAINEROF(lk, struct branch, lchild_uplink);
-    return (struct node) { .address = (b->id) << 2 };
+    return heap[lk + 2];
 }
 
 FORCEINLINE
-struct branch *branch_of_rchild(struct uplink *lk)
+void set_prev(uplink_t lk, uplink_t prv)
 {
-    return CONTAINEROF(lk, struct branch, rchild_uplink);
+    heap[lk + 2] = prv;
 }
 
 FORCEINLINE
-struct node node_of_rchild(struct uplink *lk)
+void reinit_uplink(uplink_t lk)
 {
-    struct branch *b = CONTAINEROF(lk, struct branch, rchild_uplink);
-    return (struct node) { .address = (b->id) << 2 };
+    heap[lk + 1] = -1;
+    heap[lk + 2] = -1;
+}
+
+FORCEINLINE
+void link(uplink_t lk1, uplink_t lk2)
+{
+    set_next(lk1, lk2); set_prev(lk2, lk1);
+}
+
+void unlink(uplink_t lk);
+
+FORCEINLINE
+node_t get_node(uplink_t lk)
+{
+    switch (get_rel(lk)) {
+    case CHILD_REL:
+        return lk - 4; 
+    case LCHILD_REL:
+        return lk - 3;
+    case RCHILD_REL:
+        return lk - 6;
+    }
 }
 
 /* ***** ***** */
 
 FORCEINLINE
-struct uplink_dll empty_dll()
+uplink_t get_head(uplink_dll_t lks)
 {
-    return (struct uplink_dll) { .head = 0 };
+    return heap[lks];
 }
 
 FORCEINLINE
-void init_uplink(struct uplink *lk, enum uplink_rel rel)
+void set_head(uplink_dll_t lks, uplink_t h)
 {
-    *lk = (struct uplink) {
-        .prev = 0,
-        .next = 0,
-        .rel = rel
-    };
+    heap[lks] = h;
 }
 
 FORCEINLINE
-struct uplink *next_uplink(struct uplink *lk)
+void init_dll(uplink_dll_t lks)
 {
-    if (!lk) { return  NULL; }
-    address_t n = lk->next;
-    if (n) { return (struct uplink*)ptr_of(n); }
-    return NULL;
+    heap[lks] = -1;
 }
 
 FORCEINLINE
-struct uplink *prev_uplink(struct uplink *lk)
+bool is_empty(uplink_dll_t lks)
 {
-    if (!lk) { return NULL; }
-    address_t p = lk->prev;
-    if (p) { return (struct uplink*)ptr_of(p); }
-    return NULL;
-}
-
-/* ***** ***** */
-
-FORCEINLINE
-struct uplink *head_of(struct uplink_dll lks)
-{
-    if (!lks.head) { return NULL; }
-    return (struct uplink*)ptr_of(lks.head);
+    return lks == -1;
 }
 
 FORCEINLINE
-bool is_empty(struct uplink_dll lks)
+bool is_lenght_one(uplink_dll_t lks)
 {
-    return lks.head == 0;
+    uplink_t h = get_head(lks);
+    if (h == -1) return 0;
+    h = get_next(h);
+    return h == -1;
 }
 
-/* ***** ***** */
+FORCEINLINE
+void append(uplink_dll_t lks, uplink_t lk)
+{
+    uplink_t h = get_head(lks);
+    if (h != -1) link(lk, h);
+    set_head(lks, lk);
+}
 
-void link_uplinks(struct uplink *lk1, struct uplink *lk2);
+typedef void (*uplink_action_t(uplink_t));
 
-void unlink_uplink(struct uplink *lk);
-
-void prepend(struct uplink *lk, struct uplink_dll *lks);
+FORCEINLINE
+void iter_dll(uplink_action_t act, uplink_dll_t lks)
+{
+    uplink_t lk = get_head(lks);
+    if (lk = -1) return;
+    uplink_t nxt = get_next(lk);
+    while (lk != -1) {
+        *act(lk);
+        lk = nxt;
+        nxt = get_next(lk);
+    }
+}
 
 /* ***** ***** */
 

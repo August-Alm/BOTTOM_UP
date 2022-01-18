@@ -14,58 +14,41 @@
 /* Forward declaration. We use our own heap and address its
  * contents by a 32 bit offset.
  */
-uint32_t *heap;
-
-/* Needed to make inline function in `heap.c` available.
- */
-extern
-void *ptr_of(address_t a);
-
-extern
-address_t address_of(void *p);
+int32_t *heap;
 
 /* ***** ***** */
 
-/* Corresponds to a preallocated heap of 15 MB.
- */
-#define HEAP_MAX 39321 // 3932160
+#define HEAP_MAX 1073751824 // 2^30
 
 /* Daft magic numbers. The maximum number of freed nodes
  * of the respective kind at any given time.
  */
-#define LEAF_MAX 3932 // 393216 
-#define SINGLE_MAX 3932 // 393216 
-#define BRANCH_MAX 3932 // 393216
+#define SINGLE_MAX 1048576
+#define BRANCH_MAX 1048576
 
 /* ***** ***** */
 
-uint32_t idx_heap;
+int32_t idx_heap;
 
-struct leaf **cleared_leaves;
-int top_cleared_leaves;
-
-struct single **cleared_singles;
+single_t *cleared_singles;
 int top_cleared_singles;
 
-struct branch **cleared_branches;
+branch_t *cleared_branches;
 int top_cleared_branches;
 
 /* ***** ***** */
 
 void heap_setup()
 {
-    heap = malloc(sizeof(uint32_t) * HEAP_MAX);
+    heap = malloc(sizeof(int32_t) * HEAP_MAX);
     MALCHECKx(heap);
     idx_heap = 0;
 
-    cleared_leaves = malloc(sizeof(address_t) * LEAF_MAX);
-    MALCHECKx(cleared_leaves);
     cleared_singles = malloc(sizeof(address_t) * SINGLE_MAX);
     MALCHECKx(cleared_singles);
     cleared_branches = malloc(sizeof(address_t) * BRANCH_MAX);
     MALCHECKx(cleared_branches);
 
-    top_cleared_leaves = -1;
     top_cleared_singles = -1;
     top_cleared_branches = -1;
 }
@@ -73,7 +56,6 @@ void heap_setup()
 void memory_clear()
 {
     idx_heap = 0;
-    top_cleared_leaves = -1;
     top_cleared_singles = -1;
     top_cleared_branches = -1;
 }
@@ -82,67 +64,45 @@ void memory_free()
 {
     memory_clear();
     free(heap);
-    free(cleared_leaves);
     free(cleared_singles); 
     free(cleared_branches);
 }
 
 /* ***** ***** */
 
-struct leaf *halloc_leaf()
-{
-    if (top_cleared_leaves == -1) {
-        address_t addr = idx_heap + 2;
-        if (addr < HEAP_MAX - sizeof(struct leaf)) {
-            struct leaf *l = (struct leaf*)ptr_of(addr);
-            init_leaf(l, addr);
-            idx_heap += sizeof(struct leaf);
-            return l;
-        }
-        fprintf(stderr, "`heap` full.\n");
-        return NULL;
-    }
-    struct leaf *l = cleared_leaves[top_cleared_leaves--];
-    init_leaf(l, address_of(l));
-    return l;
-}
+struct single single_init = {
+    .id = SINGLE_NODE,
+    .leaf = {
+        .id = LEAF_NODE,
+        .parents = -1
+    },
+    .child = -1,
+    .child_uplink = {
+        .rel = CHILD_REL,
+        .next = -1,
+        .prev = -1
+    },
+    .parents = -1
+};
 
-void dehalloc_leaf(struct leaf *l)
-{
-    if (top_cleared_leaves < LEAF_MAX - 1) {
-        //decref_name(l->name);
-        cleared_leaves[++top_cleared_leaves] = l; 
-    }
-    else {
-        fprintf(stderr, "`cleared_leaves` full.\n");
-        memory_free();
-        exit(EXIT_FAILURE);
-    }
-}
-
-/* ***** ***** */
-
-struct single *halloc_single()
+single_t halloc_single()
 {
     if (top_cleared_singles == -1) {
-        address_t addr = idx_heap + 2;
-        if (addr < HEAP_MAX - sizeof(struct single)) {
-            struct single *s = (struct single*)(heap + addr);
-            init_single(s, addr);
+        single_t s = idx_heap;
+        if (s < HEAP_MAX - sizeof(struct single)) {
+            struct single *sptr = (struct single*)(heap + s);
+            *sptr = single_init;
             idx_heap += sizeof(struct single);
             return s;
         }
         fprintf(stderr, "`heap` full.\n");
-        return 0;
+        return -1;
     }
-    struct single *s = cleared_singles[top_cleared_singles--];
-    init_single(s, address_of(s));
-    return s;
+    return cleared_singles[top_cleared_singles--];
 }
 
-void dehalloc_single(struct single *s)
+void dehalloc_single(single_t s)
 {
-    dehalloc_leaf((struct leaf*)ptr_of(s->leaf));
     if (top_cleared_singles < SINGLE_MAX - 1) {
         cleared_singles[++top_cleared_singles] = s; 
     }
@@ -155,13 +115,31 @@ void dehalloc_single(struct single *s)
 
 /* ***** ***** */
 
-struct branch *halloc_branch()
+struct branch branch_init = {
+    .id = BRANCH_NODE,
+    .lchild = -1,
+    .rchild = -1,
+    .lchild_uplink = {
+        .rel = LCHILD_REL,
+        .next = -1,
+        .prev = -1
+    },
+    .rchild_uplink = {
+        .rel = RCHILD_REL,
+        .next = -1,
+        .prev = -1
+    },
+    .parents = -1,
+    .cache = -1
+};
+
+branch_t halloc_branch()
 {
     if (top_cleared_branches == -1) {
-        address_t addr = idx_heap + 2;
-        if (addr < HEAP_MAX - sizeof(struct branch)) {
-            struct branch *b = (struct branch*)(heap + addr);
-            init_branch(b, addr);
+        branch_t b = idx_heap;
+        if (b < HEAP_MAX - sizeof(struct branch)) {
+            struct branch *bptr = (struct branch*)(heap + b);
+            *bptr = branch_init;
             idx_heap += sizeof(struct branch);
             return b;
         }
@@ -169,12 +147,10 @@ struct branch *halloc_branch()
         memory_free();
         exit(EXIT_FAILURE);
     }
-    struct branch *b = cleared_branches[top_cleared_branches--];
-    init_branch(b, address_of(b));
-    return b;
+    return cleared_branches[top_cleared_branches--];
 }
 
-void dehalloc_branch(struct branch *b)
+void dehalloc_branch(branch_t b)
 {
     if (top_cleared_branches < BRANCH_MAX - 1) {
         cleared_branches[++top_cleared_branches] = b; 

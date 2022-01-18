@@ -1,22 +1,32 @@
 /* ***** ***** */
 
-#include <stddef.h>
 #include "single.h"
 
 /* ***** ***** */
 
-void init_single(struct single *s, address_t addr)
-{
-    s->id = (addr << 2) | SINGLE_NODE;
-    s->leaf = 0;
-    s->child = (struct node) { .address = 0 };
-    s->parents = (struct uplink_dll) { .head = 0 };
-    s->child_uplink = (struct uplink) {
-        .prev = 0,
-        .next = 0,
-        .rel = CHILD_REL
-    };
-}
+extern
+int32_t get_single_id(single_t s);
+
+extern
+leaf_t get_leaf(single_t s);
+
+extern
+node_t get_child(single_t s);
+
+extern
+void set_child(single_t s, node_t ch);
+
+extern
+uplink_t get_child_uplink(single_t s);
+
+extern
+uplink_dll_t get_single_parents(single_t s);
+
+extern
+void set_single_parents(single_t s, uplink_dll_t lks);
+
+extern
+void init_single(single_t s, int32_t nid);
 
 /* ***** ***** */
 

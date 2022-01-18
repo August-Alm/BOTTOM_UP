@@ -9,29 +9,37 @@
 
 /* ***** ***** */
 
-typedef uint32_t address_t;
+typedef int32_t address_t;
 
 /* ***** ***** */
 
-enum node_kind { LEAF_NODE, SINGLE_NODE, BRANCH_NODE };
-
-struct node {
-    address_t address;
+enum node_kind {
+    LEAF_NODE,
+    SINGLE_NODE,
+    BRANCH_NODE
 };
 
+typedef int32_t node_t;
+
 /* ***** ***** */
 
-enum uplink_rel { CHILD_REL, LCHILD_REL, RCHILD_REL };
+enum uplink_rel {
+    CHILD_REL,
+    LCHILD_REL,
+    RCHILD_REL
+};
+
+typedef int32_t uplink_t;
 
 struct uplink {
-    address_t next;
-    address_t prev;
-    enum uplink_rel rel;
+    int32_t rel;
+    int32_t next;
+    int32_t prev;
 };
 
-struct uplink_dll {
-    address_t head;
-};
+/* ***** ***** */
+
+typedef int32_t uplink_dll_t;
 
 /* ***** ***** */
 
@@ -40,32 +48,39 @@ struct name {
     uint32_t refcnt;
 };
 
+/* ***** ***** */
+
+typedef int32_t leaf_t;
+
 struct leaf {
-    uint32_t id;    
-    struct uplink_dll parents;
-    struct name *name;
+    int32_t id;
+    uplink_dll_t parents;
 };
 
 /* ***** ***** */
+
+typedef int32_t single_t;
 
 struct single {
-    uint32_t id;
-    address_t leaf;
-    struct node child;
-    struct uplink_dll parents;
+    int32_t id;
+    struct leaf leaf;
+    node_t child;
     struct uplink child_uplink;
+    uplink_dll_t parents;
 };
 
 /* ***** ***** */
 
+typedef int32_t branch_t;
+
 struct branch {
-    uint32_t id;
-    struct node lchild;
-    struct node rchild;
-    struct uplink_dll parents;
-    struct node cache;
+    int32_t id;
+    node_t lchild;
+    node_t rchild;
     struct uplink lchild_uplink;
     struct uplink rchild_uplink;
+    uplink_dll_t parents;
+    branch_t cache;
 };
 
 /* ***** ***** */

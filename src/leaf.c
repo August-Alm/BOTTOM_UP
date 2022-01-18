@@ -1,17 +1,23 @@
 /* ***** ***** */
 
-#include <stddef.h>
-#include "types.h"
 #include "leaf.h"
 
 /* ***** ***** */
 
-void init_leaf(struct leaf *l, address_t addr)
-{
-    l->id = (addr << 2) | LEAF_NODE;
-    l->parents = (struct uplink_dll) { .head = 0 };
-    l->name = NULL;
-}
+extern
+int32_t get_leaf_id(leaf_t l);
+
+extern
+int32_t get_leaf_name_id(leaf_t l);
+
+extern
+void set_leaf_name_id(leaf_t l, int32_t nid);
+
+extern
+uplink_dll_t get_leaf_parents(leaf_t l);
+
+extern
+void set_leaf_parents(leaf_t l, uplink_dll_t lks);
 
 /* ***** ***** */
 

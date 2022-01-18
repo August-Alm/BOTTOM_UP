@@ -8,70 +8,74 @@
 /* ***** ***** */
 
 extern
-struct single *single_of_child(struct uplink *lk);
+enum uplink_rel get_rel(uplink_t lk);
 
 extern
-struct node node_of_child(struct uplink *lk);
+uplink_t get_next(uplink_t lk);
 
 extern
-struct branch *branch_of_lchild(struct uplink *lk);
+void set_next(uplink_t lk, uplink_t nxt);
 
 extern
-struct node node_of_lchild(struct uplink *lk);
+uplink_t get_prev(uplink_t lk);
 
 extern
-struct branch *branch_of_rchild(struct uplink *lk);
+void set_prev(uplink_t lk, uplink_t prev);
 
 extern
-struct node node_of_rchild(struct uplink *lk);
+void reinit_uplink(uplink_t lk);
+
+extern
+void link(uplink_t lk1, uplink_t lk2);
+
+void unlink(uplink_t lk)
+{
+   uplink_t prv = get_prev(lk);
+   uplink_t nxt = get_next(lk);
+   if (prv == -1) {
+      if (nxt == -1) return;
+      set_prev(nxt, -1);
+      set_next(lk, -1);
+      return;
+   }
+   if (nxt == -1) {
+      set_next(prv, -1);
+      set_prev(lk, -1);
+      return;
+   }
+   set_prev(nxt, prv);
+   set_next(prv, nxt);
+   reinit_uplink(lk);
+}
+
+extern
+node_t get_node(uplink_t lk);
+
+/* ***** ***** */
+
+extern
+uplink_t get_head(uplink_dll_t lks);
+
+extern
+void set_head(uplink_dll_t lks, uplink_t h);
+
+extern
+void init_dll(uplink_dll_t lks);
 
 extern
 struct uplink_dll empty_dll();
 
 extern
-void init_uplink(struct uplink *lk, enum uplink_rel rel);
+bool is_empty(uplink_dll_t lks);
 
 extern
-struct uplink *next_uplink(struct uplink *lk);
+bool is_length_one(uplink_dll_t lks);
 
 extern
-struct uplink *prev_uplink(struct uplink *lk);
-
-/* ***** ***** */
+void append(uplink_dll_t lks, uplink_t lk);
 
 extern
-struct uplink *head_of(struct uplink_dll lks);
-
-extern
-bool is_empty(struct uplink_dll lks);
-
-/* ***** ***** */
-
-void link_uplinks(struct uplink *lk1, struct uplink *lk2)
-{
-   if (lk1) {
-        lk1->next = lk2 ? address_of(lk2) : 0;
-   }
-   if (lk2) {
-        lk2->prev = lk1 ? address_of(lk1) : 0;
-   }
-}
-
-void unlink_uplink(struct uplink *lk)
-{
-   struct uplink *n = next_uplink(lk);
-   struct uplink *p = prev_uplink(lk);
-   link_uplinks(p, n);
-   lk->next = 0;
-   lk->prev = 0;
-}
-
-void prepend(struct uplink *lk, struct uplink_dll *lks)
-{
-    struct uplink *h = head_of(*lks);
-    if (h) { link_uplinks(lk, h); }
-    lks->head = address_of(lk);
-}
+void iter_dll(uplink_action_t act, uplink_dll_t lks);
 
 /* ***** ***** */
 

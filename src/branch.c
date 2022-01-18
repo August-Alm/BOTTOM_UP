@@ -1,28 +1,41 @@
 /* ***** ***** */
 
-#include <stddef.h>
-#include "single.h"
+#include "branch.h"
 
 /* ***** ***** */
 
-void init_branch(struct branch *b, address_t addr)
-{
-     b->id = (addr << 2) | BRANCH_NODE;
-     b->lchild = (struct node) { .address = 0 };
-     b->rchild = (struct node) { .address = 0 };
-     b->parents = (struct uplink_dll) { .head = 0 };
-     b->cache = (struct node) { .address = 0 };
-     b->lchild_uplink = (struct uplink) {
-         .prev = 0,
-         .next = 0,
-         .rel = LCHILD_REL
-     };
-     b->rchild_uplink = (struct uplink) {
-         .prev = 0,
-         .next = 0,
-         .rel = RCHILD_REL
-     };
-}
+extern
+node_t get_lchild(branch_t b);
+
+extern
+void set_lchild(branch_t b, node_t lch);
+
+extern
+node_t get_rchild(branch_t b);
+
+extern
+void set_rchild(branch_t b, node_t rch);
+
+extern
+uplink_t get_lchild_uplink(branch_t b);
+
+extern
+uplink_t get_rchild_uplink(branch_t b);
+
+extern
+uplink_dll_t get_branch_parents(branch_t b);
+
+extern
+uplink_dll_t set_branch_parents(branch_t b, uplink_dll_t lks);
+
+extern
+branch_t get_cache(branch_t b);
+
+extern
+void set_cache(branch_t b, branch_t cc);
+
+extern
+void clear_cache(branch_t b);
 
 /* ***** ***** */
 
