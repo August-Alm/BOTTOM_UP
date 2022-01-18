@@ -1,6 +1,17 @@
 /* ***** ***** */
 
+#include <stdint.h>
+#include <stdlib.h>
 #include "reduce.h"
+#include "malcheck.h"
+#include "heap.h"
+#include "uplink.h"
+#include "leaf.h"
+#include "single.h"
+#include "branch.h"
+#include "node.h"
+#include "freenode.h"
+#include "upcopy.h"
 
 /* ***** ***** */
 

@@ -5,18 +5,7 @@
 
 /* ***** ***** */
 
-#include <stdint.h>
-#include <stdlib.h>
-#include "malcheck.h"
 #include "types.h"
-#include "heap.h"
-#include "uplink.h"
-#include "leaf.h"
-#include "single.h"
-#include "branch.h"
-#include "node.h"
-#include "freenode.h"
-#include "upcopy.h"
 
 /* ***** ***** */
 

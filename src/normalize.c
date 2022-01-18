@@ -2,8 +2,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "node.h"
 #include "normalize.h"
+#include "uplink.h"
+#include "leaf.h"
+#include "single.h"
+#include "branch.h"
+#include "node.h"
+#include "reduce.h"
 
 /* ***** ***** */
 

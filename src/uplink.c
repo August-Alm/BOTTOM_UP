@@ -1,8 +1,5 @@
 /* ***** ***** */
 
-#include <stddef.h>
-#include <stdbool.h>
-#include "types.h"
 #include "uplink.h"
 
 /* ***** ***** */

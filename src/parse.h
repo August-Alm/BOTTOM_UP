@@ -12,7 +12,7 @@
 
 /* ***** ***** */
 
-struct node parse_node(struct input_handle *h);
+node_t parse_node(struct input_handle *h);
 
 /* ***** ***** */
 

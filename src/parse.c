@@ -2,12 +2,15 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include "parse.h"
 #include "malcheck.h"
 #include "name.h"
-#include "node.h"
 #include "uplink.h"
+#include "leaf.h"
+#include "single.h"
+#include "branch.h"
+#include "node.h"
 #include "token.h"
-#include "parse.h"
 
 /* ***** ***** */
 
@@ -82,6 +85,7 @@ struct state {
     union {
         struct {
             int32_t namid;
+            single_t uninit;
         } lam_bod;
         branch_t app_arg;
         struct {
@@ -148,7 +152,7 @@ void connect_rchild(node_t rch, branch_t b)
 static
 node_t parse_env(struct input_handle *h, struct env_sll *env)
 {
-    node_t retval = as_node(NULL);
+    node_t retval = -1;
 
     struct state_sll *stack = NULL;
     struct state curr = (struct state) {
@@ -176,21 +180,25 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
 
 		        if (tok.tag != T_NAME) {
 		            PRINT_MSG("Expected variable name", tok);
-		            retval = as_node(NULL);
+		            retval = -1;
                     continue;
 		        }
-		        struct name *nam = tok.name;
+                int32_t nid = add_name(tok.name);
 		        tok = read_token(h);
 		        if (tok.tag != T_DOT) {
 		            PRINT_MSG("Expected '.'", tok);
-		            retval = as_node(NULL);
+		            retval = -1;
                     continue;
 		        }
-		        add_binding(nam, as_node(l), &env);
+
+                single_t s = halloc_single();
+                leaf_t l = get_leaf(s);
+                set_leaf_name_id(l, nid);
+		        add_binding(nid, l, &env);
 
                 curr.tag = S_LAM_BOD;
-                curr.lam_bod.name = nam;
-                curr.lam_bod.leaf = l;
+                curr.lam_bod.namid = nid;
+                curr.lam_bod.uninit = s;
                 push_state(curr, &stack);
 
                 struct state newcurr;
@@ -214,19 +222,19 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
                 tok = read_token(h);
                 if (tok.tag != T_NAME) {
                     PRINT_MSG("Expected variable name", tok);
-                    retval = as_node(NULL);
+                    retval = -1;
                     continue;
                 }
-                struct name *nam = tok.name;
+                int32_t nid = add_name(tok.name);
                 tok = read_token(h);
                 if (tok.tag != T_EQ) {
                     PRINT_MSG("Expected '='", tok);
-                    retval = as_node(NULL);
+                    retval = -1;
                     continue;
                 }
 
                 curr.tag = S_LET_BND;
-                curr.let_bnd = nam;
+                curr.let_bnd.namid = nid;
                 push_state(curr, &stack);
 
                 struct state newcurr;
@@ -237,23 +245,21 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
             }
             default:
                 PRINT_MSG("Unexpected token", tok);
-                retval = as_node(NULL);
+                retval = -1;
                 continue;
             }
         }
 
         case S_LAM_BOD: {
-            single_t *s = halloc_single();
-            leaf_t *l = curr.lam_bod.leaf;
-            s->leaf = address_of(l);
+            single_t s = curr.lam_bod.uninit;
             connect_child(retval, s);
-            retval = as_node(s);
-            rem_binding(l->name, as_node(l), &env);
+            retval = s;
+            rem_binding(curr.lam_bod.namid, get_leaf(s), &env);
             continue;
         }
 
         case S_APP_FUN: {
-            branch_t *b = halloc_branch();
+            branch_t b = halloc_branch();
             connect_lchild(retval, b);
 
             curr.tag = S_APP_ARG;
@@ -268,27 +274,27 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
         }
 
         case S_APP_ARG: {
-            branch_t *b = curr.app_arg;
+            branch_t b = curr.app_arg;
             connect_rchild(retval, b);
 
             tok = read_token(h);
             if (tok.tag != T_RPAR) {
                 PRINT_MSG("Expected ')'", tok);
-                retval = as_node(NULL);
+                retval = -1;
                 continue;
             }
 
-            retval = as_node(b);
+            retval = b;
             continue;
         }
 
         case S_LET_BND: {
-            struct name *nam = curr.let_bnd;
+            int32_t nid = curr.let_bnd.namid;
             node_t bnd = retval;
-            add_binding(nam, bnd, &env);
+            add_binding(nid, bnd, &env);
 
             curr.tag = S_LET_BOD;
-            curr.let_bod.name = nam;
+            curr.let_bod.namid = nid;
             curr.let_bod.bound = bnd;
             push_state(curr, &stack);
 
@@ -300,15 +306,15 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
         }
 
         case S_LET_BOD: {
-            struct name *nam = curr.let_bod.name;
+            int32_t nid = curr.let_bod.namid;
             node_t bnd = curr.let_bod.bound;
-            rem_binding(nam, bnd, &env);
+            rem_binding(nid, bnd, &env);
             continue;
         }
 
         default:
             fprintf(stderr, "Inexplicable parse error.\n");
-            return as_node(NULL);
+            return -1;
         }
     }
     return retval;

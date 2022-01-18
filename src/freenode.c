@@ -1,7 +1,16 @@
 /* ***** ***** */
 
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdbool.h>
 #include "freenode.h"
-#include "stdbool.h"
+#include "malcheck.h"
+#include "heap.h"
+#include "uplink.h"
+#include "leaf.h"
+#include "single.h"
+#include "branch.h"
+#include "node.h"
 
 /* ***** ***** */
 

@@ -5,6 +5,7 @@
 
 /* ***** ***** */
 
+#include <stdint.h>
 #include "types.h"
 #include "heap.h"
 #include "uplink.h"

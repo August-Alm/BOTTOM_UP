@@ -25,17 +25,14 @@ enum token_tag {
 };
 
 struct token {
-	struct name *name;
-	uint32_t line;
-	uint32_t column;
+	char *name;
+	int line;
+	int column;
 	enum token_tag tag;
 };
 
 FORCEINLINE
-struct token mk_token(struct name *nam,
-                      uint32_t lin,
-                      uint32_t col,
-                      enum token_tag tag)
+struct token mk_token(char *nam, int lin, int col, enum token_tag tag)
 {
 	return (struct token) {
 		.name = nam,

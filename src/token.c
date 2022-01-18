@@ -2,24 +2,23 @@
 
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include "token.h"
 #include "malcheck.h"
 #include "name.h"
 #include "input.h"
-#include "token.h"
 
 /* ***** ***** */
 
 extern
-struct token mk_token(struct name *nam,
-                      uint32_t lin, uint32_t col,
-                      enum token_tag tag);
+struct token mk_token(char *nam, int lin, int col, enum token_tag tag);
 
 /* ***** ***** */
 
-#define NAME_LEN 12
+#define NAME_LEN 16
 
 static
-struct name *read_name(char c, struct input_handle *h)
+char *read_name(char c, struct input_handle *h)
 {
     char *str = calloc(1, sizeof(char) * NAME_LEN);
     MALCHECK0(str);
@@ -31,7 +30,7 @@ struct name *read_name(char c, struct input_handle *h)
         cnext = peek_char(h);
     }
     str[i] = c;
-    return get_name(str);
+    str;
 }
 
 /* ***** ***** */
@@ -91,7 +90,7 @@ void fprintf_token(FILE *fp, struct token tok)
 {
     switch (tok.tag) {
     case T_NAME:
-        fprintf(fp, "T_NAME: %s ", tok.name->str);
+        fprintf(fp, "T_NAME: %s ", tok.name);
         break;
     case T_LAM:
         fprintf(fp, "T_LAM ");

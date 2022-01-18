@@ -1,13 +1,12 @@
 /* ***** ***** */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include "malcheck.h"
-#include "types.h"
 #include "heap.h"
 #include "leaf.h"
 #include "single.h"
 #include "branch.h"
-#include "name.h"
 
 /* ***** ***** */
 

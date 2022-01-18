@@ -6,13 +6,12 @@
 /* ***** ***** */
 
 #include "types.h"
-#include "reduce.h"
 
 /* ***** ***** */
 
-struct node normalize_wh(struct node nd);
+void normalize_wh(node_t *nd);
 
-struct node normalize(struct node nd);
+void normalize(node_t *nd);
 
 /* ***** ***** */
 

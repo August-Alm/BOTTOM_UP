@@ -10,7 +10,7 @@
 
 /* ***** ***** */
 
-void fprintf_node(FILE *fp, struct node node);
+void fprintf_node(FILE *fp, node_t node);
 
 /* ***** ***** */
 

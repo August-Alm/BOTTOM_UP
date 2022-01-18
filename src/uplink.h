@@ -5,9 +5,7 @@
 
 /* ***** ***** */
 
-#include <stddef.h>
 #include <stdbool.h>
-#include "containerof.h"
 #include "forceinline.h"
 #include "types.h"
 #include "heap.h"
