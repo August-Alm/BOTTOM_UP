@@ -87,13 +87,11 @@ branch_t is_redex(node_t nd)
 
 void normalize_wh(node_t *nd)
 {
-    node_t res = *nd;
-    branch_t b = is_redex(res);
+    branch_t b = is_redex(*nd);
     while (b != -1) {
-        res = reduce(b);
-        b = is_redex(res);
+        *nd = reduce(b);
+        b = is_redex(*nd);
     }
-    *nd = res;
 }
 
 /* ***** ***** */

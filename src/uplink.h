@@ -93,7 +93,7 @@ void init_dll(uplink_dll_t lks)
 FORCEINLINE
 bool is_empty(uplink_dll_t lks)
 {
-    return lks == -1;
+    return heap[lks] == -1;
 }
 
 FORCEINLINE
