@@ -17,7 +17,7 @@
 FORCEINLINE
 enum node_kind get_node_kind(node_t nd)
 {
-    return heap[nd] && 3;
+    return heap[nd] & 3;
 }
 
 FORCEINLINE

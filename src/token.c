@@ -72,22 +72,6 @@ struct token read_token(struct input_handle *h)
 
 /* ***** ***** */
 
-bool consume_token(struct input_handle *h, enum token_tag tag)
-{
-    read_nonspace_char(h);
-    int curr_lin = current_line(h);
-    int curr_col = current_column(h);
-
-	struct token tok = read_token(h);
-	if (tok.tag != tag) {
-		fprintf(stderr, "Unexpected token at (%d, %d).\n", curr_lin, curr_col);
-		return false;
-	}
-	return true;
-}
-
-/* ***** ***** */
-
 void fprintf_token(FILE *fp, struct token tok)
 {
     switch (tok.tag) {

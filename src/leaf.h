@@ -15,7 +15,7 @@
 FORCEINLINE
 int32_t get_leaf_id(leaf_t l)
 {
-    return heap[l] && 3;
+    return heap[l] & 3;
 }
 
 FORCEINLINE

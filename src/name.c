@@ -54,6 +54,7 @@ char *get_name(int32_t nid)
 
 int32_t add_name(char *str)
 {
+    fprintf(stderr, "adding %s ", str);
     int32_t nid = get_name_id(str);
     if (nid != -1) {
         free(str);
@@ -62,6 +63,7 @@ int32_t add_name(char *str)
     int32_t idx = count;
     names[idx] = str;
     ++count;
+    fprintf(stderr, "normal... xid = %i\n", idx);
     return idx;
 }
 

@@ -51,8 +51,6 @@ struct token mk_token(char *nam, int lin, int col, enum token_tag tag)
 
 struct token read_token(struct input_handle *h);
 
-bool consume_token(struct input_handle *h, enum token_tag tag);
-
 /* ***** ***** */
 
 void fprintf_token(FILE *fp, struct token tok);

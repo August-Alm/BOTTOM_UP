@@ -145,6 +145,16 @@ void connect_rchild(node_t rch, branch_t b)
 
 /* ***** ***** */
 
+bool consume_token(struct input_handle *h, enum token_tag tag)
+{
+	struct token tok = read_token(h);
+	if (tok.tag != tag) {
+		PRINT_MSG("Unexpected token", tok);
+		return false;
+	}
+	return true;
+}
+
 static
 node_t parse_env(struct input_handle *h, struct env_sll *env)
 {
@@ -152,6 +162,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
     switch (tok.tag) {
     case T_LAM: {
         tok = read_token(h);
+        if (tok.tag != T_NAME) PRINT_MSG("Expected name.", tok);
         int32_t xid = add_name(tok.name);
         single_t s = halloc_single();
         init_single(s, xid);
@@ -175,12 +186,13 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
     case T_NAME: {
         node_t x = get_bound(env, add_name(tok.name));
         if (x == -1) {
-            fprintf(stderr, "Free variable at (%d, %d).\n", tok.line, tok.column);
+            PRINT_MSG("Free variable.", tok);
         }
         return x;
     }
     case T_LET: {
         tok = read_token(h);
+        if (tok.tag != T_NAME) PRINT_MSG("Expected name.", tok);
         int32_t xid = add_name(tok.name);
         consume_token(h, T_EQ);
         node_t bnd = parse_env(h, env);
