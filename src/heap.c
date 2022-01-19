@@ -1,13 +1,14 @@
 /* ***** ***** */
 
-#include <stdlib.h>
-#include <stdint.h>
 #include "memory.h"
 #include "malcheck.h"
 #include "heap.h"
 #include "leaf.h"
 #include "single.h"
 #include "branch.h"
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
 
 /* ***** ***** */
 
@@ -89,10 +90,10 @@ single_t halloc_single()
 {
     if (top_cleared_singles == -1) {
         single_t s = idx_heap;
-        if (s < HEAP_MAX - sizeof(struct single)) {
-            struct single *sptr = (struct single*)(heap + s);
+        if (s < HEAP_MAX - 8) {
+            struct single *sptr = heap + s;
             *sptr = single_init;
-            idx_heap += sizeof(struct single);
+            idx_heap += 8;
             return s;
         }
         fprintf(stderr, "`heap` full.\n");
@@ -137,10 +138,10 @@ branch_t halloc_branch()
 {
     if (top_cleared_branches == -1) {
         branch_t b = idx_heap;
-        if (b < HEAP_MAX - sizeof(struct branch)) {
-            struct branch *bptr = (struct branch*)(heap + b);
+        if (b < HEAP_MAX - 11) {
+            struct branch *bptr = heap + b;
             *bptr = branch_init;
-            idx_heap += sizeof(struct branch);
+            idx_heap += 11;
             return b;
         }
         fprintf(stderr, "`heap` full.\n");
