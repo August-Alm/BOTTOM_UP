@@ -14,7 +14,7 @@ typedef int32_t address_t;
 /* ***** ***** */
 
 enum node_kind {
-    LEAF_NODE,
+    LEAF_NODE = 0,
     SINGLE_NODE,
     BRANCH_NODE
 };
@@ -24,7 +24,7 @@ typedef int32_t node_t;
 /* ***** ***** */
 
 enum uplink_rel {
-    CHILD_REL,
+    CHILD_REL = 0,
     LCHILD_REL,
     RCHILD_REL
 };
