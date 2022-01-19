@@ -120,9 +120,6 @@ void test6(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
-    for (int i = 0; i < 40; ++i) {
-        fprintf(stderr, "heap[%i] = %i\n", i, heap[i]);
-    }
     normalize(&result);
     fprintf_node(stdout, result);
  
@@ -131,13 +128,13 @@ void test6(void)
 }
 
 const char *test7_desc = "t: article example"
-    "\"\\u.\\t.(\\x. @ f = \\y.(x (u y)); \r\n ((x f) f) t)\"";
+    "\"\\u.\\t.(\\x. @f = \\y.(x (u y));((x f) f) t)\"";
 void test7(void)
 {
     memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup(
-       "\\u.\\t.(\\x. @ f = \\y.(x (u y)); \r\n ((x f) f) t)"
+       "\\u.\\t.(\\x. @f = \\y.(x (u y));((x f) f) t)"
     ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);

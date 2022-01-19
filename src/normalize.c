@@ -38,11 +38,13 @@ void norm_stack_free()
     free(norm_stack);
 }
 
+static inline
 int norm_stack_count()
 {
     return top_norm_stack + 1;
 }
 
+static
 void norm_stack_push(bool islch, node_t rt, node_t nd)
 {
     if (top_norm_stack < NORM_STACK_MAX - 1) {
@@ -52,10 +54,11 @@ void norm_stack_push(bool islch, node_t rt, node_t nd)
     else {
         fprintf(stderr, "`norm_stack` full.\n");
         memory_free();
-        exit(EXIT_FAILURE);
+        abort();
     }
 }
 
+static
 struct normstate norm_stack_pop()
 {
     return norm_stack[top_norm_stack--];
@@ -124,27 +127,51 @@ void normalize_iter(node_t *node)
                 *node = root;
                 break;
             }
+            continue;
         }
-        else {
-            switch (get_node_kind(*node)) {
-            case SINGLE_NODE: {
-                node_t red = reduce(nd);
-                if (nd == root) norm_stack_push(false, red, red);
-                else norm_stack_push(false, root, red);
-                break;
-            }
-            default:
-                norm_stack_push(false, root, get_rchild(nd));
-                break;
-            }
+        switch (get_node_kind(*node)) {
+        case SINGLE_NODE: {
+            node_t red = reduce(nd);
+            if (nd == root) norm_stack_push(false, red, red);
+            else norm_stack_push(false, root, red);
+            break;
+        }
+        default:
+            norm_stack_push(false, root, get_rchild(nd));
+            break;
         }
     }
 }
 
 /* ***** ***** */
 
+node_t loop(node_t root, node_t nd)
+{
+    switch (get_node_kind(nd)) {
+    case SINGLE_NODE:
+        return loop(root, get_child(nd));
+    case BRANCH_NODE: {
+        node_t lch = get_lchild(nd);
+        node_t new = loop(lch, lch);
+        switch (get_node_kind(new)) {
+        case SINGLE_NODE: {
+            node_t red = reduce(nd);
+            if (nd == root) return loop(red, red);
+            else return loop(root, red);
+        }
+        default:
+            return loop(root, get_rchild(nd));
+        }
+    }
+    default: // LEAF
+        return root;
+    }
+}
+
 void normalize_rec(node_t *nd)
 {
+    *nd = loop(*nd, *nd);
+    /*
     switch (get_node_kind(*nd)) {
         case LEAF_NODE:
             return;
@@ -168,13 +195,14 @@ void normalize_rec(node_t *nd)
             break;
         }
     }
+    */
 }
 
 /* ***** ***** */
 
 void normalize(node_t *nd)
 {
-    normalize_iter(nd);
+    normalize_rec(nd);
 }
 
 /* ***** ***** */

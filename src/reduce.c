@@ -34,11 +34,13 @@ void single_stack_free()
     free(single_stack);
 }
 
+static inline
 int single_stack_count()
 {
     return top_single_stack + 1;
 }
 
+static inline
 void single_stack_push(single_t x)
 {
     if (top_single_stack < SINGLE_STACK_MAX - 1) {
@@ -51,11 +53,13 @@ void single_stack_push(single_t x)
     }
 }
 
+static inline
 single_t single_stack_pop()
 {
     return single_stack[top_single_stack--];
 }
 
+static inline
 bool single_stack_trypop(single_t *x)
 {
     if (top_single_stack >= 0) {
@@ -72,6 +76,7 @@ struct nodebranch {
     branch_t top_app;
 };
 
+static
 struct nodebranch helper
     (node_t nd, enum node_kind knd, node_t argm, uplink_dll_t varpars)
 {
@@ -88,6 +93,7 @@ struct nodebranch helper
     };
 }
 
+static
 struct nodebranch scandown(node_t nd, node_t argm, uplink_dll_t varpars)
 {
     struct nodebranch dch_topapp;
@@ -96,11 +102,12 @@ struct nodebranch scandown(node_t nd, node_t argm, uplink_dll_t varpars)
         single_t s = nd;
         node_t ch = get_child(s);        
         knd = get_node_kind(ch);
-        single_stack_push(nd);
+        single_stack_push(s);
         while (knd == SINGLE_NODE) {
             s = ch;
             ch = get_child(s);
             knd = get_node_kind(ch);
+            single_stack_push(s);
         }
         dch_topapp = helper(ch, knd, argm, varpars);
     }
@@ -108,8 +115,9 @@ struct nodebranch scandown(node_t nd, node_t argm, uplink_dll_t varpars)
         dch_topapp = helper(nd, knd, argm, varpars);
     }
     node_t dch = dch_topapp.deep_child;
-    single_t g = -1;
-    while (single_stack_trypop(&g)) {
+    single_t g;
+    while (single_stack_count() > 0) {
+        g = single_stack_pop();
         dch = new_single(get_leaf(g), dch);
     }
     dch_topapp.deep_child = dch;
@@ -118,6 +126,7 @@ struct nodebranch scandown(node_t nd, node_t argm, uplink_dll_t varpars)
 
 /* ***** ***** */
 
+static
 void install_child(node_t nd, uplink_t lk)
 {
     switch (get_rel(lk)) {
@@ -133,6 +142,7 @@ void install_child(node_t nd, uplink_t lk)
     }
 }
 
+static
 void replace_child(node_t newch, uplink_dll_t oldpars)
 {
     if (is_empty(oldpars)) return;
@@ -161,7 +171,7 @@ node_t reduce(branch_t redex)
     uplink_dll_t lampars = get_single_parents(func);
     uplink_dll_t varpars = get_leaf_parents(var);
 
-    if (varpars == -1) {
+    if (is_empty(varpars)) {
         replace_child(body, get_branch_parents(redex));
         free_node(redex);
         return body;
