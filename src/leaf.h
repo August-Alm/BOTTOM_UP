@@ -35,7 +35,7 @@ void set_leaf_name_id(leaf_t l, int32_t nid)
 FORCEINLINE
 uplink_dll_t get_leaf_parents(leaf_t l)
 {
-    return heap[l + 1];
+    return l + 1;
 }
 
 FORCEINLINE

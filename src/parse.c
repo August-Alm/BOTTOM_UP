@@ -155,6 +155,7 @@ bool consume_token(struct input_handle *h, enum token_tag tag)
 	return true;
 }
 
+
 static
 node_t parse_env(struct input_handle *h, struct env_sll *env)
 {
@@ -185,9 +186,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
     }
     case T_NAME: {
         node_t x = get_bound(env, add_name(tok.name));
-        if (x == -1) {
-            PRINT_MSG("Free variable.", tok);
-        }
+        if (x == -1) PRINT_MSG("Free variable.", tok);
         return x;
     }
     case T_LET: {
@@ -231,7 +230,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
             tok = read_token(h);
             switch (tok.tag) {
             case T_NAME: {
-                retval = get_bound(env, get_name_id(tok.name));
+                retval = get_bound(env, add_name(tok.name));
                 continue;
             }
             case T_LAM: {
@@ -242,17 +241,15 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
                     continue;
 		        }
                 int32_t nid = add_name(tok.name);
-		        tok = read_token(h);
-		        if (tok.tag != T_DOT) {
-		            PRINT_MSG("Expected '.'", tok);
-		            retval = -1;
+                if (!consume_token(h, T_DOT)) {
+                    retval = -1;
                     continue;
-		        }
+                }
 
                 single_t s = halloc_single();
                 leaf_t l = get_leaf(s);
                 set_leaf_name_id(l, nid);
-		        add_binding(nid, l, &env);
+		        add_bound(nid, l, &env);
 
                 curr.tag = S_LAM_BOD;
                 curr.lam_bod = s;
@@ -280,13 +277,10 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
                     continue;
                 }
                 int32_t nid = add_name(tok.name);
-                tok = read_token(h);
-                if (tok.tag != T_EQ) {
-                    PRINT_MSG("Expected '='", tok);
+                if (!consume_token(h, T_EQ)) {
                     retval = -1;
                     continue;
                 }
-
                 curr.tag = S_LET_BND;
                 curr.let_bnd = nid;
                 push_state(curr, &stack);
@@ -309,7 +303,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
             retval = s;
             leaf_t l = get_leaf(s);
             int32_t nid = get_leaf_id(l);
-            rem_binding(nid, l, &env);
+            rem_bound(nid, l, &env);
             continue;
         }
 
@@ -331,9 +325,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
             branch_t b = curr.app_arg;
             connect_rchild(retval, b);
 
-            tok = read_token(h);
-            if (tok.tag != T_RPAR) {
-                PRINT_MSG("Expected ')'", tok);
+            if (!consume_token(h, T_RPAR)) {
                 retval = -1;
                 continue;
             }
@@ -345,7 +337,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
         case S_LET_BND: {
             int32_t nid = curr.let_bnd;
             node_t bnd = retval;
-            add_binding(nid, bnd, &env);
+            add_bound(nid, bnd, &env);
 
             curr.tag = S_LET_BOD;
             curr.let_bod.namid = nid;
@@ -359,9 +351,13 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
         }
 
         case S_LET_BOD: {
+            if (!consume_token(h, T_SCLN)) {
+                retval = -1;
+                continue;
+            }
             int32_t nid = curr.let_bod.namid;
             node_t bnd = curr.let_bod.bound;
-            rem_binding(nid, bnd, &env);
+            rem_bound(nid, bnd, &env);
             continue;
         }
 

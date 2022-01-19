@@ -69,7 +69,7 @@ void test3(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
-    //fprintf_node(stdout, result);
+    fprintf_node(stdout, result);
 
     free_string_handle(sh);
     memory_free();
@@ -85,7 +85,7 @@ void test4(void)
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
-    //fprintf_node(stdout, result);
+    fprintf_node(stdout, result);
 
     free_string_handle(sh);
     memory_free();
@@ -102,7 +102,7 @@ void test5(void)
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
     normalize_wh(&result);
-    //fprintf_node(stdout, result);
+    fprintf_node(stdout, result);
 
     free_string_handle(sh);
     memory_free();
@@ -122,7 +122,7 @@ void test6(void)
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
     normalize(&result);
-    //fprintf_node(stdout, result);
+    fprintf_node(stdout, result);
  
     free_string_handle(sh);
     memory_free();
@@ -142,7 +142,7 @@ void test7(void)
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t res = parse_node(ih);
     normalize(&res);
-    //fprintf_node(stdout, res);
+    fprintf_node(stdout, res);
 
     free_string_handle(sh);
     memory_free();
@@ -169,11 +169,11 @@ int main(void)
     if (
         !CU_add_test(test_suite, test1_desc, test1) ||
         !CU_add_test(test_suite, test2_desc, test2) ||
-        !CU_add_test(test_suite, test3_desc, test3) //||
-       // !CU_add_test(test_suite, test4_desc, test4) ||
-       // !CU_add_test(test_suite, test5_desc, test5) ||
-       // !CU_add_test(test_suite, test6_desc, test6) ||
-       // !CU_add_test(test_suite, test7_desc, test7)
+        !CU_add_test(test_suite, test3_desc, test3) ||
+        !CU_add_test(test_suite, test4_desc, test4) ||
+        !CU_add_test(test_suite, test5_desc, test5) ||
+        !CU_add_test(test_suite, test6_desc, test6) ||
+        !CU_add_test(test_suite, test7_desc, test7)
 
 	) {
 	    CU_cleanup_registry();

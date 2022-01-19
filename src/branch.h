@@ -51,7 +51,7 @@ uplink_t get_rchild_uplink(branch_t b)
 FORCEINLINE
 uplink_dll_t get_branch_parents(branch_t b)
 {
-    return heap[b + 9];
+    return b + 9;
 }
 
 FORCEINLINE

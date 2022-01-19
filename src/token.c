@@ -96,6 +96,9 @@ void fprintf_token(FILE *fp, struct token tok)
     case T_EQ:
         fprintf(fp, "T_EQ ");
         break;
+    case T_SCLN:
+        fprintf(fp, "T_SCLN ");
+        break;
     case T_EOF:
         fprintf(fp, "T_EOF ");
         break;

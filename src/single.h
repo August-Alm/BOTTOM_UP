@@ -47,7 +47,7 @@ uplink_t get_child_uplink(single_t s)
 FORCEINLINE
 uplink_dll_t get_single_parents(single_t s)
 {
-    return heap[s + 7];
+    return s + 7;
 }
 
 FORCEINLINE
