@@ -96,36 +96,40 @@ void normalize_wh(node_t *nd)
 
 /* ***** ***** */
 
-void normalize_iter(node_t *nd)
+void normalize_iter(node_t *node)
 {
-    bool is_lch = false;
-    node_t root = *nd;
-    node_t node = *nd;
-    norm_stack_push(is_lch, root, node);
+    norm_stack_push(false, *node, *node);
 
-    while (norm_stack_trypop(&is_lch, &root, &node)) {
+    struct normstate ns;
+    node_t root;
+    node_t nd;
 
-        if (!is_lch) {
-            switch (get_node_kind(node)) {
+    while (norm_stack_count() > 0) {
+        ns = norm_stack_pop();
+        root = ns.root;
+        nd = ns.node;
+
+        if (!ns.is_lch) {
+            switch (get_node_kind(nd)) {
             case LEAF_NODE:
-                *nd = root;
+                *node = root;
                 continue;
             case SINGLE_NODE: {
-                node_t ch = get_child(node);
+                node_t ch = get_child(nd);
                 norm_stack_push(false, root, ch);
                 continue;
             }
             case BRANCH_NODE: {
-                node_t lch = get_lchild(node);
-                norm_stack_push(true, root, node);
+                node_t lch = get_lchild(nd);
+                norm_stack_push(true, root, nd);
                 norm_stack_push(false, lch, lch);
                 continue;
             }
             }
         }
-        if (get_node_kind(*nd) == SINGLE_NODE) {
-            node_t red = reduce(node);
-            if (node == root) {
+        if (get_node_kind(nd) == SINGLE_NODE) {
+            node_t red = reduce(nd);
+            if (nd == root) {
                 norm_stack_push(false, red, red);
             }
             else {
@@ -133,7 +137,7 @@ void normalize_iter(node_t *nd)
             }
         }
         else {
-            node_t rch = get_rchild(node);
+            node_t rch = get_rchild(nd);
             norm_stack_push(false, root, rch);
         }
     }
@@ -163,6 +167,7 @@ void normalize_rec(node_t *nd)
                 node_t rch = get_rchild(b);
                 normalize_rec(&rch);
             }
+            break;
         }
     }
 }
@@ -171,7 +176,7 @@ void normalize_rec(node_t *nd)
 
 void normalize(node_t *nd)
 {
-    normalize_rec(nd);
+    normalize_iter(nd);
 }
 
 /* ***** ***** */

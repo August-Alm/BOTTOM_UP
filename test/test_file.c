@@ -108,13 +108,13 @@ void test5(void)
     memory_free();
 }
 
-const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)); \r\n (two two)\"";
+const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)); (two two)\"";
 void test6(void)
 {
     memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup(
-       "@ two = \\f.\\x.(f (f x)); \r\n (two two)"
+       "@ two = \\f.\\x.(f (f x)); (two two)"
     ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);

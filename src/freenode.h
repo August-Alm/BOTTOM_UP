@@ -9,9 +9,9 @@
 
 /* ***** ***** */
 
-void uplink_dll_stack_setup();
+void cleanup_stack_setup();
 
-void uplink_dll_stack_free();
+void cleanup_stack_free();
 
 void free_stack_setup();
 
