@@ -23,7 +23,7 @@ int32_t get_single_id(single_t s)
 FORCEINLINE
 leaf_t get_leaf(single_t s)
 {
-    return heap[s + 1];
+    return s + 1;
 }
 
 FORCEINLINE
@@ -41,7 +41,7 @@ void set_child(single_t s, node_t ch)
 FORCEINLINE
 uplink_t get_child_uplink(single_t s)
 {
-    return heap[s + 4];
+    return s + 4;
 }
 
 FORCEINLINE

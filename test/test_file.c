@@ -109,13 +109,12 @@ void test5(void)
 }
 
 const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)); \r\n (two two)\"";
-//@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)\"";
 void test6(void)
 {
     memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup(
-       "\\x.(\\g.\\y.(g (g y)) (\\g.\\y.(g (g y)) x))" //"@ two = \\f.\\x.(f (f x)) \r\n (two two)"
+       "@ two = \\f.\\x.(f (f x)); \r\n (two two)"
     ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);

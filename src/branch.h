@@ -39,13 +39,13 @@ void set_rchild(branch_t b, node_t rch)
 FORCEINLINE
 uplink_t get_lchild_uplink(branch_t b)
 {
-    return heap[b + 3];
+    return b + 3;
 }
 
 FORCEINLINE
 uplink_t get_rchild_uplink(branch_t b)
 {
-    return heap[b + 6];
+    return b + 6;
 }
 
 FORCEINLINE
