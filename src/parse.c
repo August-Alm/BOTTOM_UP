@@ -180,6 +180,7 @@ node_t parse_env(struct input_handle *h, struct env_sll *env)
         return x;
     }
     case T_LET: {
+        tok = read_token(h);
         int32_t xid = add_name(tok.name);
         consume_token(h, T_EQ);
         node_t bnd = parse_env(h, env);

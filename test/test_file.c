@@ -75,12 +75,12 @@ void test3(void)
     memory_free();
 }
 
-const char *test4_desc = "4: parse and print input \"@ f = \\x.x (f f)\"";
+const char *test4_desc = "4: parse and print input \"@ f = \\x.x; (f f)\"";
 void test4(void)
 {
     memory_setup();
 
-    struct string_handle *sh = new_string_handle(strdup("@ f = \\x.x (f f)"));
+    struct string_handle *sh = new_string_handle(strdup("@ f = \\x.x; (f f)"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
@@ -108,7 +108,7 @@ void test5(void)
     memory_free();
 }
 
-const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)) \r\n (two two)\"";
+const char *test6_desc = "6: normalize \"@ two = \\f.\\x.(f (f x)); \r\n (two two)\"";
 //@ two = \\f.\\x.(f (f x)) \r\n ((\\m.\\n.\\g.\\y.((m (n g)) y) two) two)\"";
 void test6(void)
 {
@@ -129,13 +129,13 @@ void test6(void)
 }
 
 const char *test7_desc = "t: article example"
-    "\"\\u.\\t.(\\x. @ f = \\y.(x (u y)) \r\n ((x f) f) t)\"";
+    "\"\\u.\\t.(\\x. @ f = \\y.(x (u y)); \r\n ((x f) f) t)\"";
 void test7(void)
 {
     memory_setup();
 
     struct string_handle *sh = new_string_handle(strdup(
-       "\\u.\\t.(\\x. @ f = \\y.(x (u y)) \r\n ((x f) f) t)"
+       "\\u.\\t.(\\x. @ f = \\y.(x (u y)); \r\n ((x f) f) t)"
     ));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
