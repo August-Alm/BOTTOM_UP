@@ -109,37 +109,34 @@ void normalize_iter(node_t *node)
         root = ns.root;
         nd = ns.node;
 
-        if (!ns.is_lch) {
+        if (!(ns.is_lch)) {
             switch (get_node_kind(nd)) {
-            case LEAF_NODE:
-                *node = root;
+            case SINGLE_NODE: 
+                norm_stack_push(false, root, get_child(nd));
                 break;
-            case SINGLE_NODE: {
-                node_t ch = get_child(nd);
-                norm_stack_push(false, root, ch);
-                break;
-            }
             case BRANCH_NODE: {
                 node_t lch = get_lchild(nd);
                 norm_stack_push(true, root, nd);
                 norm_stack_push(false, lch, lch);
                 break;
             }
-            }
-            continue;
-        }
-        if (get_node_kind(*node) == SINGLE_NODE) {
-            node_t red = reduce(nd);
-            if (nd == root) {
-                norm_stack_push(false, red, red);
-            }
-            else {
-                norm_stack_push(false, root, red);
+            default: // LEAF_NODE:
+                *node = root;
+                break;
             }
         }
         else {
-            node_t rch = get_rchild(nd);
-            norm_stack_push(false, root, rch);
+            switch (get_node_kind(*node)) {
+            case SINGLE_NODE: {
+                node_t red = reduce(nd);
+                if (nd == root) norm_stack_push(false, red, red);
+                else norm_stack_push(false, root, red);
+                break;
+            }
+            default:
+                norm_stack_push(false, root, get_rchild(nd));
+                break;
+            }
         }
     }
 }
