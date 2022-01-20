@@ -190,8 +190,7 @@ node_t loop(node_t root, node_t nd)
 
 void normalize_rec(node_t *nd)
 {
-    *nd = loop(*nd, *nd);
-    /*
+    //*nd = loop(*nd, *nd);
     switch (get_node_kind(*nd)) {
         case LEAF_NODE:
             return;
@@ -215,7 +214,6 @@ void normalize_rec(node_t *nd)
             break;
         }
     }
-    */
 }
 
 /* ***** ***** */

@@ -157,7 +157,7 @@ void test5(void)
     memory_free();
 }
 
-const char *test6_desc = "6: normalize church ((2*5)^2)^2 = 10k.";
+const char *test6_desc = "6: normalize church ((2*5)^2)^2 * (2*5)^2 = 10k.";
 void test6(void)
 {
     memory_setup();
@@ -169,15 +169,14 @@ void test6(void)
         @ ten = ((mul two) five); \
         @ hundred = ((mul ten) ten); \
         @ tenk = ((mul hundred) hundred); \
-        tenk"));
-        //@ oneM = ((mul tenk) tenk); \
-        //oneM"));
+        @ oneM = ((mul tenk) hundred); \
+        oneM"));
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
     node_t result = parse_node(ih);
     normalize(&result);
-    CU_ASSERT_EQUAL(church_to_int(result), 10000); //1000000);
+    CU_ASSERT_EQUAL(church_to_int(result), 1000000);
 
     free_string_handle(sh);
     memory_free();
