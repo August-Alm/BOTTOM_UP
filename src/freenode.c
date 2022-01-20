@@ -132,8 +132,8 @@ void cleanup_uplink(uplink_t lk)
         branch_t cc = get_cache(nd);
         if (cc != -1) {
             clear_cache(nd);
-            add_to_parents(get_lchild_uplink(cc), get_lchild(nd));
-            add_to_parents(get_rchild_uplink(cc), get_rchild(nd));
+            add_to_parents(get_lchild_uplink(cc), get_lchild(cc));
+            add_to_parents(get_rchild_uplink(cc), get_rchild(cc));
             cleanup_stack_push(get_branch_parents(nd));
         }
         break;

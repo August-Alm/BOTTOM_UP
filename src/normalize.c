@@ -99,6 +99,26 @@ void normalize_wh(node_t *nd)
 
 /* ***** ***** */
 
+void mytest(node_t nd, int iter)
+{
+    int m;
+    switch (get_node_kind(nd)) {
+    case LEAF_NODE:
+        m = 2;
+        break;
+    case SINGLE_NODE:
+        m = 8;
+        break; 
+    default:
+        m = 11;
+        break;
+    }
+    fprintf(stderr, "\nIteration %i\n", iter);
+    for (int i = nd; i < nd + m; ++i) {
+        fprintf(stderr, "heap[%i] = %i\n", i, heap[i]);
+    }
+}
+
 void normalize_iter(node_t *node)
 {
     norm_stack_push(false, *node, *node);
@@ -107,10 +127,15 @@ void normalize_iter(node_t *node)
     node_t root;
     node_t nd;
 
-    while (norm_stack_count() > 0) {
+    int iter = 0;
+
+    while (norm_stack_count() > 0 && iter < 20) {
         ns = norm_stack_pop();
         root = ns.root;
         nd = ns.node;
+
+        //mytest(nd, iter);
+        //++iter;
 
         if (!(ns.is_lch)) {
             switch (get_node_kind(nd)) {
@@ -202,7 +227,7 @@ void normalize_rec(node_t *nd)
 
 void normalize(node_t *nd)
 {
-    normalize_rec(nd);
+    normalize_iter(nd);
 }
 
 /* ***** ***** */

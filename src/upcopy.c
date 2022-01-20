@@ -124,7 +124,7 @@ void upcopy_uplink(node_t newch, uplink_t par)
         branch_t b = get_node(par);
         branch_t cc = get_cache(b);
         if (cc == -1) {
-            node_t nd = new_branch(newch, get_lchild(b));
+            node_t nd = new_branch(get_lchild(b), newch);
             set_cache(b, nd);
             upcopy_stack_push(nd, get_branch_parents(b));
         }
