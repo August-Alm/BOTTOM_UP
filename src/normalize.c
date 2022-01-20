@@ -127,15 +127,10 @@ void normalize_iter(node_t *node)
     node_t root;
     node_t nd;
 
-    int iter = 0;
-
-    while (norm_stack_count() > 0 && iter < 20) {
+    while (norm_stack_count() > 0) {
         ns = norm_stack_pop();
         root = ns.root;
         nd = ns.node;
-
-        //mytest(nd, iter);
-        //++iter;
 
         if (!(ns.is_lch)) {
             switch (get_node_kind(nd)) {

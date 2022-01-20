@@ -31,7 +31,8 @@ $(LINK_TEST): clean
 VALGRIND = --leak-check=full --track-origins=yes --show-leak-kinds=all
 
 tests: $(LINK_TEST)
-	valgrind $(VALGRIND) ./$(LINK_TEST)
+	./$^
+#valgrind $(VALGRIND) ./$(LINK_TEST)
 
 memtest: all
 	$(VALGRIND) ./$(LINK_TAR)  $(TEST_FILE)
