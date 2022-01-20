@@ -157,7 +157,7 @@ void test5(void)
     memory_free();
 }
 
-const char *test6_desc = "6: normalize church ((2*5)^2)^2 * (2*5)^2 = 10k.";
+const char *test6_desc = "6: normalize church ((2*5)^2)^2 * (2*5)^2 = 1M.";
 void test6(void)
 {
     memory_setup();
