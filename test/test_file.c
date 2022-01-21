@@ -16,7 +16,7 @@
 #include "../src/types.h"
 #include "../src/print.h"
 #include "../src/normalize.h"
-
+#include <time.h>
 #include <string.h>
 
 /* ***** ***** */
@@ -174,8 +174,13 @@ void test6(void)
     CU_ASSERT_PTR_NOT_NULL(sh);
     struct input_handle *ih = input_from_string(sh);
     CU_ASSERT_PTR_NOT_NULL(ih);
+    struct timespec tic, toc;
+    clock_t begin = clock();
     node_t result = parse_node(ih);
     normalize(&result);
+    clock_t end = clock();
+    double spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("test6 unreliable time = %f seconds\n", spent);
     CU_ASSERT_EQUAL(church_to_int(result), 1000000);
 
     free_string_handle(sh);
