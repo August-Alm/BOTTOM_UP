@@ -120,11 +120,11 @@ void iter_dll(uplink_action_t act, uplink_dll_t lks)
 {
     uplink_t lk = get_head(lks);
     if (lk == -1) return;
-    uplink_t nxt = get_next(lk);
+    uplink_t nxt = -1;
     while (lk != -1) {
         (*act)(lk);
-        lk = nxt;
         nxt = get_next(lk);
+        lk = nxt;
     }
 }
 
